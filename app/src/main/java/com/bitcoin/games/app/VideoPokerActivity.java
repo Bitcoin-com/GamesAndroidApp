@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -729,8 +730,11 @@ public class VideoPokerActivity extends GameActivity {
     mIsAutoOn = auto;
     updateControls();
     if (auto) {
+      getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
       mIsFirstAutoAction = true;
       checkAuto();
+    } else {
+      getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
   }
 

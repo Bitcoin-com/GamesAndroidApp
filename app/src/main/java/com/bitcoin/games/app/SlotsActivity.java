@@ -22,6 +22,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -788,12 +789,15 @@ public class SlotsActivity extends GameActivity {
     }, delay);
   }
 
-  public void setAuto(boolean val) {
-    mIsAutoOn = val;
+  public void setAuto(boolean auto) {
+    mIsAutoOn = auto;
     updateControls();
-    if (val == true) {
+    if (auto) {
+      getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
       mIsFirstAutoAction = true;
       checkAuto();
+    } else {
+      getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
   }
 

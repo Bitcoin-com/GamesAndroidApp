@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -964,12 +965,15 @@ public class DiceActivity extends GameActivity {
     }, delay);
   }
 
-  public void setAuto(boolean val) {
-    mIsAutoOn = val;
+  public void setAuto(boolean auto) {
+    mIsAutoOn = auto;
     updateControls();
-    if (val == true) {
+    if (auto) {
+      getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
       mIsFirstAutoAction = true;
       checkAuto(LastGameResult.NOTHING);
+    } else {
+      getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
   }
 

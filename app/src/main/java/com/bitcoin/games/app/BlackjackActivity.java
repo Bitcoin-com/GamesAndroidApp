@@ -20,6 +20,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -498,8 +499,11 @@ public class BlackjackActivity extends GameActivity {
     updateControls();
 
     if (auto) {
+      getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
       mIsFirstAutoAction = true;
       checkAuto();
+    } else {
+      getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
   }
 
@@ -561,7 +565,7 @@ public class BlackjackActivity extends GameActivity {
       setInsuranceButton(Insurance.INSURANCE_BASE);
     }
     /*
-		else {
+    else {
 			 mInsuranceButton.setVisibility( View.INVISIBLE );
 			 mInsuranceButton.setImageResource( R.drawable.button_insurance ); 
 		}
