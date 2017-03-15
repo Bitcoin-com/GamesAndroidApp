@@ -230,7 +230,7 @@ abstract public class GameActivity extends CommonActivity {
 
   boolean shouldConnectingDialogShow() {
     BitcoinGames bvc = BitcoinGames.getInstance(this);
-    Log.v(TAG, "fake:" + bvc.mFakeIntBalance);
+    Log.d(TAG, String.format("Hash: %s, Balance: %d, FakeBalance: %d", mServerSeedHash, bvc.mIntBalance, bvc.mFakeIntBalance));
     return (mServerSeedHash == null || bvc.mIntBalance < 0 || bvc.mFakeIntBalance < 0);
   }
 
@@ -283,7 +283,7 @@ abstract public class GameActivity extends CommonActivity {
           abortConnectingDialog();
         }
       }
-    }, 7000);
+    }, 30 * 1000);
   }
 
   @Override
@@ -357,7 +357,6 @@ abstract public class GameActivity extends CommonActivity {
     }
   }
 
-  ;
   CountUpRunnable mCountUpRunnable = new CountUpRunnable();
 
   void startCountUpWins(final long goal, final long startingIntBalance, final long delta) {

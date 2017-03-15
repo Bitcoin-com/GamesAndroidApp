@@ -9,13 +9,15 @@ import java.util.List;
 public class CommonApplication extends Application {
 
   private static final String TAG = "CommonApplication";
-  private static List<NetAsyncTask> mPendingTasks = new ArrayList<NetAsyncTask>();
+  private static List<NetAsyncTask> mPendingTasks = new ArrayList<>();
   public static final String APPLICATION_VERSION = "0.5";
 
   public void abortNetAsyncTasks() {
     for (NetAsyncTask task : mPendingTasks) {
       Log.v(TAG, "ABORTING TASK!");
-      task.abort();
+      if (task != null) {
+        task.abort();
+      }
     }
     mPendingTasks.clear();
   }
