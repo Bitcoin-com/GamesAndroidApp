@@ -670,7 +670,7 @@ public class DiceActivity extends GameActivity {
       }
       BitcoinGames bvc = BitcoinGames.getInstance(this);
 
-      if (bvc.mIntBalance - (mAmountValue * mCreditBTCValue) < 0) {
+      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - (mAmountValue * mCreditBTCValue) < 0) {
         handleNotEnoughCredits();
         return;
       }

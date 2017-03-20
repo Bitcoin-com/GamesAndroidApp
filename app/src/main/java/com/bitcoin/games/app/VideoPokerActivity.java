@@ -514,10 +514,12 @@ public class VideoPokerActivity extends GameActivity {
         return;
       }
       BitcoinGames bvc = BitcoinGames.getInstance(this);
-      if (bvc.mIntBalance - mCreditBTCValue < 0) {
+
+      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - mCreditBTCValue < 0) {
         handleNotEnoughCredits();
         return;
       }
+
       if (mServerSeedHash == null) {
         // TB TODO - Get another hash? Or maybe we're waiting for it still?
         return;
@@ -832,10 +834,11 @@ public class VideoPokerActivity extends GameActivity {
     }
     long cost = (mCreditBTCValue * mPrize);
     BitcoinGames bvc = BitcoinGames.getInstance(this);
-    if (bvc.mIntBalance - cost < 0) {
+    if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - cost < 0) {
       handleNotEnoughCredits();
       return;
     }
+
     mNetDoubleDealerTask = new NetDoubleDealerTask(this);
     mNetDoubleDealerTask.executeParallel();
   }

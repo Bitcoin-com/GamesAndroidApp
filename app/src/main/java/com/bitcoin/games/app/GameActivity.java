@@ -283,7 +283,7 @@ abstract public class GameActivity extends CommonActivity {
           abortConnectingDialog();
         }
       }
-    }, 30 * 1000);
+    }, 7 * 1000);
   }
 
   @Override
@@ -487,7 +487,8 @@ abstract public class GameActivity extends CommonActivity {
   }
 
   public void updateCredits(Long intbalance) {
-    updateCredits(intbalance, R.string.credits);
+    int letterCreditsResource = mUseFakeCredits ? R.string.test_credits : R.string.credits;
+    updateCredits(intbalance, letterCreditsResource);
   }
 
   Runnable mTimeUpdateRunnable = new Runnable() {

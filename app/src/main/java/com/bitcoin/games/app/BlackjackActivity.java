@@ -434,10 +434,12 @@ public class BlackjackActivity extends GameActivity {
     long cost = getCommandCost(command);
     if (cost > 0) {
       BitcoinGames bvc = BitcoinGames.getInstance(this);
-      if (bvc.mIntBalance - cost < 0) {
+
+      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - cost < 0) {
         handleNotEnoughCredits();
         return;
       }
+
     }
     mNetCommandTask = new NetCommandTask(this, command);
     mNetCommandTask.execute();
@@ -950,6 +952,8 @@ public class BlackjackActivity extends GameActivity {
         onDeal(null);
       }
     }
+
+
   }
 
   class ShowCardsRunnable implements Runnable {

@@ -33,6 +33,7 @@ import java.io.IOException;
 
 public class MainActivity extends CommonActivity {
 
+  boolean mFakeCredits = true;
   //TextView mTitle;
   TextView mBalance;
   TextView mTestLocalWarning;
@@ -102,8 +103,8 @@ public class MainActivity extends CommonActivity {
     mBlinkOn = false;
 
     if (BitcoinGames.RUN_ENVIRONMENT == BitcoinGames.RunEnvironment.PRODUCTION) {
+      mTestLocalWarning.setVisibility(View.GONE);
     }
-    mTestLocalWarning.setVisibility(View.GONE);
   }
 
   @Override
@@ -137,6 +138,8 @@ public class MainActivity extends CommonActivity {
     } else {
       mDeposit.setTypeface(mRobotoLight);
     }
+
+    mFakeCredits = bvc.mIntBalance == 0;
 
     mHandler.postDelayed(mTimeUpdateRunnable, BLINK_DELAY);
   }
@@ -209,25 +212,25 @@ public class MainActivity extends CommonActivity {
 
   public void onVideoPoker(View button) {
     Intent intent = new Intent(this, VideoPokerActivity.class);
-    intent.putExtra(GameActivity.KEY_USE_FAKE_CREDITS, false);
+    intent.putExtra(GameActivity.KEY_USE_FAKE_CREDITS, mFakeCredits);
     startActivity(intent);
   }
 
   public void onSlots(View button) {
     Intent intent = new Intent(this, SlotsActivity.class);
-    intent.putExtra(GameActivity.KEY_USE_FAKE_CREDITS, false);
+    intent.putExtra(GameActivity.KEY_USE_FAKE_CREDITS, mFakeCredits);
     startActivity(intent);
   }
 
   public void onDice(View button) {
     Intent intent = new Intent(this, DiceActivity.class);
-    intent.putExtra(GameActivity.KEY_USE_FAKE_CREDITS, false);
+    intent.putExtra(GameActivity.KEY_USE_FAKE_CREDITS, mFakeCredits);
     startActivity(intent);
   }
 
   public void onBlackjack(View button) {
     Intent intent = new Intent(this, BlackjackActivity.class);
-    intent.putExtra(GameActivity.KEY_USE_FAKE_CREDITS, false);
+    intent.putExtra(GameActivity.KEY_USE_FAKE_CREDITS, mFakeCredits);
     startActivity(intent);
   }
 
