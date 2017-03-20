@@ -528,11 +528,11 @@ public class SlotsActivity extends GameActivity {
       // If the seed happens to have expired when he returns, that's OK because we'll get a new seed
       // when need_seed is returned when dealing the game.
       mNetReseedTask = new NetReseedTask(this, false);
-      mNetReseedTask.executeParallel(Long.valueOf(0));
+      mNetReseedTask.executeParallel(0L);
     }
 
     mNetUpdateTask = new NetUpdateTask(this);
-    mNetUpdateTask.executeParallel(Long.valueOf(0));
+    mNetUpdateTask.executeParallel(0L);
 
     // TB - Kind of silly to be getting this multiple times???
     mNetRulesetTask = new NetRulesetTask(this);

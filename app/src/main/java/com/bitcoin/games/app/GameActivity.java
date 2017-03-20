@@ -279,6 +279,7 @@ abstract public class GameActivity extends CommonActivity {
     // Abort if it screws up after X seconds
     mHandler.postDelayed(new Runnable() {
       public void run() {
+        checkConnectingAlert();
         if (mConnectingDialog != null) {
           abortConnectingDialog();
         }
@@ -293,13 +294,9 @@ abstract public class GameActivity extends CommonActivity {
     // Let other stuff draw before popping up the dialog
     // TB TODO - This is kind of sloppy with the delay. The problem is that otherwise
     // the screen looks all screwed up (incorrect sizes) while the dialog is up.
-    mHandler.postDelayed(new Runnable() {
-      public void run() {
         if (shouldConnectingDialogShow()) {
           showConnectingDialog();
         }
-      }
-    }, 500);
   }
 
   @Override
