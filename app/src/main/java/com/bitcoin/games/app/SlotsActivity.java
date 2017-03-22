@@ -28,7 +28,6 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bitcoin.games.R;
 import com.bitcoin.games.lib.Bitcoin;
@@ -689,7 +688,7 @@ public class SlotsActivity extends GameActivity {
   }
 
   void handleNotEnoughCredits() {
-    Toast.makeText(this, "Please deposit more credits", Toast.LENGTH_SHORT).show();
+    super.showDepositDialog(R.color.bitcoin_games_slots);
     setAuto(false);
   }
 
@@ -700,7 +699,7 @@ public class SlotsActivity extends GameActivity {
       }
       BitcoinGames bvc = BitcoinGames.getInstance(this);
 
-      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - mCreditBTCValue < 0) {
+      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - (mLines * mCreditBTCValue) < 0) {
         handleNotEnoughCredits();
         return;
       }

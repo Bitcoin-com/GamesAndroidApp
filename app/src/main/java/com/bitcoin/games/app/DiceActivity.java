@@ -24,7 +24,6 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bitcoin.games.R;
 import com.bitcoin.games.lib.Bitcoin;
@@ -659,7 +658,7 @@ public class DiceActivity extends GameActivity {
   }
 
   void handleNotEnoughCredits() {
-    Toast.makeText(this, "Please deposit more credits", Toast.LENGTH_SHORT).show();
+    super.showDepositDialog(R.color.bitcoin_games_dice);
     setAuto(false);
   }
 

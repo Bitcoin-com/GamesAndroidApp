@@ -117,6 +117,8 @@ public class BlackjackActivity extends GameActivity {
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
 
+    mIsGameBusy = false;
+
     mDealButton = (Button) findViewById(R.id.deal_button);
     mSplitButton = (Button) findViewById(R.id.split_button);
     mDoubleButton = (Button) findViewById(R.id.double_button);
@@ -261,6 +263,7 @@ public class BlackjackActivity extends GameActivity {
 
     // TB TODO - Kind of sloppy that updateControls can't keey track of the state properly.
     mInsuranceButton.setVisibility(View.INVISIBLE);
+    updateControls();
   }
 
   @Override
@@ -436,7 +439,11 @@ public class BlackjackActivity extends GameActivity {
       BitcoinGames bvc = BitcoinGames.getInstance(this);
 
       if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - cost < 0) {
-        handleNotEnoughCredits();
+        if (command == Blackjack.Command.DEAL) {
+          handleNotEnoughCredits();
+        } else {
+          Toast.makeText(this, R.string.not_enough_credits, Toast.LENGTH_SHORT).show();
+        }
         return;
       }
 
@@ -482,7 +489,7 @@ public class BlackjackActivity extends GameActivity {
   }
 
   void handleNotEnoughCredits() {
-    Toast.makeText(this, "Please deposit more credits", Toast.LENGTH_SHORT).show();
+    super.showDepositDialog(R.color.bitcoin_games_blackjack);
     setAuto(false);
   }
 

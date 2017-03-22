@@ -1,11 +1,11 @@
 package com.bitcoin.games.lib;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 
 
-public class CommonActivity extends Activity {
+public class CommonActivity extends FragmentActivity {
   public Handler mHandler;
   static String TAG = "CommonActivity";
 
@@ -25,6 +25,4 @@ public class CommonActivity extends Activity {
   public void onResume() {
     super.onResume();
   }
-
-
 }

@@ -504,7 +504,7 @@ public class VideoPokerActivity extends GameActivity {
   };
 
   void handleNotEnoughCredits() {
-    Toast.makeText(this, "Please deposit more credits", Toast.LENGTH_SHORT).show();
+    super.showDepositDialog(R.color.bitcoin_games_videopoker);
     setAuto(false);
   }
 
@@ -835,7 +835,7 @@ public class VideoPokerActivity extends GameActivity {
     long cost = (mCreditBTCValue * mPrize);
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - cost < 0) {
-      handleNotEnoughCredits();
+      Toast.makeText(this, R.string.not_enough_credits, Toast.LENGTH_SHORT).show();
       return;
     }
 

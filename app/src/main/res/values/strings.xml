@@ -96,6 +96,9 @@
     <string name="vp_dealer">DEALER</string>
     <string name="bj_ace_or">OR</string>
     <string name="text_win">WIN</string>
+    <string name="not_enough_credits">Not enough credits</string>
+    <string name="deposit_credits_dialog_text_1">To keep playing deposit bitcoins.</string>
+    <string name="deposit_credits_dialog_text_2">To buy bitcoin, please visit buy.bitcoin.com.</string>
 
     <string-array name="auto_strategy_array">
         <item>Repeat same bet</item>

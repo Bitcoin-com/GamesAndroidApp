@@ -2,6 +2,12 @@
 
     <style name="AppTheme" parent="android:Theme.NoTitleBar" />
 
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">#757575</item>
+        <!--<item name="android:textColorPrimary">#FFFFFF</item>-->
+        <!--<item name="android:background">#5fa3d0</item>-->
+    </style>
+
     <style name="button_bar">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">35dp</item>

@@ -13,4 +13,8 @@
     <color name="credits">#b79523</color>
     <color name="button_text_color_active">#ffffff</color>
     <color name="button_text_color_inactive">#ddd</color>
+    <color name="bitcoin_games_videopoker">#fccc24</color>
+    <color name="bitcoin_games_blackjack">#7cb342</color>
+    <color name="bitcoin_games_slots">#0278be</color>
+    <color name="bitcoin_games_dice">#8e24aa</color>
 </resources>

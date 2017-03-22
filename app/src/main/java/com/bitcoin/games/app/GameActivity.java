@@ -2,9 +2,11 @@ package com.bitcoin.games.app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -13,6 +15,9 @@ import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -50,6 +55,9 @@ class CreditBTCItem {
 
 
 abstract public class GameActivity extends CommonActivity {
+
+  private final float mCreditsTextSize = 0.7f;
+
   @Override
   protected void attachBaseContext(Context newBase) {
     super.attachBaseContext(MyContextWrapper.wrap(newBase, "en"));
@@ -317,7 +325,7 @@ abstract public class GameActivity extends CommonActivity {
   @Override
   public void onWindowFocusChanged(boolean hasFocus) {
     super.onWindowFocusChanged(hasFocus);
-    mTextBet.setTextSize(TypedValue.COMPLEX_UNIT_PX, mCreditsHolder.getHeight() * 0.8f);
+    mTextBet.setTextSize(TypedValue.COMPLEX_UNIT_PX, mCreditsHolder.getHeight() * mCreditsTextSize);
   }
 
   abstract public void updateControls();
@@ -448,7 +456,7 @@ abstract public class GameActivity extends CommonActivity {
     // TB TODO - Use cached images?
 
     c.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-    c.setTextSize(TypedValue.COMPLEX_UNIT_PX, mWinHolder.getHeight() * 0.8f);
+    c.setTextSize(TypedValue.COMPLEX_UNIT_PX, mWinHolder.getHeight() * mCreditsTextSize);
 
     if (showDouble) {
       c.setText(R.string.text_double);
@@ -460,7 +468,7 @@ abstract public class GameActivity extends CommonActivity {
     mWinHolder.addView(c, layout);
 
     // addNumberToViewGroup( prize, mWinHolder );
-    addCreditsNumberToViewGroup(prize, mWinHolder, mWinHolder.getHeight() * 0.8f);
+    addCreditsNumberToViewGroup(prize, mWinHolder, mWinHolder.getHeight() * mCreditsTextSize);
   }
 
   void updateCredits(Long intbalance, int letterCreditsResource) {
@@ -471,12 +479,12 @@ abstract public class GameActivity extends CommonActivity {
       return;
     }
 
-    addCreditsNumberToViewGroup(intbalance, mCreditsHolder, mCreditsHolder.getHeight() * 0.8f);
+    addCreditsNumberToViewGroup(intbalance, mCreditsHolder, mCreditsHolder.getHeight() * mCreditsTextSize);
 
     TextView c = new TextView(this);
     c.setText(letterCreditsResource);
     c.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-    c.setTextSize(TypedValue.COMPLEX_UNIT_PX, mCreditsHolder.getHeight() * 0.8f);
+    c.setTextSize(TypedValue.COMPLEX_UNIT_PX, mCreditsHolder.getHeight() * mCreditsTextSize);
 //    c.setTextColor(ContextCompat.getColor(this, R.color.credits));
     LayoutParams layout = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
     layout.setMargins(15, 0, 0, 0);
@@ -887,6 +895,42 @@ abstract public class GameActivity extends CommonActivity {
       }
       checkConnectingAlert();
       updateControls();
+    }
+  }
+
+  void showDepositDialog(int gameColor) {
+    DialogFragment d = new DepositDialog();
+    Bundle args = new Bundle();
+    args.putInt("gameColor", gameColor);
+    d.setArguments(args);
+    d.show(getSupportFragmentManager(), "dialog");
+  }
+
+  public static class DepositDialog extends DialogFragment {
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+      LayoutInflater inflater = getActivity().getLayoutInflater();
+      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+      View view = inflater.inflate(R.layout.dialog_deposit, null);
+      view.findViewById(R.id.deposit_logo).setBackgroundColor(ContextCompat.getColor(getContext(), getArguments().getInt("gameColor")));
+      String deposit = getString(R.string.deposit).toUpperCase();
+
+      builder.setView(view)
+          .setPositiveButton(deposit, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              Intent intent = new Intent(getContext(), DepositActivity.class);
+              startActivity(intent);
+              getActivity().finish();
+            }
+          })
+          .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.dismiss();
+            }
+          });
+
+      return builder.create();
     }
   }
 }
