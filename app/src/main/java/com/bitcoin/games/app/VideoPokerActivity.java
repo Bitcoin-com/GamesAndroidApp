@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -1312,10 +1313,16 @@ class CardHolder {
     int r = mActivity.getCardResourceFromCard(cardName);
 
     Bitmap src = mBitmapCache.getBitmap(r);
-
     RoundedBitmapDrawable dr =
         RoundedBitmapDrawableFactory.create(mActivity.getResources(), src);
-    dr.setCornerRadius(25.0f);
+
+    int screenLayoutSize = mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+
+    if (screenLayoutSize > Configuration.SCREENLAYOUT_SIZE_NORMAL) {
+      dr.setCornerRadius(10.0f);
+    } else {
+      dr.setCornerRadius(25.0f);
+    }
 
     mCardImage.setImageDrawable(dr);
 

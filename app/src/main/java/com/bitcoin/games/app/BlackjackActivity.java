@@ -2,6 +2,7 @@ package com.bitcoin.games.app;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -799,7 +800,14 @@ public class BlackjackActivity extends GameActivity {
 
       RoundedBitmapDrawable dr =
           RoundedBitmapDrawableFactory.create(getResources(), src);
-      dr.setCornerRadius(25.0f);
+
+      int screenLayoutSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+
+      if (screenLayoutSize > Configuration.SCREENLAYOUT_SIZE_NORMAL) {
+        dr.setCornerRadius(10.0f);
+      } else {
+        dr.setCornerRadius(25.0f);
+      }
 
       ImageView view = (ImageView) getLayoutInflater().inflate(R.layout.bj_card, null);
       view.setImageDrawable(dr);

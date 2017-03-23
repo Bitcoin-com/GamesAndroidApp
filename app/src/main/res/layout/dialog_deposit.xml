@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@color/button_text_color_active"
     android:orientation="vertical"
-    android:theme="@style/Theme.MyTheme">
+    android:theme="@style/AppCompatAlertDialogStyle">
 
     <ImageView
         android:id="@+id/deposit_logo"
