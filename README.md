@@ -10,7 +10,7 @@ keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -valid
 
 ### Build
 
-./gradlew assemblyRelease
+./gradlew assembleRelease
 
 ### Align, sign and verify apk
 android/build-tools/25.0.2/zipalign -v -p 4 my-app-unsigned.apk my-app-unsigned-aligned.apk
