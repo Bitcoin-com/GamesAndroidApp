@@ -10,7 +10,7 @@ public class CommonApplication extends Application {
 
   private static final String TAG = "CommonApplication";
   private static List<NetAsyncTask> mPendingTasks = new ArrayList<>();
-  public static final String APPLICATION_VERSION = "0.5";
+  public static final String APPLICATION_VERSION = "1.0";
 
   public void abortNetAsyncTasks() {
     for (NetAsyncTask task : mPendingTasks) {
