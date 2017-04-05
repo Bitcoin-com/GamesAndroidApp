@@ -3,6 +3,7 @@ package com.bitcoin.games.app;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -10,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -446,6 +448,11 @@ public class VideoPokerActivity extends GameActivity {
     if (mIsWaitingForServer || mIsGameBusy) {
       return;
     }
+
+    playSound(mSoundBoop);
+    Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+    vb.vibrate(25);
+
     CardHolder holder = mCardHolders[index];
     if (mGameState == VideoPokerGameState.WAIT_USER_HOLD) {
       holder.holdCard(value);
