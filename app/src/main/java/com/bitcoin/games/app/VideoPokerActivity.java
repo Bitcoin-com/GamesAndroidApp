@@ -279,13 +279,13 @@ public class VideoPokerActivity extends GameActivity {
 
     FrameLayout payoutBorder = new FrameLayout(this);
     payoutBorder.setBackgroundResource(R.drawable.payout_border);
-    FrameLayout.LayoutParams payoutBorderLayout = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, itemHeight * (names.length - 1) + 2 * oneDP);
+    FrameLayout.LayoutParams payoutBorderLayout = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, itemHeight * (names.length - 1) + 4 * oneDP);
     mPayoutHolder.addView(payoutBorder, payoutBorderLayout);
 
     mPayout = new LinearLayout(this);
     mPayout.setOrientation(LinearLayout.VERTICAL);
 //    mPayout.setBackgroundColor(Color.rgb(255, 0, 0));
-    FrameLayout.LayoutParams payoutLayout = new FrameLayout.LayoutParams(mPayoutHolder.getWidth() - 2 * oneDP, itemHeight * (names.length - 1));
+    FrameLayout.LayoutParams payoutLayout = new FrameLayout.LayoutParams(mPayoutHolder.getWidth() - 4 * oneDP, itemHeight * (names.length - 1));
     payoutLayout.gravity = Gravity.CENTER;
     payoutBorder.addView(mPayout, payoutLayout);
 

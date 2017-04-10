@@ -21,7 +21,7 @@
 
     <View
         android:background="@color/vp_payout_border"
-        android:layout_width="1dp"
+        android:layout_width="2dp"
         android:layout_height="fill_parent" />
 
     <TextView
@@ -34,7 +34,7 @@
 
     <View
         android:background="@color/vp_payout_border"
-        android:layout_width="1dp"
+        android:layout_width="2dp"
         android:layout_height="fill_parent" />
 
     <TextView
@@ -47,7 +47,7 @@
 
     <View
         android:background="@color/vp_payout_border"
-        android:layout_width="1dp"
+        android:layout_width="2dp"
         android:layout_height="fill_parent" />
 
     <TextView
@@ -60,7 +60,7 @@
 
     <View
         android:background="@color/vp_payout_border"
-        android:layout_width="1dp"
+        android:layout_width="2dp"
         android:layout_height="fill_parent" />
 
     <TextView
@@ -73,7 +73,7 @@
 
     <View
         android:background="@color/vp_payout_border"
-        android:layout_width="1dp"
+        android:layout_width="2dp"
         android:layout_height="fill_parent" />
 
     <TextView
