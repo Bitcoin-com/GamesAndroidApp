@@ -204,21 +204,18 @@ abstract public class GameActivity extends CommonActivity {
         "#E35E55", "#E35C53", "#E25A51", "#E2584F", "#E2564E", "#E2544C", "#E2524A", "#E25049",
         "#E24E47", "#E14D45", "#E14B43", "#E14942", "#E14740", "#E1453E", "#E1433D", "#E1413B",
         "#E03F39", "#E03D37", "#E03B36", "#E03934", "#E03732", "#E03531", "#E0332F", "#E0312D",
-        "#DF2F2B", "#DF2D2A", "#DF2B28", "#DF2926", "#DF2725", "#DF2523", "#DF2321", "#DE211F",
-        "#DE1F1E", "#DE1D1C", "#DE1B1A", "#DE1919", "#DE1717", "#DE1515", "#DE1414");
-    int duration = 5;
+        "#DF2F2B", "#DF2D2A", "#DF2B28", "#DF2926", "#DF2725", "#DF2523", "#DF2321", "#DE211F");
+
     for (String s : gradient) {
       Drawable gradientButtonDrawable = getResources().getDrawable(R.drawable.button_yellow);
       gradientButtonDrawable.setColorFilter(Color.parseColor(s), PorterDuff.Mode.SRC);
-      animationDrawable.addFrame(gradientButtonDrawable, duration);
-//      duration += 1;
+      animationDrawable.addFrame(gradientButtonDrawable, 5);
     }
     Collections.reverse(gradient);
     for (String s : gradient) {
       Drawable gradientButtonDrawable = getResources().getDrawable(R.drawable.button_yellow);
       gradientButtonDrawable.setColorFilter(Color.parseColor(s), PorterDuff.Mode.SRC);
-      animationDrawable.addFrame(gradientButtonDrawable, duration);
-//      duration -= 1;
+      animationDrawable.addFrame(gradientButtonDrawable, 5);
     }
 
     animationDrawable.setOneShot(false);
