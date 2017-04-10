@@ -84,6 +84,16 @@
 
             <Button
                 style="@style/button"
+                android:id="@+id/deposit_ingame_button"
+                android:layout_toEndOf="@id/paytables_button"
+                android:background="@drawable/button_red"
+                android:text="@string/deposit"
+                android:textAllCaps="true"
+                android:onClick="onDeposit"
+                />
+
+            <Button
+                style="@style/button"
                 android:id="@+id/btc_button"
                 android:layout_width="100dp"
                 android:onClick="onCreditBTC"

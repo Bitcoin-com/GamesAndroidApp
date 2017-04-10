@@ -120,6 +120,8 @@ public class VideoPokerActivity extends GameActivity {
 
     Log.v(TAG, "Starting free memory: " + String.valueOf(MemoryUsage.getFreeMemory(this)));
 
+    configureFlashingDepositButton(TAG);
+
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     mGameState = VideoPokerGameState.WAIT_USER_DEAL;
     mPoker = PokerFactory.getPoker(0);
@@ -482,7 +484,7 @@ public class VideoPokerActivity extends GameActivity {
       // Can't just use holder.getWidth() since that doesn't take margins into account.
       int holderAreaWidth = mContents.getWidth() / 5;
       int index = (int) ((event.getRawX() - leftBlackBarWidth) / holderAreaWidth);
-      Log.v(TAG, "onTouch!" + index);
+      Log.d(TAG, "onTouch!" + index);
       CardHolder holder = mCardHolders[index];
 
       // Must be within the Y coord of the holder
@@ -514,6 +516,10 @@ public class VideoPokerActivity extends GameActivity {
   void handleNotEnoughCredits() {
     super.showDepositDialog(R.color.bitcoin_games_videopoker);
     setAuto(false);
+  }
+
+  public void onDeposit(View button) {
+    showDepositDialog(R.color.bitcoin_games_videopoker, true);
   }
 
   public void onDeal(View button) {

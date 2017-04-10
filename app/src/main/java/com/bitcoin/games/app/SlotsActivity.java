@@ -148,6 +148,8 @@ public class SlotsActivity extends GameActivity {
 
     Log.v(TAG, "Starting free memory: " + String.valueOf(MemoryUsage.getFreeMemory(this)));
 
+    configureFlashingDepositButton(TAG);
+
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     mTimeUpdateDelay = 50;
     mGameState = SlotsGameState.WAIT_USER_PULL;
@@ -690,6 +692,10 @@ public class SlotsActivity extends GameActivity {
   void handleNotEnoughCredits() {
     super.showDepositDialog(R.color.bitcoin_games_slots);
     setAuto(false);
+  }
+
+  public void onDeposit(View button) {
+    showDepositDialog(R.color.bitcoin_games_slots, true);
   }
 
   public void onPull(View button) {

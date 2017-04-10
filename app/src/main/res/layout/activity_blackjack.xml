@@ -66,6 +66,16 @@
                 android:background="@drawable/button_yellow"
                 android:text="@string/auto" />
 
+
+            <Button
+                style="@style/button_bj"
+                android:id="@+id/deposit_ingame_button"
+                android:background="@drawable/button_red"
+                android:text="@string/deposit"
+                android:textAllCaps="true"
+                android:onClick="onDeposit"
+                />
+
             <Button
                 style="@style/button_bj"
                 android:id="@+id/double_button"
