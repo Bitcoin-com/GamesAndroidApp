@@ -8,14 +8,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -41,6 +44,10 @@ import com.bitcoin.games.lib.CommonActivity;
 import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.NetBalanceTask;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 class CreditBTCItem {
   public String mConversion;
   public String mHappyText;
@@ -57,6 +64,7 @@ class CreditBTCItem {
 abstract public class GameActivity extends CommonActivity {
 
   private final float mCreditsTextSize = 0.7f;
+  public int screenLayoutSize;
 
   @Override
   protected void attachBaseContext(Context newBase) {
@@ -105,6 +113,8 @@ abstract public class GameActivity extends CommonActivity {
   final int BLINK_DELAY = 500;
   final int BALANCE_CHECK_DELAY = 10000;
   boolean mShowDecimalCredits;
+  final AnimationDrawable animationDrawable = new AnimationDrawable();
+
 
   public static String KEY_USE_FAKE_CREDITS = "com.bitcoin.games.KEY_USE_FAKE_CREDITS";
   boolean mUseFakeCredits;
@@ -112,6 +122,8 @@ abstract public class GameActivity extends CommonActivity {
   //@Override
   public void onCreate(Bundle savedInstanceState, int contentViewResource) {
     super.onCreate(savedInstanceState);
+
+    screenLayoutSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -155,6 +167,69 @@ abstract public class GameActivity extends CommonActivity {
     // Otherwise an incorrect number might first get displayed before switching over to the correct value.
     // BitcoinGames bvc = BitcoinGames.getInstance(this);
     // updateCredits( mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance );
+  }
+
+  void configureFlashingDepositButton(String tag) {
+    final Button depositButton = (Button) findViewById(R.id.deposit_ingame_button);
+
+    if (!mUseFakeCredits) {
+      depositButton.setVisibility(View.GONE);
+      return;
+    }
+
+    Log.d(TAG, "screensize: " + screenLayoutSize);
+
+
+    switch (tag) {
+      case "VideoPokerActivity":
+        if (screenLayoutSize <= Configuration.SCREENLAYOUT_SIZE_NORMAL) {
+          depositButton.setVisibility(View.GONE);
+          return;
+        }
+        break;
+      case "SlotsActivity":
+        if (screenLayoutSize <= Configuration.SCREENLAYOUT_SIZE_NORMAL) {
+          depositButton.setVisibility(View.GONE);
+          return;
+        }
+        break;
+      default:
+        break;
+    }
+
+    final Handler handler = new Handler();
+    List<String> gradient = Arrays.asList("#E68879", "#E58677", "#E58475", "#E58273", "#E58072",
+        "#E57E70", "#E57C6E", "#E57A6D", "#E4786B", "#E47669", "#E47467", "#E47266", "#E47064",
+        "#E46E62", "#E46C61", "#E36A5F", "#E3685D", "#E3665B", "#E3645A", "#E36258", "#E36056",
+        "#E35E55", "#E35C53", "#E25A51", "#E2584F", "#E2564E", "#E2544C", "#E2524A", "#E25049",
+        "#E24E47", "#E14D45", "#E14B43", "#E14942", "#E14740", "#E1453E", "#E1433D", "#E1413B",
+        "#E03F39", "#E03D37", "#E03B36", "#E03934", "#E03732", "#E03531", "#E0332F", "#E0312D",
+        "#DF2F2B", "#DF2D2A", "#DF2B28", "#DF2926", "#DF2725", "#DF2523", "#DF2321", "#DE211F",
+        "#DE1F1E", "#DE1D1C", "#DE1B1A", "#DE1919", "#DE1717", "#DE1515", "#DE1414");
+    int duration = 5;
+    for (String s : gradient) {
+      Drawable gradientButtonDrawable = getResources().getDrawable(R.drawable.button_yellow);
+      gradientButtonDrawable.setColorFilter(Color.parseColor(s), PorterDuff.Mode.SRC);
+      animationDrawable.addFrame(gradientButtonDrawable, duration);
+//      duration += 1;
+    }
+    Collections.reverse(gradient);
+    for (String s : gradient) {
+      Drawable gradientButtonDrawable = getResources().getDrawable(R.drawable.button_yellow);
+      gradientButtonDrawable.setColorFilter(Color.parseColor(s), PorterDuff.Mode.SRC);
+      animationDrawable.addFrame(gradientButtonDrawable, duration);
+//      duration -= 1;
+    }
+
+    animationDrawable.setOneShot(false);
+
+    depositButton.setBackground(animationDrawable);
+    handler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        animationDrawable.start();
+      }
+    }, 100);
   }
 
   @Override
@@ -326,6 +401,13 @@ abstract public class GameActivity extends CommonActivity {
   public void onWindowFocusChanged(boolean hasFocus) {
     super.onWindowFocusChanged(hasFocus);
     mTextBet.setTextSize(TypedValue.COMPLEX_UNIT_PX, mCreditsHolder.getHeight() * mCreditsTextSize);
+
+
+    if (hasFocus) {
+      animationDrawable.start();
+    } else {
+      animationDrawable.stop();
+    }
   }
 
   abstract public void updateControls();
@@ -630,7 +712,6 @@ abstract public class GameActivity extends CommonActivity {
     mSoundPool.play(soundID, volume, volume, 1, 0, 1f);
   }
 
-
   // http://www.vanteon.com/downloads/Scaling_Android_Apps_White_Paper.pdf
   // Scales the contents of the given view so that it completely fills the given
   // container on one axis (that is, we're scaling isotropically).
@@ -899,21 +980,28 @@ abstract public class GameActivity extends CommonActivity {
   }
 
   void showDepositDialog(int gameColor) {
+    showDepositDialog(gameColor, false);
+  }
+
+  void showDepositDialog(int gameColor, boolean depositButton) {
     DialogFragment d = new DepositDialog();
     Bundle args = new Bundle();
     args.putInt("gameColor", gameColor);
+    args.putBoolean("depositButton", depositButton);
     d.setArguments(args);
     d.show(getSupportFragmentManager(), "dialog");
   }
 
   public static class DepositDialog extends DialogFragment {
-    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
       LayoutInflater inflater = getActivity().getLayoutInflater();
       AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
       View view = inflater.inflate(R.layout.dialog_deposit, null);
       view.findViewById(R.id.deposit_logo).setBackgroundColor(ContextCompat.getColor(getContext(), getArguments().getInt("gameColor")));
+      if (getArguments().getBoolean("depositButton", false)) {
+        view.findViewById(R.id.to_keep_playing_text).setVisibility(View.GONE);
+      }
       String deposit = getString(R.string.deposit).toUpperCase();
 
       builder.setView(view)

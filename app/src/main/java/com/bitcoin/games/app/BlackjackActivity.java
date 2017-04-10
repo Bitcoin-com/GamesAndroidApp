@@ -118,6 +118,8 @@ public class BlackjackActivity extends GameActivity {
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
 
+    configureFlashingDepositButton(TAG);
+
     mIsGameBusy = false;
 
     mDealButton = (Button) findViewById(R.id.deal_button);
@@ -494,6 +496,10 @@ public class BlackjackActivity extends GameActivity {
     setAuto(false);
   }
 
+  public void onDeposit(View button) {
+    showDepositDialog(R.color.bitcoin_games_blackjack, true);
+  }
+
   public void onDeal(View button) {
     if (!canDeal()) {
       return;
@@ -800,8 +806,6 @@ public class BlackjackActivity extends GameActivity {
 
       RoundedBitmapDrawable dr =
           RoundedBitmapDrawableFactory.create(getResources(), src);
-
-      int screenLayoutSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 
       if (screenLayoutSize > Configuration.SCREENLAYOUT_SIZE_NORMAL) {
         dr.setCornerRadius(10.0f);

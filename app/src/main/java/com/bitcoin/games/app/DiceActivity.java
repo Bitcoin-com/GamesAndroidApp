@@ -149,6 +149,8 @@ public class DiceActivity extends GameActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState, R.layout.activity_dice);
 
+    configureFlashingDepositButton(TAG);
+
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     mTimeUpdateDelay = 50;
     mCreditBTCValue = Bitcoin.stringAmountToLong("0.0001");
@@ -660,6 +662,10 @@ public class DiceActivity extends GameActivity {
   void handleNotEnoughCredits() {
     super.showDepositDialog(R.color.bitcoin_games_dice);
     setAuto(false);
+  }
+
+  public void onDeposit(View button) {
+    showDepositDialog(R.color.bitcoin_games_dice, true);
   }
 
   public void onThrow(String target) {
