@@ -7,8 +7,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -16,10 +14,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -71,13 +67,13 @@ public class DiceActivity extends GameActivity {
   final static int MAX_BET = 1000;
 
   class DirtyControls {
-    boolean mPayoutEditText;
+    boolean mPayoutValueText;
     boolean mPayoutSeekBar;
-    boolean mChanceEditText;
+    boolean mChanceValueText;
     boolean mChanceSeekBar;
-    boolean mAmountEditText;
+    boolean mAmountValueText;
     boolean mAmountSeekBar;
-    boolean mProfitEditText;
+    boolean mProfitValueText;
   }
 
   DirtyControls mDirtyControls;
@@ -97,12 +93,12 @@ public class DiceActivity extends GameActivity {
   private TextView[] mLuckyNumberActuals;
 
   private SeekBar mPayoutSeekbar;
-  private EditText mPayoutEditText;
+  private TextView mPayoutValueText;
   private SeekBar mChanceSeekbar;
-  private EditText mChanceEditText;
+  private TextView mChanceValueText;
   private SeekBar mAmountSeekbar;
-  private EditText mAmountEditText;
-  private EditText mProfitEditText;
+  private TextView mAmountValueText;
+  private TextView mProfitValueText;
   private int mAmountValue;
   private double mPayoutValue;
   private double mChanceValue;
@@ -192,12 +188,12 @@ public class DiceActivity extends GameActivity {
     mLuckyNumberActuals[6] = (TextView) findViewById(R.id.lucky_number_actual6);
 
     mPayoutSeekbar = (SeekBar) findViewById(R.id.payout_seekbar);
-    mPayoutEditText = (EditText) findViewById(R.id.payout_edittext);
+    mPayoutValueText = (TextView) findViewById(R.id.payout_valuetext);
     mChanceSeekbar = (SeekBar) findViewById(R.id.chance_seekbar);
-    mChanceEditText = (EditText) findViewById(R.id.chance_edittext);
+    mChanceValueText = (TextView) findViewById(R.id.chance_valuetext);
     mAmountSeekbar = (SeekBar) findViewById(R.id.amount_seekbar);
-    mAmountEditText = (EditText) findViewById(R.id.amount_edittext);
-    mProfitEditText = (EditText) findViewById(R.id.profit_edittext);
+    mAmountValueText = (TextView) findViewById(R.id.amount_valuetext);
+    mProfitValueText = (TextView) findViewById(R.id.profit_valuetext);
 
     mErrorContainer = (View) findViewById(R.id.error_container);
     mResultContainer = (View) findViewById(R.id.result_container);
@@ -229,7 +225,7 @@ public class DiceActivity extends GameActivity {
         mPayoutValue = mRuleset.result.minimum_payout + ((mRuleset.result.maximum_payout - mRuleset.result.minimum_payout) * quadraticProgress);
         mPayoutValue /= 100000000;
 
-        mDirtyControls.mPayoutEditText = true;
+        mDirtyControls.mPayoutValueText = true;
         handlePayoutChange();
         hideVirtualKeyboard(seekBar);
 
@@ -259,7 +255,7 @@ public class DiceActivity extends GameActivity {
         double quadraticProgress = getQuadraticEasedProgress(progress);
         mChanceValue = minChance + ((maxChance - minChance) * quadraticProgress);
 
-        mDirtyControls.mChanceEditText = true;
+        mDirtyControls.mChanceValueText = true;
         handleChanceChange();
         hideVirtualKeyboard(seekBar);
       }
@@ -285,7 +281,7 @@ public class DiceActivity extends GameActivity {
         double quadraticProgress = getSlowQuadraticEasedInProgress(progress);
         mAmountValue = (int) (MIN_BET + ((MAX_BET - MIN_BET) * quadraticProgress));
 
-        mDirtyControls.mAmountEditText = true;
+        mDirtyControls.mAmountValueText = true;
         handleAmountChange();
         hideVirtualKeyboard(seekBar);
       }
@@ -314,162 +310,6 @@ public class DiceActivity extends GameActivity {
         return false;
       }
     });
-
-
-    mPayoutEditText.setCursorVisible(false);
-    mPayoutEditText.addTextChangedListener(new TextWatcher() {
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
-      public void onTextChanged(CharSequence s, int start, int before, int count) {
-      }
-
-      public void afterTextChanged(Editable s) {
-        if (mIsInsideUpdateControls) {
-          return;
-        }
-        boolean isOK = false;
-        if (s.length() > 0) {
-          try {
-            mPayoutValue = Double.parseDouble(s.toString());
-            mDirtyControls.mPayoutSeekBar = true;
-            handlePayoutChange();
-            isOK = true;
-            mPayoutEditText.setTextColor(Color.BLACK);
-          } catch (NumberFormatException e) {
-            //
-          }
-        }
-        if (!isOK) {
-          mPayoutEditText.setTextColor(Color.RED);
-        }
-        updateControls();
-      }
-    });
-
-
-    // TB TODO - This is causing a stack overflow bouncing back and forth between amount + profit
-    mChanceEditText.setCursorVisible(false);
-    mChanceEditText.addTextChangedListener(new TextWatcher() {
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
-      public void onTextChanged(CharSequence s, int start, int before, int count) {
-      }
-
-      public void afterTextChanged(Editable s) {
-        if (mIsInsideUpdateControls) {
-          return;
-        }
-
-        boolean isOK = false;
-        if (s.length() > 0) {
-          try {
-            mChanceValue = Double.parseDouble(s.toString());
-            mDirtyControls.mChanceSeekBar = true;
-            handleChanceChange();
-            isOK = true;
-            mChanceEditText.setTextColor(Color.BLACK);
-          } catch (NumberFormatException e) {
-            //
-          }
-        }
-        if (!isOK) {
-          mChanceEditText.setTextColor(Color.RED);
-        }
-        updateControls();
-      }
-    });
-
-    mAmountEditText.setCursorVisible(false);
-    mAmountEditText.addTextChangedListener(new TextWatcher() {
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
-      public void onTextChanged(CharSequence s, int start, int before, int count) {
-      }
-
-      public void afterTextChanged(Editable s) {
-        if (mIsInsideUpdateControls) {
-          return;
-        }
-        boolean isOK = false;
-        if (s.length() > 0) {
-          try {
-            mAmountValue = Integer.parseInt(s.toString());
-            mDirtyControls.mAmountSeekBar = true;
-            handleAmountChange();
-            isOK = true;
-            mAmountEditText.setTextColor(Color.BLACK);
-          } catch (NumberFormatException e) {
-            //
-          }
-        }
-        if (!isOK) {
-          mAmountEditText.setTextColor(Color.RED);
-        }
-        updateControls();
-      }
-    });
-
-
-    mProfitEditText.setCursorVisible(false);
-    mProfitEditText.addTextChangedListener(new TextWatcher() {
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
-      public void onTextChanged(CharSequence s, int start, int before, int count) {
-      }
-
-      public void afterTextChanged(Editable s) {
-        if (mIsInsideUpdateControls) {
-          return;
-        }
-        boolean isOK = false;
-        if (s.length() > 0) {
-          try {
-            mProfitValue = Double.parseDouble(s.toString());
-            handleProfitChange();
-            isOK = true;
-            mProfitEditText.setTextColor(Color.BLACK);
-          } catch (NumberFormatException e) {
-            //
-          }
-        }
-        if (!isOK) {
-          mProfitEditText.setTextColor(Color.RED);
-        }
-        updateControls();
-      }
-    });
-
-
-    OnClickListener cursorClickListener = new OnClickListener() {
-      public void onClick(View v) {
-        //mPayoutEditText.setCursorVisible(true);
-        ((EditText) v).setCursorVisible(true);
-      }
-    };
-
-    mPayoutEditText.setOnClickListener(cursorClickListener);
-    mChanceEditText.setOnClickListener(cursorClickListener);
-    mAmountEditText.setOnClickListener(cursorClickListener);
-    mProfitEditText.setOnClickListener(cursorClickListener);
-
-    TextView.OnEditorActionListener textActionListener = new TextView.OnEditorActionListener() {
-      public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_DONE) {
-          hideVirtualKeyboard(v);
-          v.setCursorVisible(false);
-          return true;
-        }
-        return false;
-      }
-    };
-    mPayoutEditText.setOnEditorActionListener(textActionListener);
-    mChanceEditText.setOnEditorActionListener(textActionListener);
-    mAmountEditText.setOnEditorActionListener(textActionListener);
-    mProfitEditText.setOnEditorActionListener(textActionListener);
 
     updateCredits(mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance);
   }
@@ -518,8 +358,8 @@ public class DiceActivity extends GameActivity {
     return Math.sqrt(pos);
   }
 
-  void setPayoutEditText() {
-    mPayoutEditText.setText(prettyDouble4(mPayoutValue));
+  void setPayoutValueText() {
+    mPayoutValueText.setText(prettyDouble4(mPayoutValue));
   }
 
   void setPayoutSeekbar() {
@@ -536,8 +376,8 @@ public class DiceActivity extends GameActivity {
     mPayoutSeekbar.setProgress((int) (quadPos * 1000));
   }
 
-  void setChanceEditText() {
-    mChanceEditText.setText(prettyDouble4(mChanceValue));
+  void setChanceValueText() {
+    mChanceValueText.setText(prettyDouble4(mChanceValue));
   }
 
   void setChanceSeekbar() {
@@ -567,13 +407,13 @@ public class DiceActivity extends GameActivity {
 
   void recalculateProfit() {
     mProfitValue = this.mPayoutValue * mAmountValue - mAmountValue;
-    mDirtyControls.mProfitEditText = true;
+    mDirtyControls.mProfitValueText = true;
   }
 
   void handlePayoutChange() {
     mChanceValue = (mRuleset.result.player_return / 1000000) / mPayoutValue;
 
-    mDirtyControls.mChanceEditText = true;
+    mDirtyControls.mChanceValueText = true;
     mDirtyControls.mChanceSeekBar = true;
     recalculateProfit();
     updateControls();
@@ -581,7 +421,7 @@ public class DiceActivity extends GameActivity {
 
   void handleChanceChange() {
     mPayoutValue = (mRuleset.result.player_return / 1000000) / mChanceValue;
-    mDirtyControls.mPayoutEditText = true;
+    mDirtyControls.mPayoutValueText = true;
     mDirtyControls.mPayoutSeekBar = true;
 
     recalculateProfit();
@@ -597,7 +437,7 @@ public class DiceActivity extends GameActivity {
     // TB TODO - Amount gets clobbered to int, which then makes the profit not guaranteed...
     mAmountValue = (int) (mProfitValue / (mPayoutValue - 1.0));
 
-    mDirtyControls.mAmountEditText = true;
+    mDirtyControls.mAmountValueText = true;
     mDirtyControls.mAmountSeekBar = true;
     updateControls();
   }
@@ -762,33 +602,33 @@ public class DiceActivity extends GameActivity {
     mTextBet.setText(getString(R.string.bet_amount, mAmountValue));
 
 
-    if (mDirtyControls.mPayoutEditText) {
-      setPayoutEditText();
-      mDirtyControls.mPayoutEditText = false;
+    if (mDirtyControls.mPayoutValueText) {
+      setPayoutValueText();
+      mDirtyControls.mPayoutValueText = false;
     }
     if (mDirtyControls.mPayoutSeekBar) {
       setPayoutSeekbar();
       mDirtyControls.mPayoutSeekBar = false;
     }
-    if (mDirtyControls.mChanceEditText) {
-      setChanceEditText();
-      mDirtyControls.mChanceEditText = false;
+    if (mDirtyControls.mChanceValueText) {
+      setChanceValueText();
+      mDirtyControls.mChanceValueText = false;
     }
     if (mDirtyControls.mChanceSeekBar) {
       setChanceSeekbar();
       mDirtyControls.mChanceSeekBar = false;
     }
-    if (mDirtyControls.mAmountEditText) {
-      mAmountEditText.setText(String.valueOf(mAmountValue));
-      mDirtyControls.mAmountEditText = false;
+    if (mDirtyControls.mAmountValueText) {
+      mAmountValueText.setText(String.valueOf(mAmountValue));
+      mDirtyControls.mAmountValueText = false;
     }
     if (mDirtyControls.mAmountSeekBar) {
       setAmountSeekbar();
       mDirtyControls.mAmountSeekBar = false;
     }
-    if (mDirtyControls.mProfitEditText) {
-      mProfitEditText.setText(prettyDouble4(mProfitValue));
-      mDirtyControls.mProfitEditText = false;
+    if (mDirtyControls.mProfitValueText) {
+      mProfitValueText.setText(prettyDouble4(mProfitValue));
+      mDirtyControls.mProfitValueText = false;
     }
 
 
@@ -839,27 +679,27 @@ public class DiceActivity extends GameActivity {
     setLuckyNumberDirectionBackgroundResource(luckyNumberDirectionBackgroundResource);
 
 
-    mChanceEditText.setTextColor(Color.BLACK);
-    mPayoutEditText.setTextColor(Color.BLACK);
-    mAmountEditText.setTextColor(Color.BLACK);
-    mProfitEditText.setTextColor(Color.BLACK);
+    mChanceValueText.setTextColor(ContextCompat.getColor(this, R.color.gold));
+    mPayoutValueText.setTextColor(ContextCompat.getColor(this, R.color.gold));
+    mAmountValueText.setTextColor(ContextCompat.getColor(this, R.color.gold));
+    mProfitValueText.setTextColor(ContextCompat.getColor(this, R.color.gold));
 
     mIsUserInputError = false;
     String errorString = "";
     if (intPayout < mRuleset.result.minimum_payout) {
       mIsUserInputError = true;
       errorString = "Chance can not be greater than " + prettyDouble4(mRulesetMaximumChance);
-      mChanceEditText.setTextColor(Color.RED);
+      mChanceValueText.setTextColor(Color.RED);
     } else if (intPayout > mRuleset.result.maximum_payout) {
       mIsUserInputError = true;
       errorString = "Chance can not be smaller than " + prettyDouble4(mRulesetMinimumChance);
-      mChanceEditText.setTextColor(Color.RED);
+      mChanceValueText.setTextColor(Color.RED);
     }
 
     if (mAmountValue < 1) {
       mIsUserInputError = true;
       errorString = "Bet amount must be greater than 0";
-      mAmountEditText.setTextColor(Color.RED);
+      mAmountValueText.setTextColor(Color.RED);
     }
 
     // No need to check for a whole number bet amount like the JS code since mAmountValue is a whole number.
@@ -867,7 +707,7 @@ public class DiceActivity extends GameActivity {
     if (mProfitValue * mCreditBTCValue > mRuleset.result.maximum_profit) {
       mIsUserInputError = true;
       errorString = "Profit can not be bigger than " + String.valueOf(mRuleset.result.maximum_profit / mCreditBTCValue) + " credits";
-      mAmountEditText.setTextColor(Color.RED);
+      mAmountValueText.setTextColor(Color.RED);
     }
 
 
@@ -927,7 +767,7 @@ public class DiceActivity extends GameActivity {
           handleProfitChange();
         }
       }
-      mDirtyControls.mAmountEditText = true;
+      mDirtyControls.mAmountValueText = true;
       mDirtyControls.mAmountSeekBar = true;
       handleAmountChange();
     }
@@ -1024,7 +864,7 @@ public class DiceActivity extends GameActivity {
           // TB TODO - Should this reset to 1? Or remember your starting bet?
           mAmountValue = 1;
 
-          mDirtyControls.mAmountEditText = true;
+          mDirtyControls.mAmountValueText = true;
           mDirtyControls.mAmountSeekBar = true;
           handleAmountChange();
         }
@@ -1325,9 +1165,9 @@ public class DiceActivity extends GameActivity {
 
       checkConnectingAlert();
       mDirtyControls.mPayoutSeekBar = true;
-      mDirtyControls.mPayoutEditText = true;
+      mDirtyControls.mPayoutValueText = true;
       mDirtyControls.mChanceSeekBar = true;
-      mDirtyControls.mChanceEditText = true;
+      mDirtyControls.mChanceValueText = true;
       handlePayoutChange();
     }
 
