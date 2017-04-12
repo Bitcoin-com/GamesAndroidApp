@@ -131,7 +131,6 @@ public class VideoPokerActivity extends GameActivity {
     mAutoMode = AutoMode.STANDARD;
     mAutoSpeed = AutoSpeed.MEDIUM;
     mAutoDoubleDown = AutoDoubleDown.SOMETIMES;
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
     //mPayout = (ViewGroup) findViewById( R.id.payout );
     mPayout = null;
@@ -142,6 +141,7 @@ public class VideoPokerActivity extends GameActivity {
     mDoubleButton = (Button) findViewById(R.id.double_button);
 
     // Starting value (0.001 BTC) gets set in GameActivity::onCreate()
+    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
     mCreditBTCValue = sharedPref.getLong(VP_SETTING_CREDIT_BTC_VALUE, mCreditBTCValue);
     updateBTCButton(mCreditBTCValue);
 

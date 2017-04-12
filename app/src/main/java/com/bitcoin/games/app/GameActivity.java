@@ -685,7 +685,7 @@ abstract public class GameActivity extends CommonActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(that);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putLong(settingCreditBTCValue, mCreditBTCValue);
-        editor.commit();
+        editor.apply();
 
         updateCredits(mUseFakeCredits ? BitcoinGames.getInstance(that).mFakeIntBalance : BitcoinGames.getInstance(that).mIntBalance);
         updateBTCButton(mCreditBTCValue);
@@ -730,7 +730,6 @@ abstract public class GameActivity extends CommonActivity {
 		// Scale our contents
 		scaleViewAndChildren(rootView, scale); 
 		*/
-    return;
   }
 
 

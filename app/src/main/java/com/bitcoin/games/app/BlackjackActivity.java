@@ -2,6 +2,7 @@ package com.bitcoin.games.app;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -10,6 +11,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
@@ -132,8 +134,12 @@ public class BlackjackActivity extends GameActivity {
     mSoundWinProgressive = mSoundPool.load(this, R.raw.slot_machine_win_19, 1);
     mSoundCanSplit = mSoundPool.load(this, R.raw.slot_machine_bet_10, 1);
 
+    // Starting value (0.001 BTC) gets set in GameActivity::onCreate()
+    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+    mCreditBTCValue = sharedPref.getLong(BJ_SETTING_CREDIT_BTC_VALUE, mCreditBTCValue);
+    updateBTCButton(mCreditBTCValue);
+
     mRuleset = null;
-    mCreditBTCValue = Bitcoin.stringAmountToLong("0.0001");
     mHandGroups = new HandGroup[2];
     mHandGroups[Who.PLAYER] = new HandGroup(R.id.player_hands_holder);
     mHandGroups[Who.DEALER] = new HandGroup(R.id.dealer_hands_holder);
