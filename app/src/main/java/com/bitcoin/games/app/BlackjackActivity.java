@@ -40,6 +40,7 @@ import com.bitcoin.games.lib.NetAsyncTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class BlackjackActivity extends GameActivity {
@@ -231,7 +232,6 @@ public class BlackjackActivity extends GameActivity {
   @Override
   public void onResume() {
     super.onResume();
-    final Activity that = this;
 
     mNetReseedTask = new NetReseedTask(this, false);
     mNetReseedTask.execute(Long.valueOf(0));
@@ -665,7 +665,7 @@ public class BlackjackActivity extends GameActivity {
       mHolder = (ViewGroup) getLayoutInflater().inflate(R.layout.bj_hand, null);
       mCountHolder = (ViewGroup) mHolder.findViewById(R.id.count_holder);
       mCardHolder = (ViewGroup) mHolder.findViewById(R.id.card_holder);
-      mCards = new ArrayList<String>();
+      mCards = new ArrayList<>();
       mIsDone = false;
       mScore = 0;
     }
@@ -797,7 +797,7 @@ public class BlackjackActivity extends GameActivity {
     List<Hand> mHands;
 
     HandGroup(int resource) {
-      mHands = new ArrayList<Hand>();
+      mHands = new ArrayList<>();
       mHolder = (ViewGroup) findViewById(resource);
     }
 
@@ -939,7 +939,7 @@ public class BlackjackActivity extends GameActivity {
     public void run() {
       // TB TODO - Correct hand and playerDone values!
       boolean playerDone = mHandIndex == mHandGroups[Who.PLAYER].mHands.size();
-      int handGroup = 0;
+      int handGroup;
       if (mTotalCardsDealt == 0 || mTotalCardsDealt == 2) {
         handGroup = Who.PLAYER;
       } else if (mTotalCardsDealt == 1 || mTotalCardsDealt == 3) {
@@ -1016,18 +1016,10 @@ public class BlackjackActivity extends GameActivity {
     }
   }
 
-  ;
-
   @Override
   boolean shouldConnectingDialogShow() {
-    boolean val = super.shouldConnectingDialogShow();
-    if (val == true) {
-      return true;
-    }
-
-    return mRuleset == null;
+    return super.shouldConnectingDialogShow() || mRuleset == null;
   }
-
 
   void drawResultOfAllHands(final JSONBlackjackCommandResult result) {
 
@@ -1092,12 +1084,8 @@ public class BlackjackActivity extends GameActivity {
           }, WIN_SOUND_DELAY);
         }
 
-        // Counter updates at 20 fps, so /10 = 1 second of counting for a standard win (since you get back double your bet)
-        // Winning doubles + multiple hands will increase this time
-        long delta = (mCreditBTCValue / mCreditBTCValue) / 10;
-        if (delta <= 0) {
-          delta = 1;
-        }
+        long delta = 1L;
+
         delta *= mCreditBTCValue;
         if (mIsAutoOn) {
           delta = winnings;
@@ -1119,10 +1107,8 @@ public class BlackjackActivity extends GameActivity {
     };
 
     boolean playoutDealer = true;
-    List<String> dealerHand = new ArrayList<String>();
-    for (int i = 0; i < result.dealer_hand.length; i++) {
-      dealerHand.add(result.dealer_hand[i]);
-    }
+    List<String> dealerHand = new ArrayList<>();
+    Collections.addAll(dealerHand, result.dealer_hand);
 
     if (Blackjack.is_blackjack(dealerHand) && mHandGroups[Who.PLAYER].mHands.size() == 1 && Blackjack.is_blackjack(mHandGroups[Who.PLAYER].mHands.get(0).mCards)) {
       // TB TODO - What is the point of this first condition? The second
