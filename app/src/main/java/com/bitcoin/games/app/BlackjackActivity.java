@@ -171,10 +171,10 @@ public class BlackjackActivity extends GameActivity {
     }
 
     CreditBTCItem[] items = new CreditBTCItem[]{
-        new CreditBTCItem("1 CREDIT = 0.01 BTC    ", "Win over 100 BTC!", Bitcoin.stringAmountToLong("0.01")),
-        new CreditBTCItem("1 CREDIT = 0.005 BTC    ", "Win over 50 BTC!", Bitcoin.stringAmountToLong("0.005")),
-        new CreditBTCItem("1 CREDIT = 0.001 BTC    ", "Win over 10 BTC!", Bitcoin.stringAmountToLong("0.001")),
-        new CreditBTCItem("1 CREDIT = 0.0001 BTC   ", "Win over 1 BTC!", Bitcoin.stringAmountToLong("0.0001"))};
+        new CreditBTCItem("1 CREDIT = 0.01 BTC    ", null, Bitcoin.stringAmountToLong("0.01")),
+        new CreditBTCItem("1 CREDIT = 0.005 BTC    ", null, Bitcoin.stringAmountToLong("0.005")),
+        new CreditBTCItem("1 CREDIT = 0.001 BTC    ", null, Bitcoin.stringAmountToLong("0.001")),
+        new CreditBTCItem("1 CREDIT = 0.0001 BTC   ", null, Bitcoin.stringAmountToLong("0.0001"))};
     showCreditBTCDialog(BJ_SETTING_CREDIT_BTC_VALUE, items);
   }
 

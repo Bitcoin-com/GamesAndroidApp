@@ -664,7 +664,11 @@ abstract public class GameActivity extends CommonActivity {
         holder.title.setText(items[position].mConversion);
         holder.icon.setImageDrawable(drawable);
 
-        holder.happyText.setText(items[position].mHappyText);
+        if (items[position].mHappyText != null) {
+          holder.happyText.setText(items[position].mHappyText);
+        } else {
+          holder.happyText.setVisibility(View.GONE);
+        }
 
         return convertView;
       }
