@@ -1102,20 +1102,14 @@ public class DiceActivity extends GameActivity {
           }
 
           if (result.intwinnings > 0) {
-            long delta = mCreditBTCValue;
+            long delta;
             long quotient = result.intwinnings / mCreditBTCValue;
             if (quotient < 50) {
               delta = mCreditBTCValue;
             } else if (quotient < 500) {
               delta = mCreditBTCValue * 5;
-            } else if (quotient < 1000) {
-              delta = mCreditBTCValue * 50;
-            } else if (quotient < 2000) {
-              delta = mCreditBTCValue * 100;
-            } else if (quotient < 5000) {
-              delta = mCreditBTCValue * 200;
             } else {
-              delta = mCreditBTCValue * 300;
+              delta = quotient * 350;
             }
 
             if (mIsAutoOn) {
@@ -1137,7 +1131,6 @@ public class DiceActivity extends GameActivity {
         }
       });
       mShowLuckyNumberRunnable.run();
-
     }
 
     @Override
