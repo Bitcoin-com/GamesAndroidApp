@@ -2,6 +2,7 @@ package com.bitcoin.games.app;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -10,10 +11,9 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -22,16 +22,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.bitcoin.games.R;
@@ -46,9 +42,12 @@ import com.bitcoin.games.lib.NetAsyncTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class BlackjackActivity extends GameActivity {
+
+  private static final String BJ_SETTING_CREDIT_BTC_VALUE = "bj_credit_btc_value";
 
   class BlackjackGameState extends GameState {
     final static public int WAIT_USER_DEAL = 0;
@@ -87,11 +86,7 @@ public class BlackjackActivity extends GameActivity {
   private Button mDoubleButton;
   private Button mAutoButton;
   private NetCommandTask mNetCommandTask;
-  private EditText mBetCreditsInput;
-  private TextView mCreditConversionHint;
-  private TextView mMaxBetHint;
 
-  private long mBet;
   private String mGameID;
   int mAutoSpeed;
   int mAutoInsurance;
@@ -129,9 +124,6 @@ public class BlackjackActivity extends GameActivity {
     mHitButton = (Button) findViewById(R.id.hit_button);
     mStandButton = (Button) findViewById(R.id.stand_button);
     mAutoButton = (Button) findViewById(R.id.auto_button);
-    mBetCreditsInput = (EditText) findViewById(R.id.bet_credits_input);
-    mCreditConversionHint = (TextView) findViewById(R.id.credit_conversion_hint);
-    mMaxBetHint = (TextView) findViewById(R.id.max_bet_hint);
 
     // TB TODO - Remove unused sounds!
     mSoundCardDeal = mSoundPool.load(this, R.raw.carddeal, 1);
@@ -142,9 +134,12 @@ public class BlackjackActivity extends GameActivity {
     mSoundWinProgressive = mSoundPool.load(this, R.raw.slot_machine_win_19, 1);
     mSoundCanSplit = mSoundPool.load(this, R.raw.slot_machine_bet_10, 1);
 
+    // Starting value (0.001 BTC) gets set in GameActivity::onCreate()
+    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+    mCreditBTCValue = sharedPref.getLong(BJ_SETTING_CREDIT_BTC_VALUE, mCreditBTCValue);
+    updateBTCButton(mCreditBTCValue);
+
     mRuleset = null;
-    mCreditBTCValue = Bitcoin.stringAmountToLong("0.0001");
-    mBet = Bitcoin.stringAmountToLong("0.0001");
     mHandGroups = new HandGroup[2];
     mHandGroups[Who.PLAYER] = new HandGroup(R.id.player_hands_holder);
     mHandGroups[Who.DEALER] = new HandGroup(R.id.dealer_hands_holder);
@@ -155,61 +150,6 @@ public class BlackjackActivity extends GameActivity {
 
     addCardBitmapsToCache();
 
-    mBetCreditsInput.setCursorVisible(false);
-    mBetCreditsInput.addTextChangedListener(new TextWatcher() {
-
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-      }
-
-      public void onTextChanged(CharSequence s, int start, int before, int count) {
-      }
-
-      public void afterTextChanged(Editable s) {
-        boolean isOK = false;
-        if (s.length() > 0) {
-          try {
-            int betInteger = Integer.parseInt(s.toString());
-            long bet = mCreditBTCValue * betInteger;
-            if (isBetAmountOK(bet)) {
-              isOK = true;
-              mBetCreditsInput.setTextColor(Color.BLACK);
-            }
-            // Always set the bet value even if it's bad, so that the edittext and textarea are always consistent.
-            mTextBet.setText(getString(R.string.bet_amount, betInteger));
-            mBet = bet;
-          } catch (NumberFormatException e) {
-            //
-          }
-        }
-        if (!isOK) {
-          mBetCreditsInput.setTextColor(Color.RED);
-        }
-        updateControls();
-      }
-    });
-
-    mBetCreditsInput.setOnClickListener(new OnClickListener() {
-      public void onClick(View v) {
-        mBetCreditsInput.setCursorVisible(true);
-        mCreditConversionHint.setVisibility(View.VISIBLE);
-        mMaxBetHint.setVisibility(View.VISIBLE);
-      }
-    });
-    mBetCreditsInput.setOnEditorActionListener(new OnEditorActionListener() {
-      public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_DONE) {
-          // hide virtual keyboard
-          InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-          //imm.hideSoftInputFromWindow(m_txtSearchText.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
-          imm.hideSoftInputFromWindow(mBetCreditsInput.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
-          mBetCreditsInput.setCursorVisible(false);
-          return true;
-        }
-        return false;
-      }
-
-    });
-
     updateCredits(mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance);
     updateControls();
   }
@@ -218,6 +158,24 @@ public class BlackjackActivity extends GameActivity {
   public void onDestroy() {
     super.onDestroy();
     mBitmapCache.clear();
+  }
+
+  boolean canCreditBTC() {
+    return (mGameState == BlackjackGameState.WAIT_USER_DEAL && !mIsGameBusy && !mIsWaitingForServer);
+  }
+
+
+  public void onCreditBTC(View button) {
+    if (!canCreditBTC()) {
+      return;
+    }
+
+    CreditBTCItem[] items = new CreditBTCItem[]{
+        new CreditBTCItem("1 CREDIT = 0.01 BTC    ", null, Bitcoin.stringAmountToLong("0.01")),
+        new CreditBTCItem("1 CREDIT = 0.005 BTC    ", null, Bitcoin.stringAmountToLong("0.005")),
+        new CreditBTCItem("1 CREDIT = 0.001 BTC    ", null, Bitcoin.stringAmountToLong("0.001")),
+        new CreditBTCItem("1 CREDIT = 0.0001 BTC   ", null, Bitcoin.stringAmountToLong("0.0001"))};
+    showCreditBTCDialog(BJ_SETTING_CREDIT_BTC_VALUE, items);
   }
 
   private boolean isBetAmountOK(long bet) {
@@ -280,7 +238,6 @@ public class BlackjackActivity extends GameActivity {
   @Override
   public void onResume() {
     super.onResume();
-    final Activity that = this;
 
     mNetReseedTask = new NetReseedTask(this, false);
     mNetReseedTask.execute(Long.valueOf(0));
@@ -332,7 +289,7 @@ public class BlackjackActivity extends GameActivity {
       return false;
     }
 
-    if (!isBetAmountOK(mBet)) {
+    if (!isBetAmountOK(mCreditBTCValue)) {
       return false;
     }
 
@@ -491,6 +448,10 @@ public class BlackjackActivity extends GameActivity {
     tryNetCommandTask(Blackjack.Command.INSURANCE);
   }
 
+  public void handleCreditBTCChanged() {
+    // No jackpot or anything to update here...
+  }
+
   void handleNotEnoughCredits() {
     super.showDepositDialog(R.color.bitcoin_games_blackjack);
     setAuto(false);
@@ -505,9 +466,6 @@ public class BlackjackActivity extends GameActivity {
       return;
     }
     tryNetCommandTask(Blackjack.Command.DEAL);
-
-    mCreditConversionHint.setVisibility(View.INVISIBLE);
-    mMaxBetHint.setVisibility(View.INVISIBLE);
   }
 
   public void setAuto(boolean auto) {
@@ -589,13 +547,6 @@ public class BlackjackActivity extends GameActivity {
 
     // We can't just check canDeal() since that also verifies bet size...
     // we need to enable the input even if the credit size is bad.
-    if (mGameState == BlackjackGameState.WAIT_USER_DEAL && !mIsGameBusy && !mIsWaitingForServer) {
-      //mBetCreditsInput.setFocusable(true);
-      mBetCreditsInput.setEnabled(true);
-    } else {
-      mBetCreditsInput.setEnabled(false);
-      mBetCreditsInput.clearFocus();
-    }
 
     if (mIsAutoOn) {
       mAutoButton.setBackgroundResource(R.drawable.button_red);
@@ -643,7 +594,7 @@ public class BlackjackActivity extends GameActivity {
         long progressiveBet = 0;
 
         BitcoinGames bvc = BitcoinGames.getInstance(this);
-        int command = Blackjack.player_action(dealerShows, playerHands, mDealResult.next_hand, mActions, takeInsuranceFreq, mRuleset.result.max_split_count, progressiveBet, mBet, bvc.mIntBalance);
+        int command = Blackjack.player_action(dealerShows, playerHands, mDealResult.next_hand, mActions, takeInsuranceFreq, mRuleset.result.max_split_count, progressiveBet, mCreditBTCValue, bvc.mIntBalance);
         switch (command) {
           case Blackjack.Command.HIT:
             if (!canHit()) {
@@ -720,7 +671,7 @@ public class BlackjackActivity extends GameActivity {
       mHolder = (ViewGroup) getLayoutInflater().inflate(R.layout.bj_hand, null);
       mCountHolder = (ViewGroup) mHolder.findViewById(R.id.count_holder);
       mCardHolder = (ViewGroup) mHolder.findViewById(R.id.card_holder);
-      mCards = new ArrayList<String>();
+      mCards = new ArrayList<>();
       mIsDone = false;
       mScore = 0;
     }
@@ -852,7 +803,7 @@ public class BlackjackActivity extends GameActivity {
     List<Hand> mHands;
 
     HandGroup(int resource) {
-      mHands = new ArrayList<Hand>();
+      mHands = new ArrayList<>();
       mHolder = (ViewGroup) findViewById(resource);
     }
 
@@ -994,7 +945,7 @@ public class BlackjackActivity extends GameActivity {
     public void run() {
       // TB TODO - Correct hand and playerDone values!
       boolean playerDone = mHandIndex == mHandGroups[Who.PLAYER].mHands.size();
-      int handGroup = 0;
+      int handGroup;
       if (mTotalCardsDealt == 0 || mTotalCardsDealt == 2) {
         handGroup = Who.PLAYER;
       } else if (mTotalCardsDealt == 1 || mTotalCardsDealt == 3) {
@@ -1071,18 +1022,10 @@ public class BlackjackActivity extends GameActivity {
     }
   }
 
-  ;
-
   @Override
   boolean shouldConnectingDialogShow() {
-    boolean val = super.shouldConnectingDialogShow();
-    if (val == true) {
-      return true;
-    }
-
-    return mRuleset == null;
+    return super.shouldConnectingDialogShow() || mRuleset == null;
   }
-
 
   void drawResultOfAllHands(final JSONBlackjackCommandResult result) {
 
@@ -1147,12 +1090,8 @@ public class BlackjackActivity extends GameActivity {
           }, WIN_SOUND_DELAY);
         }
 
-        // Counter updates at 20 fps, so /10 = 1 second of counting for a standard win (since you get back double your bet)
-        // Winning doubles + multiple hands will increase this time
-        long delta = (mBet / mCreditBTCValue) / 10;
-        if (delta <= 0) {
-          delta = 1;
-        }
+        long delta = 1L;
+
         delta *= mCreditBTCValue;
         if (mIsAutoOn) {
           delta = winnings;
@@ -1174,10 +1113,8 @@ public class BlackjackActivity extends GameActivity {
     };
 
     boolean playoutDealer = true;
-    List<String> dealerHand = new ArrayList<String>();
-    for (int i = 0; i < result.dealer_hand.length; i++) {
-      dealerHand.add(result.dealer_hand[i]);
-    }
+    List<String> dealerHand = new ArrayList<>();
+    Collections.addAll(dealerHand, result.dealer_hand);
 
     if (Blackjack.is_blackjack(dealerHand) && mHandGroups[Who.PLAYER].mHands.size() == 1 && Blackjack.is_blackjack(mHandGroups[Who.PLAYER].mHands.get(0).mCards)) {
       // TB TODO - What is the point of this first condition? The second
@@ -1282,9 +1219,9 @@ public class BlackjackActivity extends GameActivity {
   long getCommandCost(int command) {
     long cost = 0;
     if (command == Blackjack.Command.DEAL || command == Blackjack.Command.DOUBLE || command == Blackjack.Command.SPLIT) {
-      cost = mBet;
+      cost = mCreditBTCValue;
     } else if (command == Blackjack.Command.INSURANCE) {
-      cost = mBet / 2;
+      cost = mCreditBTCValue / 2;
     }
     return cost;
   }
@@ -1374,7 +1311,7 @@ public class BlackjackActivity extends GameActivity {
       final String[] commandLookup = {"blackjack/deal", "blackjack/hit", "blackjack/stand", "blackjack/double", "blackjack/split", "blackjack/insurance"};
       if (mCommand == Blackjack.Command.DEAL) {
         long progressiveBet = 0;
-        return mBVC.blackjackDeal(mBet, progressiveBet, mServerSeedHash, getClientSeed(), mUseFakeCredits);
+        return mBVC.blackjackDeal(mCreditBTCValue, progressiveBet, mServerSeedHash, getClientSeed(), mUseFakeCredits);
       } else {
         return mBVC.blackjackCommand(commandLookup[mCommand], mGameID, mDealResult.next_hand);
       }

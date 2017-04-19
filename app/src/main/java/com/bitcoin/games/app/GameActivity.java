@@ -664,7 +664,11 @@ abstract public class GameActivity extends CommonActivity {
         holder.title.setText(items[position].mConversion);
         holder.icon.setImageDrawable(drawable);
 
-        holder.happyText.setText(items[position].mHappyText);
+        if (items[position].mHappyText != null) {
+          holder.happyText.setText(items[position].mHappyText);
+        } else {
+          holder.happyText.setVisibility(View.GONE);
+        }
 
         return convertView;
       }
@@ -685,7 +689,7 @@ abstract public class GameActivity extends CommonActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(that);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putLong(settingCreditBTCValue, mCreditBTCValue);
-        editor.commit();
+        editor.apply();
 
         updateCredits(mUseFakeCredits ? BitcoinGames.getInstance(that).mFakeIntBalance : BitcoinGames.getInstance(that).mIntBalance);
         updateBTCButton(mCreditBTCValue);
@@ -730,7 +734,6 @@ abstract public class GameActivity extends CommonActivity {
 		// Scale our contents
 		scaleViewAndChildren(rootView, scale); 
 		*/
-    return;
   }
 
 
