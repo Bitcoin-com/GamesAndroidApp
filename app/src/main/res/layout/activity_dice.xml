@@ -80,7 +80,7 @@
 
             <TextView
                 style="@style/d_input_label"
-                android:labelFor="@+id/payout_edittext"
+                android:labelFor="@+id/payout_valuetext"
                 android:text="@string/dice_label_payout" />
 
             <TextView
@@ -88,11 +88,10 @@
                 android:text="@string/dice_label_descriptor_payout" />
         </LinearLayout>
 
-        <EditText
-            style="@style/d_input_edit"
+        <TextView
+            style="@style/d_input_value"
             android:text="2"
-            android:inputType="numberDecimal"
-            android:id="@id/payout_edittext"
+            android:id="@id/payout_valuetext"
             tools:ignore="HardcodedText" />
 
         <SeekBar
@@ -107,7 +106,7 @@
 
             <TextView
                 style="@style/d_input_label"
-                android:labelFor="@+id/chance_edittext"
+                android:labelFor="@+id/chance_valuetext"
                 android:text="@string/dice_label_win_chance" />
 
             <TextView
@@ -115,11 +114,10 @@
                 android:text="@string/dice_label_descriptor_win_chance" />
         </LinearLayout>
 
-        <EditText
-            style="@style/d_input_edit"
+        <TextView
+            style="@style/d_input_value"
             android:text="49.5000"
-            android:inputType="numberDecimal"
-            android:id="@id/chance_edittext"
+            android:id="@id/chance_valuetext"
             tools:ignore="HardcodedText" />
 
         <SeekBar
@@ -134,7 +132,7 @@
 
             <TextView
                 style="@style/d_input_label"
-                android:labelFor="@+id/amount_edittext"
+                android:labelFor="@+id/amount_valuetext"
                 android:text="@string/dice_label_bet_amount" />
 
             <TextView
@@ -142,10 +140,9 @@
                 android:text="@string/dice_label_descriptor_bet_amount" />
         </LinearLayout>
 
-        <EditText
-            style="@style/d_input_edit"
-            android:inputType="number"
-            android:id="@id/amount_edittext" />
+        <TextView
+            style="@style/d_input_value"
+            android:id="@id/amount_valuetext" />
 
         <SeekBar
             style="@style/d_input_seekbar"
@@ -159,7 +156,7 @@
 
             <TextView
                 style="@style/d_input_label"
-                android:labelFor="@+id/profit_edittext"
+                android:labelFor="@+id/profit_valuetext"
                 android:text="@string/dice_label_profit" />
 
             <TextView
@@ -167,10 +164,9 @@
                 android:text="@string/dice_label_descriptor_profit" />
         </LinearLayout>
 
-        <EditText
-            style="@style/d_input_edit"
-            android:inputType="numberDecimal"
-            android:id="@id/profit_edittext" />
+        <TextView
+            style="@style/d_input_value"
+            android:id="@id/profit_valuetext" />
 
         <FrameLayout
             android:layout_width="fill_parent"
