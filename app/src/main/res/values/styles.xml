@@ -33,6 +33,13 @@
         <item name="android:background">@drawable/button_dark</item>
     </style>
 
+    <style name="button_small" parent="button">
+        <item name="android:layout_marginStart">1dp</item>
+        <item name="android:layout_marginEnd">1dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
     <style name="payout_text">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>

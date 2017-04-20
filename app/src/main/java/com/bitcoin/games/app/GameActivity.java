@@ -397,7 +397,7 @@ abstract public class GameActivity extends CommonActivity {
   @Override
   public void onWindowFocusChanged(boolean hasFocus) {
     super.onWindowFocusChanged(hasFocus);
-    mTextBet.setTextSize(TypedValue.COMPLEX_UNIT_PX, mCreditsHolder.getHeight() * mCreditsTextSize);
+    mTextBet.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
 
 
     if (hasFocus) {
@@ -497,7 +497,7 @@ abstract public class GameActivity extends CommonActivity {
     TextView numberView = new TextView(this);
     numberView.setText(credits);
     numberView.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-    numberView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+    numberView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
 //    numberView.setTextColor(ContextCompat.getColor(this, R.color.credits));
     parent.addView(numberView);
   }
@@ -514,7 +514,7 @@ abstract public class GameActivity extends CommonActivity {
         TextView t = new TextView(this);
         t.setText(".");
         t.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-        t.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
 //        t.setTextColor(ContextCompat.getColor(this, R.color.credits));
         parent.addView(t);
         addNumberToViewGroup(dec, parent, textSize);
@@ -535,7 +535,7 @@ abstract public class GameActivity extends CommonActivity {
     // TB TODO - Use cached images?
 
     c.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-    c.setTextSize(TypedValue.COMPLEX_UNIT_PX, mWinHolder.getHeight() * mCreditsTextSize);
+    c.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
 
     if (showDouble) {
       c.setText(R.string.text_double);
@@ -547,7 +547,7 @@ abstract public class GameActivity extends CommonActivity {
     mWinHolder.addView(c, layout);
 
     // addNumberToViewGroup( prize, mWinHolder );
-    addCreditsNumberToViewGroup(prize, mWinHolder, mWinHolder.getHeight() * mCreditsTextSize);
+    addCreditsNumberToViewGroup(prize, mWinHolder, 20f);
   }
 
   void updateCredits(Long intbalance, int letterCreditsResource) {
@@ -558,12 +558,12 @@ abstract public class GameActivity extends CommonActivity {
       return;
     }
 
-    addCreditsNumberToViewGroup(intbalance, mCreditsHolder, mCreditsHolder.getHeight() * mCreditsTextSize);
+    addCreditsNumberToViewGroup(intbalance, mCreditsHolder, 20f);
 
     TextView c = new TextView(this);
     c.setText(letterCreditsResource);
     c.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-    c.setTextSize(TypedValue.COMPLEX_UNIT_PX, mCreditsHolder.getHeight() * mCreditsTextSize);
+    c.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
 //    c.setTextColor(ContextCompat.getColor(this, R.color.credits));
     LayoutParams layout = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
     layout.setMargins(15, 0, 0, 0);

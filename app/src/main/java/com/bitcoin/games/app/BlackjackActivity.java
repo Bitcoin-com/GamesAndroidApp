@@ -688,7 +688,7 @@ public class BlackjackActivity extends GameActivity {
       TextView text = new TextView(a);
       text.setText(res);
       text.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-      text.setTextSize(TypedValue.COMPLEX_UNIT_PX, 70);
+      text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
       text.setTextColor(Color.WHITE);
       text.setBackgroundColor(Color.BLACK);
 
@@ -733,7 +733,7 @@ public class BlackjackActivity extends GameActivity {
         }
       }
       mScore = val;
-      float textSize = 80f;
+      float textSize = 20f;
       addNumberToViewGroup(val, mCountHolder, textSize);
 
       if (!mIsDone && hasAce && val + 10 <= 21) {
@@ -741,10 +741,10 @@ public class BlackjackActivity extends GameActivity {
         int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics());
         layout.setMargins(margin, 0, margin, 0);
 
-        TextView or = new TextView(getApplicationContext());
+        TextView or = new TextView(mCountHolder.getContext());
         or.setText(R.string.bj_ace_or);
         or.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-        or.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        or.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         mCountHolder.addView(or, layout);
 
         addNumberToViewGroup(val + 10, mCountHolder, textSize);
