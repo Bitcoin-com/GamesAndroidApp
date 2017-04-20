@@ -8,6 +8,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +30,8 @@ import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.JSONBitcoinAddressResult;
 import com.bitcoin.games.lib.NetAsyncTask;
 import com.bitcoin.games.lib.NetBalanceTask;
+import com.bitcoin.games.lib.QrCode;
+import com.google.zxing.WriterException;
 
 import java.io.IOException;
 
@@ -39,6 +43,8 @@ public class DepositActivity extends CommonActivity {
   TextView mTitle;
   TextView mDepositAddress;
   Button mExternalApp;
+  ImageView mQrCodeImage;
+
   final static String TAG = "DepositActivity";
   NetBitcoinAddressTask mNetBitcoinAddressTask;
   final static int REQUEST_CODE_DEPOSIT_APP = 0;
@@ -64,10 +70,21 @@ public class DepositActivity extends CommonActivity {
     }
 
     String address = bvc.mDepositAddress;
+
     if (address == null) {
       mDepositAddress.setText(R.string.main_connecting);
+      if (mQrCodeImage != null) mQrCodeImage.setVisibility(View.GONE);
     } else {
       mDepositAddress.setText(address);
+      if (mQrCodeImage != null) {
+        try {
+          Bitmap bmp = QrCode.encodeAsBitmap("bitcoin:" + address);
+          mQrCodeImage.setImageBitmap(bmp);
+          mQrCodeImage.setVisibility(View.VISIBLE);
+        } catch (WriterException e) {
+          Log.e(TAG, "QR-code was not generated: " + e.getMessage());
+        }
+      }
     }
     // TB TODO - Enable/disable external app button depending on whether an address exists yet
     // TB TODO - Enable/disable external app button if no bitcoin intent handler app exists
@@ -85,6 +102,7 @@ public class DepositActivity extends CommonActivity {
     mTitle = (TextView) findViewById(R.id.title);
     mDepositAddress = (TextView) findViewById(R.id.deposit_address);
     mExternalApp = (Button) findViewById(R.id.external_app_button);
+    mQrCodeImage = (ImageView) findViewById(R.id.deposit_qr_code_image);
     Typeface robotoLight = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
     Typeface robotoBold = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Bold.ttf");
 

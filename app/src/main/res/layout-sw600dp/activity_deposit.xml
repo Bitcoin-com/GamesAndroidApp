@@ -9,7 +9,7 @@
         android:scaleType="centerCrop"
         android:adjustViewBounds="false"
         android:gravity="clip_horizontal"
-        android:src="@drawable/bg2" />
+        android:src="@drawable/bg2"/>
 
     <ScrollView
         android:layout_width="fill_parent"
@@ -30,6 +30,15 @@
             android:orientation="vertical">
 
             <include layout="@layout/deposit"/>
+
+            <ImageView
+                android:id="@+id/deposit_qr_code_image"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"
+                android:background="@drawable/qrcode"/>
 
         </LinearLayout>
 
