@@ -532,7 +532,7 @@ public class BlackjackActivity extends GameActivity {
     mDoubleButton.setTextColor(canDouble() ? Color.WHITE : Color.GRAY);
     mHitButton.setTextColor(canHit() ? Color.WHITE : Color.GRAY);
     mStandButton.setTextColor(canStand() ? Color.WHITE : Color.GRAY);
-
+    mBTCButton.setTextColor(canDeal() ? Color.WHITE : Color.GRAY);
 
     if (canInsurance()) {
       mInsuranceButton.setVisibility(View.VISIBLE);
