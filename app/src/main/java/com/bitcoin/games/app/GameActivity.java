@@ -207,14 +207,14 @@ abstract public class GameActivity extends CommonActivity {
         "#DF2F2B", "#DF2D2A", "#DF2B28", "#DF2926", "#DF2725", "#DF2523", "#DF2321", "#DE211F");
 
     for (String s : gradient) {
-      Drawable gradientButtonDrawable = getResources().getDrawable(R.drawable.button_yellow);
-      gradientButtonDrawable.setColorFilter(Color.parseColor(s), PorterDuff.Mode.SRC);
+      Drawable gradientButtonDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.button_red);
+      gradientButtonDrawable.setColorFilter(Color.parseColor(s), PorterDuff.Mode.SRC_IN);
       animationDrawable.addFrame(gradientButtonDrawable, 5);
     }
     Collections.reverse(gradient);
     for (String s : gradient) {
-      Drawable gradientButtonDrawable = getResources().getDrawable(R.drawable.button_yellow);
-      gradientButtonDrawable.setColorFilter(Color.parseColor(s), PorterDuff.Mode.SRC);
+      Drawable gradientButtonDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.button_red);
+      gradientButtonDrawable.setColorFilter(Color.parseColor(s), PorterDuff.Mode.SRC_IN);
       animationDrawable.addFrame(gradientButtonDrawable, 5);
     }
 
