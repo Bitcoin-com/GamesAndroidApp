@@ -50,7 +50,7 @@ public class BitcoinGames {
   final int CONNECT_TIMEOUT = 6000;
   final int READ_TIMEOUT = 6000;
   // By using our referral system on new accounts, we can see how many new android users were created.
-  final String NEW_ACCOUNT_REFERRAL_KEY_PRODUCTION = "2877209438";
+  final String NEW_ACCOUNT_REFERRAL_KEY_PRODUCTION = "4116305284";
   final String NEW_ACCOUNT_REFERRAL_KEY_LOCAL = "3678545110";
 
   public String mAccountKey;
