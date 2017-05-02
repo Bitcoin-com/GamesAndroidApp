@@ -18,7 +18,7 @@
     <string name="cashout_destination_address">Destination address</string>
     <string name="cashout_scan_qr_code">Scan QR Code</string>
     <string name="cashout_submit">Cash out</string>
-    <string name="cashout_transaction_fee_info">A small transaction fee of 0.0005 BTC will be deducted</string>
+    <string name="cashout_transaction_fee_info">A small transaction fee of 0.0001 BTC will be deducted</string>
     <string name="deposit_address">Your deposit address:</string>
     <string name="deposit_clipboard_hint">(Touch to copy to Clipboard)</string>
     <string name="deposit_external_app">Tap here to use external app to deposit Bitcoins</string>
