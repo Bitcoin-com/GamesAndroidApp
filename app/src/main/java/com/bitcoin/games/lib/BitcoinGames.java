@@ -84,7 +84,7 @@ public class BitcoinGames {
       mServerAddress = "https://10.0.2.2:9366";
       trustEveryone();
     } else if (BitcoinGames.RUN_ENVIRONMENT == BitcoinGames.RunEnvironment.LOCAL) {
-      mServerAddress = "https://192.168.1.42:9366";
+      mServerAddress = "https://games.btctest.net";
       trustEveryone();
     } else {
       mServerAddress = "https://games.bitcoin.com";
