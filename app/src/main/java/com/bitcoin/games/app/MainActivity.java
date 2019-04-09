@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Observable;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.bitcoin.games.R;
@@ -23,15 +26,17 @@ import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
 import com.bitcoin.games.lib.CommonApplication;
 import com.bitcoin.games.lib.CreateAccountTask;
+import com.bitcoin.games.lib.CurrencySettingChangeListener;
 import com.bitcoin.games.lib.JSONAndroidAppVersionResult;
 import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.JSONCreateAccountResult;
 import com.bitcoin.games.lib.NetAsyncTask;
 import com.bitcoin.games.lib.NetBalanceTask;
+import com.bitcoin.games.settings.CurrencySetting;
 
 import java.io.IOException;
 
-public class MainActivity extends CommonActivity {
+public class MainActivity extends CommonActivity implements CurrencySettingChangeListener {
 
   boolean mFakeCredits = true;
   //TextView mTitle;
@@ -55,6 +60,7 @@ public class MainActivity extends CommonActivity {
   final static String SETTING_ANDROID_APP_VERSION_CHECK = "android_app_version_check";
   Typeface mRobotoLight;
   Typeface mRobotoBold;
+  private CurrencySetting mCurrencySetting;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -102,9 +108,24 @@ public class MainActivity extends CommonActivity {
     mLastNetBalanceCheck = 0;
     mBlinkOn = false;
 
+    final BitcoinGames bvc = BitcoinGames.getInstance(this);
+    bvc.registerObserver(this);
+
     if (BitcoinGames.RUN_ENVIRONMENT == BitcoinGames.RunEnvironment.PRODUCTION) {
       mTestLocalWarning.setVisibility(View.GONE);
     }
+
+    ((RadioGroup) findViewById(R.id.radioCurrency)).setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(RadioGroup group, int checkedId) {
+        updateCurrency(bvc, checkedId);
+      }
+    });
+    updateCurrency(bvc, R.id.radioBch);
+  }
+
+  private void updateCurrency(final BitcoinGames bvc, int checkedId) {
+    bvc.setCurrency(((RadioButton) findViewById(checkedId)).getText().toString());
   }
 
   @Override
@@ -149,10 +170,10 @@ public class MainActivity extends CommonActivity {
     BitcoinGames bvc = BitcoinGames.getInstance(this);
 
     if (bvc.mIntBalance != -1) {
-      String btc = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
-      mBalance.setText(String.format("Balance: %s BTC", btc));
+      String balance = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
+      mBalance.setText(getString(R.string.bitcoin_balance, balance, mCurrencySetting.getCurrency()));
     } else {
-      mBalance.setText(String.format("Connecting..."));
+      mBalance.setText(R.string.main_connecting);
     }
   }
 
@@ -197,7 +218,7 @@ public class MainActivity extends CommonActivity {
     Intent intent = new Intent(Intent.ACTION_SEND);
     intent.setType("text/plain");
     intent.putExtra(Intent.EXTRA_SUBJECT, "Come play Bitcoin Games");
-    intent.putExtra(Intent.EXTRA_TEXT, "Check out the Bitcoin Games Android app. https://games.bitcoin.com/android");
+    intent.putExtra(Intent.EXTRA_TEXT, String.format("Check out the Bitcoin Games Android app. %s/android", mCurrencySetting.getServerAddress()));
     startActivity(Intent.createChooser(intent, "Share Bitcoin Games with friends"));
 
     // TB TODO - Might be cool to include an image as well, instead of just text
@@ -247,6 +268,12 @@ public class MainActivity extends CommonActivity {
   public void onSettings(View button) {
     Intent intent = new Intent(this, SettingsActivity.class);
     startActivity(intent);
+  }
+
+  @Override
+  public void update(Observable<CurrencySettingChangeListener> o, CurrencySetting currencySetting) {
+    mCurrencySetting = currencySetting;
+    updateValues();
   }
 
   class MainCreateAccountTask extends CreateAccountTask {
@@ -299,7 +326,7 @@ public class MainActivity extends CommonActivity {
             public void onClick(DialogInterface dialog, int id) {
               dialog.cancel();
               BitcoinGames bvc = BitcoinGames.getInstance(mActivity);
-              String url = "https://games.bitcoin.com/android?account_key=" + bvc.mAccountKey;
+              String url = String.format("%s/android?account_key=%s", mCurrencySetting.getServerAddress(), bvc.mAccountKey);
               Intent intent = new Intent(Intent.ACTION_VIEW);
               intent.setData(Uri.parse(url));
               startActivity(intent);

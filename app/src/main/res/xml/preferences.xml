@@ -15,8 +15,14 @@
         <EditTextPreference
             android:name="Your account key"
             android:summary="ABCD1234"
-            android:title="Edit your account key"
-            android:key="account_key" />
+            android:title="Edit your BCH account key"
+            android:key="bch_account_key" />
+
+        <EditTextPreference
+            android:name="Your account key"
+            android:summary="ABCD1234"
+            android:title="Edit your BTC account key"
+            android:key="btc_account_key" />
 
         <Preference
             android:title="Import account key from QR code"

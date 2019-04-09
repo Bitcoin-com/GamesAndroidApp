@@ -3,13 +3,19 @@ package com.bitcoin.games.lib;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.database.Observable;
+
+import com.bitcoin.games.settings.CurrencySetting;
 
 import java.io.IOException;
 
-public class NetBalanceTask extends NetAsyncTask<Long, Void, JSONBalanceResult> {
+public class NetBalanceTask extends NetAsyncTask<Long, Void, JSONBalanceResult> implements CurrencySettingChangeListener {
+
+  private CurrencySetting mCurrencySetting;
 
   public NetBalanceTask(Activity a) {
     super(a);
+    mBVC.registerObserver(this);
   }
 
   public JSONBalanceResult go(Long... v) throws IOException {
@@ -21,27 +27,27 @@ public class NetBalanceTask extends NetAsyncTask<Long, Void, JSONBalanceResult> 
   }
 
   public void onSuccess(JSONBalanceResult result) {
-
-    //Log.v("NetBalanceTask", "Success!");
-
     mBVC.mIntBalance = result.intbalance;
     mBVC.mFakeIntBalance = result.fake_intbalance;
     mBVC.mUnconfirmed = result.unconfirmed;
 
     if (result.notify_transaction != null) {
-      String s = "Received " + result.notify_transaction.amount + " BTC\n\n";
-      s += "Transaction ID: " + result.notify_transaction.txid;
-      AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-      builder.setMessage(s)
-          .setTitle("New Deposit")
-          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-              dialog.cancel();
-              onUserConfirmNewBalance();
-            }
-          });
-      AlertDialog alert = builder.create();
-      alert.show();
+      new AlertDialog.Builder(mActivity)
+        .setMessage(String.format("Received %s %s\n\nTransaction ID: %s", result.notify_transaction.amount, mCurrencySetting.getCurrency(), result.notify_transaction.txid))
+        .setTitle("New Deposit")
+        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id) {
+            dialog.cancel();
+            onUserConfirmNewBalance();
+          }
+        })
+        .create()
+        .show();
     }
+  }
+
+  @Override
+  public void update(Observable<CurrencySettingChangeListener> o, CurrencySetting currencySetting) {
+    mCurrencySetting = currencySetting;
   }
 }

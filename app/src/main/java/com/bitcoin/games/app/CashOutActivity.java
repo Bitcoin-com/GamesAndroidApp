@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Observable;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
@@ -27,17 +28,19 @@ import com.bitcoin.games.R;
 import com.bitcoin.games.lib.Bitcoin;
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
+import com.bitcoin.games.lib.CurrencySettingChangeListener;
 import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.JSONWithdrawResult;
 import com.bitcoin.games.lib.NetAsyncTask;
 import com.bitcoin.games.lib.NetBalanceTask;
+import com.bitcoin.games.settings.CurrencySetting;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.io.IOException;
 
 
-public class CashOutActivity extends CommonActivity {
+public class CashOutActivity extends CommonActivity implements CurrencySettingChangeListener {
 
   TextView mTitle;
   TextView mBalance;
@@ -50,6 +53,7 @@ public class CashOutActivity extends CommonActivity {
   CashOutNetBalanceTask mCashOutNetBalanceTask;
 
   final static String TAG = "CashOutActivity";
+  private CurrencySetting mCurrencySetting;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -75,6 +79,7 @@ public class CashOutActivity extends CommonActivity {
     if (bvc.mLastWithdrawAddress != null) {
       mWithdrawAddress.setText(bvc.mLastWithdrawAddress);
     }
+    bvc.registerObserver(this);
   }
 
   @Override
@@ -157,8 +162,8 @@ public class CashOutActivity extends CommonActivity {
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     if (bvc.mIntBalance != -1) {
-      String btc = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
-      mBalance.setText(getString(R.string.bitcoin_balance, btc));
+      String balance = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
+      mBalance.setText(getString(R.string.bitcoin_balance, balance, mCurrencySetting.getCurrency()));
     } else {
       mBalance.setText(getString(R.string.main_connecting));
     }
@@ -170,6 +175,13 @@ public class CashOutActivity extends CommonActivity {
     }
   }
 
+  @Override
+  public void update(Observable<CurrencySettingChangeListener> o, CurrencySetting currencySetting) {
+    mCurrencySetting = currencySetting;
+    ((TextView) findViewById(R.id.foo3)).setText(getString(R.string.cashout_amount_satoshi, currencySetting.getCurrency()));
+    ((TextView) findViewById(R.id.cashout_transaction_fee)).setText(getString(R.string.cashout_transaction_fee_info, currencySetting.getCurrency()));
+    updateValues();
+  }
 
   class NetWithdrawTask extends NetAsyncTask<Long, Void, JSONWithdrawResult> {
     //AlertDialog mAlert;
@@ -204,7 +216,7 @@ public class CashOutActivity extends CommonActivity {
     }
 
     public void onSuccess(JSONWithdrawResult result) {
-      if (result.result == true) {
+      if (result.result) {
         BitcoinGames bvc = BitcoinGames.getInstance(mActivity);
         // TB - Can not use result.intamount since it does not include the fee that we charge
         // TB TODO - We really should just get rid of that fee entirely.
@@ -214,7 +226,7 @@ public class CashOutActivity extends CommonActivity {
 
         //Toast.makeText(mActivity, "Success!", Toast.LENGTH_SHORT).show();
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setMessage(getString(R.string.cashout_dialog_success, mStringAmount, mStringAddress))
+        builder.setMessage(getString(R.string.cashout_dialog_success, mStringAmount, mCurrencySetting.getCurrency(), mStringAddress))
             .setTitle(R.string.success)
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
               public void onClick(DialogInterface dialog, int id) {
@@ -258,7 +270,6 @@ public class CashOutActivity extends CommonActivity {
       mCashOutNetBalanceTask = new CashOutNetBalanceTask(mActivity);
       mCashOutNetBalanceTask.execute(Long.valueOf(0));
     }
-
   }
 
   class CashOutNetBalanceTask extends NetBalanceTask {

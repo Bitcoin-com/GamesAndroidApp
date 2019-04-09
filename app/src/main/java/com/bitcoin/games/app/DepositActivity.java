@@ -8,6 +8,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Observable;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -26,17 +27,19 @@ import com.bitcoin.games.R;
 import com.bitcoin.games.lib.Bitcoin;
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
+import com.bitcoin.games.lib.CurrencySettingChangeListener;
 import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.JSONBitcoinAddressResult;
 import com.bitcoin.games.lib.NetAsyncTask;
 import com.bitcoin.games.lib.NetBalanceTask;
 import com.bitcoin.games.lib.QrCode;
+import com.bitcoin.games.settings.CurrencySetting;
 import com.google.zxing.WriterException;
 
 import java.io.IOException;
 
 
-public class DepositActivity extends CommonActivity {
+public class DepositActivity extends CommonActivity implements CurrencySettingChangeListener {
 
   TextView mBalance;
   TextView mUnconfirmedWarning;
@@ -44,6 +47,8 @@ public class DepositActivity extends CommonActivity {
   TextView mDepositAddress;
   Button mExternalApp;
   ImageView mQrCodeImage;
+
+  private CurrencySetting mCurrencySetting;
 
   final static String TAG = "DepositActivity";
   NetBitcoinAddressTask mNetBitcoinAddressTask;
@@ -57,10 +62,10 @@ public class DepositActivity extends CommonActivity {
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     if (bvc.mIntBalance != -1) {
-      String btc = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
-      mBalance.setText(getString(R.string.bitcoin_balance, btc));
+      String balance = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
+      mBalance.setText(getString(R.string.bitcoin_balance, balance, mCurrencySetting.getCurrency()));
     } else {
-      mBalance.setText(R.string.btc);
+      mBalance.setText(mCurrencySetting.getCurrency());
     }
 
     if (bvc.mUnconfirmed) {
@@ -111,6 +116,7 @@ public class DepositActivity extends CommonActivity {
     mTitle.setText(R.string.deposit);
     mTitle.setTypeface(robotoLight);
 
+    BitcoinGames.getInstance(this).registerObserver(this);
     // TB TODO - Should store/retrieve this address in the preferences storage, and then just
     // set it to null whenever the user account changes (indicating that we must get the deposit address)
     updateValues();
@@ -289,6 +295,12 @@ public class DepositActivity extends CommonActivity {
       handleMissingExternalApp();
     }
 
+  }
+
+  @Override
+  public void update(Observable<CurrencySettingChangeListener> o, CurrencySetting currencySetting) {
+    mCurrencySetting = currencySetting;
+    updateValues();
   }
 
   class NetBitcoinAddressTask extends NetAsyncTask<Long, Void, JSONBitcoinAddressResult> {

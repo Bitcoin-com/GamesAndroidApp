@@ -38,8 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:textSize="18sp"
-                android:textColor="#000000"
-                android:text="@string/cashout_amount_btc" />
+                android:textColor="#000000" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -112,12 +111,12 @@
                 android:layout_width="fill_parent" />
 
             <TextView
+                android:id="@+id/cashout_transaction_fee"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
                 android:textColor="#bbbbbb"
-                android:gravity="center"
-                android:text="@string/cashout_transaction_fee_info" />
+                android:gravity="center" />
 
         </LinearLayout>
 

@@ -11,14 +11,13 @@
     <string name="auto">AUTO</string>
     <string name="help">HELP</string>
     <string name="bet_max">BET MAX</string>
-    <string name="credit_value">0.001 BTC\nCREDIT VALUE</string>
     <string name="slots_spin">SPIN</string>
-    <string name="cashout_amount_btc">Withdraw amount (BTC)</string>
+    <string name="cashout_amount_satoshi">Withdraw amount (%s)</string>
     <string name="cashout_full_amount">Full amount</string>
     <string name="cashout_destination_address">Destination address</string>
     <string name="cashout_scan_qr_code">Scan QR Code</string>
     <string name="cashout_submit">Cash out</string>
-    <string name="cashout_transaction_fee_info">A small transaction fee of 0.0001 BTC will be deducted</string>
+    <string name="cashout_transaction_fee_info">A small transaction fee of 0.0001 %s will be deducted</string>
     <string name="deposit_address">Your deposit address:</string>
     <string name="deposit_clipboard_hint">(Touch to copy to Clipboard)</string>
     <string name="deposit_external_app">Tap here to use external app to deposit Bitcoins</string>
@@ -62,22 +61,20 @@
     <string name="bj_button_stand">STAND</string>
     <string name="button_draw">DRAW</string>
     <string name="bj_label_bet">BET</string>
-    <string name="bj_credits_hint">1 CREDIT = 0.0001 BTC</string>
-    <string name="bj_credits_hint_max_bet">MAX BET 10,000 CREDITS</string>
     <string name="slots_number_of_lines">LINES %d</string>
     <string name="slots_how_to_play_instructions">(Swipe left/right to change help page)</string>
     <string name="vp_button_more_games">MORE GAMES</string>
-    <string name="button_btc_credit_value">%s BTC \nCREDIT VALUE</string>
+    <string name="button_credit_value">%s %s \nCREDIT VALUE</string>
     <string name="auto_menu_speed">Speed</string>
     <string name="auto_menu_strategy">Strategy</string>
     <string name="bj_auto_menu_insurance">Take insurance</string>
     <string name="play">Play</string>
     <string name="cancel">Cancel</string>
     <string name="dice_auto_menu_target">Target</string>
-    <string name="bitcoin_balance">Balance: %s BTC</string>
+    <string name="bitcoin_balance">Balance: %s %s</string>
     <string name="QR_code_error">Error scanning QR code</string>
     <string name="cashout_dialog_withdrawing_bitcoins">Withdrawing Bitcoins…</string>
-    <string name="cashout_dialog_success">%1$s BTC was sent to:\n%2$s</string>
+    <string name="cashout_dialog_success">%s %s was sent to:\n%s</string>
     <string name="success">Success</string>
     <string name="cashout_failure_reason_pending_txs">Reason: One or more of your previous deposits is still not confirmed. Deposit confirmations usually take 10–20 minutes. Please try again later.</string>
     <string name="cashout_failure_reason_bad_address">Reason: Invalid destination address. Please check the Bitcoin address and try again.</string>
@@ -85,11 +82,13 @@
     <string name="cashout_failure_reason_server_msg">Reason: %s</string>
     <string name="cashout_dialog_failure_title">Unable to cash out</string>
     <string name="ok">OK</string>
+    <string name="select_coin">Select Coin:</string>
     <string name="btc">BTC</string>
+    <string name="bch">BCH</string>
     <string name="deposit_missing_wallet_message">No Bitcoin app was found on your device. Would you like to download the Blockchain Bitcoin wallet from Google Play?</string>
     <string name="deposit_missing_wallet_app_url">https://play.google.com/store/apps/details?id=piuk.blockchain.android</string>
     <string name="deposit_message_retrieving_dep_address">Retrieving deposit address…</string>
-    <string name="warning_waiting_for_btc_confirmations">(Some deposits are waiting for confirmations)</string>
+    <string name="warning_waiting_for_confirmations">(Some deposits are waiting for confirmations)</string>
     <string name="vp_auto_menu_play_mode">Play mode</string>
     <string name="vp_auto_menu_double_down">Double down</string>
     <string name="vp_hold">HOLD</string>

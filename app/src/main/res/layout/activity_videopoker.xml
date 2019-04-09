@@ -94,12 +94,11 @@
 
             <Button
                 style="@style/button"
-                android:id="@+id/btc_button"
+                android:id="@+id/satoshi_button"
                 android:layout_width="100dp"
-                android:onClick="onCreditBTC"
+                android:onClick="onCreditSatoshi"
                 android:background="@drawable/button_dark"
                 android:layout_centerInParent="true"
-                android:text="@string/button_btc_credit_value"
                 android:textSize="12sp" />
 
             <Button

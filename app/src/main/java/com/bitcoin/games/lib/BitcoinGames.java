@@ -2,10 +2,13 @@ package com.bitcoin.games.lib;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Observable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.bitcoin.games.BuildConfig;
+import com.bitcoin.games.settings.CurrencySetting;
+import com.bitcoin.games.settings.CurrencySettingFactory;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -15,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -25,7 +29,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.X509TrustManager;
 
-public class BitcoinGames {
+public class BitcoinGames extends Observable<CurrencySettingChangeListener> {
+
+  private static final String CURRENCY_DEFAULT = "BCH";
 
   // Change RUN_ENVIRONMENT to production before releasing
   public class RunEnvironment {
@@ -44,8 +50,6 @@ public class BitcoinGames {
     }
   }
 
-  private String mServerAddress;
-
   private static final String TAG = "BitcoinGames";
   final int CONNECT_TIMEOUT = 6000;
   final int READ_TIMEOUT = 6000;
@@ -57,17 +61,24 @@ public class BitcoinGames {
   public long mIntBalance;
   public long mFakeIntBalance;
   public boolean mUnconfirmed;
+  private CurrencySetting mCurrencySetting;
 
   public String mDepositAddress;
   public String mLastWithdrawAddress;
 
   private static BitcoinGames mInstance = null;
 
-  public class ChatCommand {
-    final static public int TALK = 0;
-    final static public int ENTER = 1;
-    final static public int EXIT = 2;
-    final static public int RENAME = 3;
+  public void setCurrency(final String currency) {
+    mCurrencySetting = CurrencySettingFactory.create(currency);
+    for (final CurrencySettingChangeListener observer : mObservers) {
+      observer.update(this, mCurrencySetting);
+    }
+  }
+
+  @Override
+  public void registerObserver(CurrencySettingChangeListener observer) {
+    super.registerObserver(observer);
+    observer.update(this, mCurrencySetting);
   }
 
   // Prevent public access
@@ -80,16 +91,11 @@ public class BitcoinGames {
     mFakeIntBalance = -1;
     mDepositAddress = null;
 
-    if (BitcoinGames.RUN_ENVIRONMENT == BitcoinGames.RunEnvironment.EMULATOR) {
-      mServerAddress = "https://10.0.2.2:9366";
+    if (BitcoinGames.RUN_ENVIRONMENT == BitcoinGames.RunEnvironment.EMULATOR
+      || BitcoinGames.RUN_ENVIRONMENT == BitcoinGames.RunEnvironment.LOCAL) {
       trustEveryone();
-    } else if (BitcoinGames.RUN_ENVIRONMENT == BitcoinGames.RunEnvironment.LOCAL) {
-      mServerAddress = "https://games.btctest.net";
-      trustEveryone();
-    } else {
-      mServerAddress = "https://games.bitcoin.com";
     }
-
+    mCurrencySetting = CurrencySettingFactory.create(CURRENCY_DEFAULT);
   }
 
   public static BitcoinGames getInstance(Context ctx) {
@@ -145,9 +151,19 @@ public class BitcoinGames {
     }
   }
 
-  private HttpURLConnection connect(String path, String accountKey) throws IOException {
-    URL u = new URL(mServerAddress + "/" + path);
+  private HttpURLConnection requestGET(String path, String accountKey) throws IOException {
+    return connect("GET", path, accountKey);
+  }
+
+  private HttpURLConnection requestPOST(String path, String accountKey) throws IOException {
+    return connect("POST", path, accountKey);
+  }
+
+  private HttpURLConnection connect(String method, String path, String accountKey) throws IOException {
+    URL u = new URL(mCurrencySetting.getServerAddress() + "/" + path);
     HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+    Log.v(method, u.toString());
+    conn.setRequestMethod(method);
     conn.setConnectTimeout(CONNECT_TIMEOUT);
     conn.setReadTimeout(READ_TIMEOUT);
     // conn.setInstanceFollowRedirects(true);
@@ -166,11 +182,8 @@ public class BitcoinGames {
       p += "?" + params;
     }
 
-    Log.v("GET", p);
-
-    HttpURLConnection conn = connect(p, accountKey);
-
-    return new InputStreamReader(conn.getInputStream(), "UTF-8");
+    HttpURLConnection conn = requestGET(p, accountKey);
+    return new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8);
   }
 
   private InputStreamReader getInputStreamReader(String path) throws IOException {
@@ -178,9 +191,7 @@ public class BitcoinGames {
   }
 
   private InputStreamReader postInputStreamReader(String path, String params, String accountKey) throws IOException {
-    URL u = new URL(mServerAddress + "/" + path);
-    HttpURLConnection conn = connect(path, accountKey);
-    conn.setRequestMethod("POST");
+    HttpURLConnection conn = requestPOST(path, accountKey);
 
     // POST
     conn.setDoOutput(true);

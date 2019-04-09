@@ -37,6 +37,10 @@ import java.util.Map;
 
 public class DiceActivity extends GameActivity {
 
+  @Override
+  public void updateSatoshiButton(long creditValue) {
+  }
+
   class DiceGameState extends GameState {
     final static public int WAIT_USER_THROW = 0;
   }
@@ -149,7 +153,7 @@ public class DiceActivity extends GameActivity {
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     mTimeUpdateDelay = 50;
-    mCreditBTCValue = Bitcoin.stringAmountToLong("0.0001");
+    mCreditValue = Bitcoin.stringAmountToLong("0.0001");
 
     mGameState = DiceGameState.WAIT_USER_THROW;
     mDice = new Dice();
@@ -515,7 +519,7 @@ public class DiceActivity extends GameActivity {
       }
       BitcoinGames bvc = BitcoinGames.getInstance(this);
 
-      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - (mAmountValue * mCreditBTCValue) < 0) {
+      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - (mAmountValue * mCreditValue) < 0) {
         handleNotEnoughCredits();
         return;
       }
@@ -704,9 +708,9 @@ public class DiceActivity extends GameActivity {
 
     // No need to check for a whole number bet amount like the JS code since mAmountValue is a whole number.
 
-    if (mProfitValue * mCreditBTCValue > mRuleset.result.maximum_profit) {
+    if (mProfitValue * mCreditValue > mRuleset.result.maximum_profit) {
       mIsUserInputError = true;
-      errorString = "Profit can not be bigger than " + String.valueOf(mRuleset.result.maximum_profit / mCreditBTCValue) + " credits";
+      errorString = "Profit can not be bigger than " + String.valueOf(mRuleset.result.maximum_profit / mCreditValue) + " credits";
       mAmountValueText.setTextColor(Color.RED);
     }
 
@@ -762,8 +766,8 @@ public class DiceActivity extends GameActivity {
 
         // Check that profit is not over the max. If so, reduce the bet amount.
         recalculateProfit();
-        if (mProfitValue * mCreditBTCValue > mRuleset.result.maximum_profit) {
-          mProfitValue = mRuleset.result.maximum_profit / mCreditBTCValue;
+        if (mProfitValue * mCreditValue > mRuleset.result.maximum_profit) {
+          mProfitValue = mRuleset.result.maximum_profit / mCreditValue;
           handleProfitChange();
         }
       }
@@ -1001,7 +1005,7 @@ public class DiceActivity extends GameActivity {
       int last = 999999999;
       int chatlast = 999999999;
 
-      return mBVC.diceUpdate(last, chatlast, mCreditBTCValue);
+      return mBVC.diceUpdate(last, chatlast, mCreditValue);
     }
 
     public void onSuccess(JSONDiceUpdateResult result) {
@@ -1044,7 +1048,7 @@ public class DiceActivity extends GameActivity {
       // will still be shown.
       mAllowAbort = false;
 
-      updateCredits((mUseFakeCredits ? mBVC.mFakeIntBalance : mBVC.mIntBalance) - (mAmountValue * mCreditBTCValue));
+      updateCredits((mUseFakeCredits ? mBVC.mFakeIntBalance : mBVC.mIntBalance) - (mAmountValue * mCreditValue));
 
       // TB TEMP TEST - There's probably a better place to put this?
       stopCountUpWins();
@@ -1062,7 +1066,7 @@ public class DiceActivity extends GameActivity {
     public JSONDiceThrowResult go(Long... v) throws IOException {
       String serverSeedHash = mServerSeedHash;
 
-      long bet = mAmountValue * mCreditBTCValue;
+      long bet = mAmountValue * mCreditValue;
       long payout = (long) (mPayoutValue * 100000000);
       return mBVC.diceThrow(serverSeedHash, getClientSeed(), bet, payout, mTargetValue, mUseFakeCredits);
     }
@@ -1103,11 +1107,11 @@ public class DiceActivity extends GameActivity {
 
           if (result.intwinnings > 0) {
             long delta;
-            long quotient = result.intwinnings / mCreditBTCValue;
+            long quotient = result.intwinnings / mCreditValue;
             if (quotient < 50) {
-              delta = mCreditBTCValue;
+              delta = mCreditValue;
             } else if (quotient < 500) {
-              delta = mCreditBTCValue * 5;
+              delta = mCreditValue * 5;
             } else {
               delta = quotient * 350;
             }

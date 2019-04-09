@@ -112,7 +112,7 @@ public class VideoPokerActivity extends GameActivity {
 
 
   final private int NUM_CARDS = 5;
-  final private String VP_SETTING_CREDIT_BTC_VALUE = "vp_credit_btc_value";
+  final private String VP_SETTING_CREDIT_VALUE = "vp_credit_value";
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -140,10 +140,10 @@ public class VideoPokerActivity extends GameActivity {
     mPaytablesButton = (Button) findViewById(R.id.paytables_button);
     mDoubleButton = (Button) findViewById(R.id.double_button);
 
-    // Starting value (0.001 BTC) gets set in GameActivity::onCreate()
+    // Starting value (0.001) gets set in GameActivity::onCreate()
     SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    mCreditBTCValue = sharedPref.getLong(VP_SETTING_CREDIT_BTC_VALUE, mCreditBTCValue);
-    updateBTCButton(mCreditBTCValue);
+    mCreditValue = sharedPref.getLong(VP_SETTING_CREDIT_VALUE, mCreditValue);
+    updateSatoshiButton(mCreditValue);
 
     mSoundCardDeal = mSoundPool.load(this, R.raw.carddeal, 1);
     mSoundCoinPay = mSoundPool.load(this, R.raw.coinpay, 1);
@@ -382,7 +382,6 @@ public class VideoPokerActivity extends GameActivity {
   @Override
   public void onResume() {
     super.onResume();
-    final Activity that = this;
 
     if (mServerSeedHash == null) {
       // If the seed happens to have expired when he returns, that's OK because we'll get a new seed
@@ -421,21 +420,22 @@ public class VideoPokerActivity extends GameActivity {
     });
   }
 
-  public void onCreditBTC(View button) {
-    if (!canCreditBTC()) {
+  public void onCreditSatoshi(View button) {
+    if (!canCreditSatoshi()) {
       return;
     }
 
-    CreditBTCItem[] items = new CreditBTCItem[]{new CreditBTCItem("1 CREDIT = 0.05 BTC", "Win over 200 BTC!", Bitcoin.stringAmountToLong("0.05")),
-        new CreditBTCItem("1 CREDIT = 0.01 BTC", "Win over 40 BTC!", Bitcoin.stringAmountToLong("0.01")),
-        new CreditBTCItem("1 CREDIT = 0.005 BTC", "Win over 20 BTC!", Bitcoin.stringAmountToLong("0.005")),
-        new CreditBTCItem("1 CREDIT = 0.001 BTC", "Win over 4 BTC!", Bitcoin.stringAmountToLong("0.001")),
-        new CreditBTCItem("1 CREDIT = 0.0001 BTC", "Win over 0.4 BTC!", Bitcoin.stringAmountToLong("0.0001"))};
-    showCreditBTCDialog(VP_SETTING_CREDIT_BTC_VALUE, items);
+    CreditItem[] items = new CreditItem[]{
+        new CreditItem(String.format("1 CREDIT = 0.05 %s", mCurrencySetting.getCurrency()), String.format("Win over 200 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.05")),
+        new CreditItem(String.format("1 CREDIT = 0.01 %s", mCurrencySetting.getCurrency()), String.format("Win over 40 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.01")),
+        new CreditItem(String.format("1 CREDIT = 0.005 %s", mCurrencySetting.getCurrency()), String.format("Win over 20 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.005")),
+        new CreditItem(String.format("1 CREDIT = 0.001 %s", mCurrencySetting.getCurrency()), String.format("Win over 4 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.001")),
+        new CreditItem(String.format("1 CREDIT = 0.0001 %s", mCurrencySetting.getCurrency()), String.format("Win over 0.4 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.0001"))};
+    showCreditDialog(VP_SETTING_CREDIT_VALUE, items);
   }
 
   @Override
-  public void handleCreditBTCChanged() {
+  public void handleCreditSatoshiChanged() {
 
     // Gotta reset the jackpot until we get the new value
     mProgressiveJackpot = -1;
@@ -529,7 +529,7 @@ public class VideoPokerActivity extends GameActivity {
       }
       BitcoinGames bvc = BitcoinGames.getInstance(this);
 
-      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - mCreditBTCValue < 0) {
+      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - mCreditValue < 0) {
         handleNotEnoughCredits();
         return;
       }
@@ -589,7 +589,7 @@ public class VideoPokerActivity extends GameActivity {
     return (mGameState == VideoPokerGameState.WAIT_USER_DEAL && mPrize > 0 && mDoubleDownLevel <= 2);
   }
 
-  private boolean canCreditBTC() {
+  private boolean canCreditSatoshi() {
     return canDeal();
   }
 
@@ -846,7 +846,7 @@ public class VideoPokerActivity extends GameActivity {
     if (!canDoubleDown()) {
       return;
     }
-    long cost = (mCreditBTCValue * mPrize);
+    long cost = (mCreditValue * mPrize);
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - cost < 0) {
       Toast.makeText(this, R.string.not_enough_credits, Toast.LENGTH_SHORT).show();
@@ -860,7 +860,7 @@ public class VideoPokerActivity extends GameActivity {
   String getProgressiveJackpotString(long progressiveJackpot) {
     int bestHand = mPoker.hand_names.length - 1;
     // The jackpot returned is in 10000ths of a credit
-    //float val = mPoker.get_hand_prize_amount(5, bestHand) + ( (float)progressiveJackpot/mCreditBTCValue);
+    //float val = mPoker.get_hand_prize_amount(5, bestHand) + ( (float)progressiveJackpot/mCreditValue);
     float val = mPoker.get_hand_prize_amount(5, bestHand) + (float) (progressiveJackpot / 10000.0);
     return String.format("%.2f", val);
   }
@@ -947,7 +947,7 @@ public class VideoPokerActivity extends GameActivity {
     public JSONVideoPokerUpdateResult go(Long... v) throws IOException {
       int last = 999999999;
       int chatlast = 999999999;
-      return mBVC.videoPokerUpdate(last, chatlast, mCreditBTCValue);
+      return mBVC.videoPokerUpdate(last, chatlast, mCreditValue);
     }
 
     public void onSuccess(JSONVideoPokerUpdateResult result) {
@@ -988,7 +988,7 @@ public class VideoPokerActivity extends GameActivity {
       // TB TEMP TEST - Keep this running so that if the task is interrupted (phone call, etc), that the result
       // will still be shown.
       mAllowAbort = false;
-      updateCredits((mUseFakeCredits ? mBVC.mFakeIntBalance : mBVC.mIntBalance) - (mBetSize * mCreditBTCValue));
+      updateCredits((mUseFakeCredits ? mBVC.mFakeIntBalance : mBVC.mIntBalance) - (mBetSize * mCreditValue));
 
       stopCountUpWins();
       mIsWaitingForServer = true;
@@ -1008,7 +1008,7 @@ public class VideoPokerActivity extends GameActivity {
     public JSONVideoPokerDealResult go(Long... v) throws IOException {
       String serverSeedHash = mServerSeedHash;
       // TB TODO - Randomize this!
-      return mBVC.videoPokerDeal(mBetSize, mPaytable, mCreditBTCValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
+      return mBVC.videoPokerDeal(mBetSize, mPaytable, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
     }
 
     @Override
@@ -1113,11 +1113,11 @@ public class VideoPokerActivity extends GameActivity {
             playSound(mSoundWin);
 
             // This sets the credits to dirty, so changing mBVC.mIntBalance a little later won't mess with the count up.
-            long delta = mCreditBTCValue;
+            long delta = mCreditValue;
             if (mIsAutoOn) {
-              delta = result.prize * mCreditBTCValue;
+              delta = result.prize * mCreditValue;
             }
-            startCountUpWins(result.prize * mCreditBTCValue, (mUseFakeCredits ? result.fake_intbalance : result.intbalance) - (result.prize * mCreditBTCValue), mCreditBTCValue);
+            startCountUpWins(result.prize * mCreditValue, (mUseFakeCredits ? result.fake_intbalance : result.intbalance) - (result.prize * mCreditValue), mCreditValue);
 
             mDoubleDownLevel = 0;
             mDoubleDownServerSeedHash = result.double_down_server_seed_hash;
@@ -1165,14 +1165,14 @@ public class VideoPokerActivity extends GameActivity {
       // TB TEMP TEST - Keep this running so that if the task is interrupted (phone call, etc), that the result
       // will still be shown.
       mAllowAbort = false;
-      long cost = (mCreditBTCValue * mPrize);
+      long cost = (mCreditValue * mPrize);
       updateCredits((mUseFakeCredits ? mBVC.mFakeIntBalance : mBVC.mIntBalance) - cost);
 
       mIsWaitingForServer = true;
       mIsGameBusy = true;
       resetAllCards();
 
-      updateWin(mPrize * 2 * mCreditBTCValue, true);
+      updateWin(mPrize * 2 * mCreditValue, true);
       // TB - Credits are now dirty (so don't update credits with whatever we get from a balance update, since it will be incorrect)
       mCreditsAreDirty = true;
       updateControls();
@@ -1265,7 +1265,7 @@ public class VideoPokerActivity extends GameActivity {
           } else {
             mPrize = 0;
           }
-          updateWin(mPrize * mCreditBTCValue, false);
+          updateWin(mPrize * mCreditValue, false);
 
           mBVC.mIntBalance = result.intbalance;
           mBVC.mFakeIntBalance = result.fake_intbalance;
