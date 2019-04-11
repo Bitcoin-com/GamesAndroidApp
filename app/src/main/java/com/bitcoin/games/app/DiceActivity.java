@@ -31,15 +31,13 @@ import com.bitcoin.games.lib.JSONDiceThrowResult;
 import com.bitcoin.games.lib.JSONDiceUpdateResult;
 import com.bitcoin.games.lib.JSONReseedResult;
 import com.bitcoin.games.lib.NetAsyncTask;
+import com.bitcoin.games.rest.DiceRestClient;
+import com.bitcoin.games.settings.DiceSettings;
 
 import java.io.IOException;
 import java.util.Map;
 
 public class DiceActivity extends GameActivity {
-
-  @Override
-  public void updateSatoshiButton(long creditValue) {
-  }
 
   class DiceGameState extends GameState {
     final static public int WAIT_USER_THROW = 0;
@@ -153,7 +151,7 @@ public class DiceActivity extends GameActivity {
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     mTimeUpdateDelay = 50;
-    mCreditValue = Bitcoin.stringAmountToLong("0.0001");
+    mCreditValue = DiceSettings.getInstance().getCreditValue();
 
     mGameState = DiceGameState.WAIT_USER_THROW;
     mDice = new Dice();
@@ -1005,7 +1003,7 @@ public class DiceActivity extends GameActivity {
       int last = 999999999;
       int chatlast = 999999999;
 
-      return mBVC.diceUpdate(last, chatlast, mCreditValue);
+      return DiceRestClient.getInstance().diceUpdate(last, chatlast, mCreditValue);
     }
 
     public void onSuccess(JSONDiceUpdateResult result) {
@@ -1025,7 +1023,7 @@ public class DiceActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return mBVC.diceReseed();
+      return DiceRestClient.getInstance().diceReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -1068,7 +1066,7 @@ public class DiceActivity extends GameActivity {
 
       long bet = mAmountValue * mCreditValue;
       long payout = (long) (mPayoutValue * 100000000);
-      return mBVC.diceThrow(serverSeedHash, getClientSeed(), bet, payout, mTargetValue, mUseFakeCredits);
+      return DiceRestClient.getInstance().diceThrow(serverSeedHash, getClientSeed(), bet, payout, mTargetValue, mUseFakeCredits);
     }
 
     @Override
@@ -1162,7 +1160,7 @@ public class DiceActivity extends GameActivity {
     }
 
     public JSONDiceRulesetResult go(Long... v) throws IOException {
-      return mBVC.diceRuleset();
+      return DiceRestClient.getInstance().diceRuleset();
     }
 
     @Override

@@ -42,10 +42,10 @@ import com.bitcoin.games.R;
 import com.bitcoin.games.lib.Bitcoin;
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
-import com.bitcoin.games.lib.CurrencySettingChangeListener;
 import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.NetBalanceTask;
-import com.bitcoin.games.settings.CurrencySetting;
+import com.bitcoin.games.settings.Currency;
+import com.bitcoin.games.settings.CurrencySettings;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,15 +64,7 @@ class CreditItem {
 }
 
 
-abstract public class GameActivity extends CommonActivity implements CurrencySettingChangeListener {
-
-  protected CurrencySetting mCurrencySetting;
-
-  @Override
-  public void update(Observable<CurrencySettingChangeListener> o, CurrencySetting currencySetting) {
-    mCurrencySetting = currencySetting;
-    updateSatoshiButton(mCreditValue);
-  }
+abstract public class GameActivity extends CommonActivity {
 
   public int screenLayoutSize;
 
@@ -132,8 +124,6 @@ abstract public class GameActivity extends CommonActivity implements CurrencySet
   //@Override
   public void onCreate(Bundle savedInstanceState, int contentViewResource) {
     super.onCreate(savedInstanceState);
-    BitcoinGames.getInstance(this).registerObserver(this);
-
     screenLayoutSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 
     requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -601,8 +591,7 @@ abstract public class GameActivity extends CommonActivity implements CurrencySet
     // TB TODO - Should never be possible to even be here if you have no account key...
     if (now - mLastNetBalanceCheck >= BALANCE_CHECK_DELAY) {
       mLastNetBalanceCheck = now;
-      BitcoinGames bvc = BitcoinGames.getInstance(this);
-      if (bvc.mAccountKey != null) {
+      if (CurrencySettings.getInstance().getAccountKey() != null) {
         //Log.v(TAG, bvc.mAccountKey);
         mNetBalanceTask = new GameNetBalanceTask(this);
         mNetBalanceTask.execute(Long.valueOf(0));
@@ -614,16 +603,17 @@ abstract public class GameActivity extends CommonActivity implements CurrencySet
   }
 
   public void updateSatoshiButton(long creditValue) {
+    final String currency = CurrencySettings.getInstance().getCurrency().name();
     if (creditValue == Bitcoin.stringAmountToLong("0.05")) {
-      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.05", mCurrencySetting.getCurrency()));
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.05", currency));
     } else if (creditValue == Bitcoin.stringAmountToLong("0.01")) {
-      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.01", mCurrencySetting.getCurrency()));
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.01", currency));
     } else if (creditValue == Bitcoin.stringAmountToLong("0.005")) {
-      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.005", mCurrencySetting.getCurrency()));
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.005", currency));
     } else if (creditValue == Bitcoin.stringAmountToLong("0.001")) {
-      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.001", mCurrencySetting.getCurrency()));
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.001", currency));
     } else if (creditValue == Bitcoin.stringAmountToLong("0.0001")) {
-      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.0001", mCurrencySetting.getCurrency()));
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.0001", currency));
     } else {
       Log.e(TAG, "Error: updateSatoshiButton called with invalid creditValue");
     }

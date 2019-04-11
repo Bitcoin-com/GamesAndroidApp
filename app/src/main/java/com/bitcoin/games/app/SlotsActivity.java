@@ -38,6 +38,8 @@ import com.bitcoin.games.lib.JSONSlotsPullResult;
 import com.bitcoin.games.lib.JSONSlotsRulesetResult;
 import com.bitcoin.games.lib.JSONSlotsUpdateResult;
 import com.bitcoin.games.lib.NetAsyncTask;
+import com.bitcoin.games.rest.SlotsRestClient;
+import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -592,11 +594,12 @@ public class SlotsActivity extends GameActivity {
       return;
     }
 
-    CreditItem[] items = new CreditItem[]{
-        new CreditItem(String.format("1 CREDIT = 0.01 %s     ", mCurrencySetting.getCurrency()), String.format("Win over 100 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.01")),
-        new CreditItem(String.format("1 CREDIT = 0.005 %s    ", mCurrencySetting.getCurrency()), String.format("Win over 50 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.005")),
-        new CreditItem(String.format("1 CREDIT = 0.001 %s    ", mCurrencySetting.getCurrency()), String.format("Win over 10 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.001")),
-        new CreditItem(String.format("1 CREDIT = 0.0001 %s   ", mCurrencySetting.getCurrency()), String.format("Win over 1 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.0001"))};
+    final String currency = CurrencySettings.getInstance().getCurrency().name();
+    final CreditItem[] items = new CreditItem[]{
+        new CreditItem(String.format("1 CREDIT = 0.01 %s     ", currency), String.format("Win over 100 %s!", currency), Bitcoin.stringAmountToLong("0.01")),
+        new CreditItem(String.format("1 CREDIT = 0.005 %s    ", currency), String.format("Win over 50 %s!", currency), Bitcoin.stringAmountToLong("0.005")),
+        new CreditItem(String.format("1 CREDIT = 0.001 %s    ", currency), String.format("Win over 10 %s!", currency), Bitcoin.stringAmountToLong("0.001")),
+        new CreditItem(String.format("1 CREDIT = 0.0001 %s   ", currency), String.format("Win over 1 %s!", currency), Bitcoin.stringAmountToLong("0.0001"))};
     showCreditDialog(SL_SETTING_CREDIT_VALUE, items);
   }
 
@@ -1070,7 +1073,7 @@ public class SlotsActivity extends GameActivity {
     public JSONSlotsUpdateResult go(Long... v) throws IOException {
       int last = 999999999;
       int chatlast = 999999999;
-      return mBVC.slotsUpdate(last, chatlast, mCreditValue);
+      return SlotsRestClient.getInstance().slotsUpdate(last, chatlast, mCreditValue);
     }
 
     public void onSuccess(JSONSlotsUpdateResult result) {
@@ -1091,7 +1094,7 @@ public class SlotsActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return mBVC.slotsReseed();
+      return SlotsRestClient.getInstance().slotsReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -1150,7 +1153,7 @@ public class SlotsActivity extends GameActivity {
 
     public JSONSlotsPullResult go(Long... v) throws IOException {
       String serverSeedHash = mServerSeedHash;
-      return mBVC.slotsPull(mLines, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
+      return SlotsRestClient.getInstance().slotsPull(mLines, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
     }
 
     @Override
@@ -1279,7 +1282,7 @@ public class SlotsActivity extends GameActivity {
     }
 
     public JSONSlotsRulesetResult go(Long... v) throws IOException {
-      return mBVC.slotsRuleset();
+      return SlotsRestClient.getInstance().slotsRuleset();
     }
 
     @Override

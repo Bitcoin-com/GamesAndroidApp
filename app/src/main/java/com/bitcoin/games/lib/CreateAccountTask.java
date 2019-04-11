@@ -7,6 +7,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.bitcoin.games.rest.AccountRestClient;
+import com.bitcoin.games.settings.CurrencySettings;
+
 import java.io.IOException;
 
 public class CreateAccountTask extends NetAsyncTask<Long, Void, JSONCreateAccountResult> {
@@ -20,7 +23,7 @@ public class CreateAccountTask extends NetAsyncTask<Long, Void, JSONCreateAccoun
   }
 
   public JSONCreateAccountResult go(Long... v) throws IOException {
-    return mBVC.getCreateAccount();
+    return AccountRestClient.getInstance().createAccount();
   }
 
   public void onDone() {
@@ -39,7 +42,9 @@ public class CreateAccountTask extends NetAsyncTask<Long, Void, JSONCreateAccoun
   public static void setAccountKeyInPreferences(Activity a, String key) {
     SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(a);
     SharedPreferences.Editor editor = settings.edit();
-    editor.putString("account_key", key);
+    editor.putString("bch_account_key", key);
+    editor.putString("btc_account_key", key);
+    CurrencySettings.getInstance().setAccountKey(key);
     editor.putString("deposit_address", null);
     editor.putString("last_withdraw_address", null);
     editor.commit();

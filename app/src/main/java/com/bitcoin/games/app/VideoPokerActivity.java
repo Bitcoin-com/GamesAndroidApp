@@ -49,6 +49,8 @@ import com.bitcoin.games.lib.JSONVideoPokerUpdateResult;
 import com.bitcoin.games.lib.NetAsyncTask;
 import com.bitcoin.games.lib.Poker;
 import com.bitcoin.games.lib.PokerFactory;
+import com.bitcoin.games.rest.PokerRestClient;
+import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
 import java.util.Random;
@@ -425,12 +427,13 @@ public class VideoPokerActivity extends GameActivity {
       return;
     }
 
-    CreditItem[] items = new CreditItem[]{
-        new CreditItem(String.format("1 CREDIT = 0.05 %s", mCurrencySetting.getCurrency()), String.format("Win over 200 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.05")),
-        new CreditItem(String.format("1 CREDIT = 0.01 %s", mCurrencySetting.getCurrency()), String.format("Win over 40 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.01")),
-        new CreditItem(String.format("1 CREDIT = 0.005 %s", mCurrencySetting.getCurrency()), String.format("Win over 20 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.005")),
-        new CreditItem(String.format("1 CREDIT = 0.001 %s", mCurrencySetting.getCurrency()), String.format("Win over 4 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.001")),
-        new CreditItem(String.format("1 CREDIT = 0.0001 %s", mCurrencySetting.getCurrency()), String.format("Win over 0.4 %s!", mCurrencySetting.getCurrency()), Bitcoin.stringAmountToLong("0.0001"))};
+    final String currency = CurrencySettings.getInstance().getCurrency().name();
+    final CreditItem[] items = new CreditItem[]{
+        new CreditItem(String.format("1 CREDIT = 0.05 %s", currency), String.format("Win over 200 %s!", currency), Bitcoin.stringAmountToLong("0.05")),
+        new CreditItem(String.format("1 CREDIT = 0.01 %s", currency), String.format("Win over 40 %s!", currency), Bitcoin.stringAmountToLong("0.01")),
+        new CreditItem(String.format("1 CREDIT = 0.005 %s", currency), String.format("Win over 20 %s!", currency), Bitcoin.stringAmountToLong("0.005")),
+        new CreditItem(String.format("1 CREDIT = 0.001 %s", currency), String.format("Win over 4 %s!", currency), Bitcoin.stringAmountToLong("0.001")),
+        new CreditItem(String.format("1 CREDIT = 0.0001 %s", currency), String.format("Win over 0.4 %s!", currency), Bitcoin.stringAmountToLong("0.0001"))};
     showCreditDialog(VP_SETTING_CREDIT_VALUE, items);
   }
 
@@ -947,7 +950,7 @@ public class VideoPokerActivity extends GameActivity {
     public JSONVideoPokerUpdateResult go(Long... v) throws IOException {
       int last = 999999999;
       int chatlast = 999999999;
-      return mBVC.videoPokerUpdate(last, chatlast, mCreditValue);
+      return PokerRestClient.getInstance().videoPokerUpdate(last, chatlast, mCreditValue);
     }
 
     public void onSuccess(JSONVideoPokerUpdateResult result) {
@@ -968,7 +971,7 @@ public class VideoPokerActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return mBVC.videoPokerReseed();
+      return PokerRestClient.getInstance().videoPokerReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -1008,7 +1011,7 @@ public class VideoPokerActivity extends GameActivity {
     public JSONVideoPokerDealResult go(Long... v) throws IOException {
       String serverSeedHash = mServerSeedHash;
       // TB TODO - Randomize this!
-      return mBVC.videoPokerDeal(mBetSize, mPaytable, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
+      return PokerRestClient.getInstance().videoPokerDeal(mBetSize, mPaytable, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
     }
 
     @Override
@@ -1097,7 +1100,7 @@ public class VideoPokerActivity extends GameActivity {
 
     public JSONVideoPokerHoldResult go(Long... v) throws IOException {
       //String holds = "01100";
-      return mBVC.videoPokerHold(mDealResult.game_id, mHolds, mServerSeedHash);
+      return PokerRestClient.getInstance().videoPokerHold(mDealResult.game_id, mHolds, mServerSeedHash);
     }
 
     @Override
@@ -1181,7 +1184,7 @@ public class VideoPokerActivity extends GameActivity {
 
     public JSONVideoPokerDoubleDealerResult go(Long... v) throws IOException {
       // TB TODO - This must support all rounds of double down!
-      return mBVC.videoPokerDoubleDealer(mDealResult.game_id, mDoubleDownServerSeedHash, getClientSeed(), mDoubleDownLevel);
+      return PokerRestClient.getInstance().videoPokerDoubleDealer(mDealResult.game_id, mDoubleDownServerSeedHash, getClientSeed(), mDoubleDownLevel);
     }
 
     @Override
@@ -1245,7 +1248,7 @@ public class VideoPokerActivity extends GameActivity {
     }
 
     public JSONVideoPokerDoublePickResult go(Long... v) throws IOException {
-      return mBVC.videoPokerDoublePick(mDealResult.game_id, mDoubleDownLevel, mDoubleDownHeldCard);
+      return PokerRestClient.getInstance().videoPokerDoublePick(mDealResult.game_id, mDoubleDownLevel, mDoubleDownHeldCard);
     }
 
     @Override

@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.database.Observable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.Preference;
@@ -20,31 +19,28 @@ import com.bitcoin.games.R;
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonApplication;
 import com.bitcoin.games.lib.CreateAccountTask;
-import com.bitcoin.games.lib.CurrencySettingChangeListener;
 import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.NetBalanceTask;
-import com.bitcoin.games.settings.CurrencySetting;
+import com.bitcoin.games.rest.AccountRestClient;
+import com.bitcoin.games.settings.CurrencySettings;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.io.IOException;
 
-public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener, CurrencySettingChangeListener {
+public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
   CreateAccountTask mCreateAccountTask;
   NetVerifyAccountTask mNetVerifyAccountTask;
   ProgressDialog mVerifyAccountDialog;
-  private CurrencySetting mCurrencySetting;
 
   public void updateValues() {
-    BitcoinGames bvc = BitcoinGames.getInstance(this);
+    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-    if (bvc.mAccountKey == null) {
+    if (CurrencySettings.getInstance().getAccountKey() == null) {
       findPreference("account_key").setSummary("ERROR: Account key is NULL");
     } else {
-      findPreference("account_key").setSummary(bvc.mAccountKey);
+      findPreference("account_key").setSummary(CurrencySettings.getInstance().getAccountKey());
     }
 
     if (sharedPref.getBoolean("sound_enable", true)) {
@@ -188,7 +184,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
           updateValues();
         } else {
           AlertDialog.Builder builder = new AlertDialog.Builder(this);
-          builder.setMessage(String.format("This is not a valid account_key QR code. Please go to the Android page at %s and scan the QR code listed under \"IMPORT YOUR WEB ACCOUNT\".", mCurrencySetting.getServerName()))
+          builder.setMessage(String.format("This is not a valid account_key QR code. Please go to the Android page at %s and scan the QR code listed under \"IMPORT YOUR WEB ACCOUNT\".", CurrencySettings.getInstance().getServerName()))
               .setCancelable(false)
               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -224,11 +220,6 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
     updateValues();
   }
 
-  @Override
-  public void update(Observable<CurrencySettingChangeListener> o, CurrencySetting currencySetting) {
-    mCurrencySetting = currencySetting;
-  }
-
   class NetVerifyAccountTask extends NetBalanceTask {
 
     String mAccountKey;
@@ -239,7 +230,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
     }
 
     public JSONBalanceResult go(Long... v) throws IOException {
-      return mBVC.getBalance(mAccountKey);
+      return AccountRestClient.getInstance().getBalance();
     }
 
     public void onSuccess(JSONBalanceResult result) {

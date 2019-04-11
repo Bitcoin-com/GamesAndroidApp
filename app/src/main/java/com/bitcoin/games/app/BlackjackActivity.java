@@ -39,6 +39,8 @@ import com.bitcoin.games.lib.JSONBlackjackCommandResult;
 import com.bitcoin.games.lib.JSONBlackjackRulesetResult;
 import com.bitcoin.games.lib.JSONReseedResult;
 import com.bitcoin.games.lib.NetAsyncTask;
+import com.bitcoin.games.rest.BlackjackRestClient;
+import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -170,11 +172,12 @@ public class BlackjackActivity extends GameActivity {
       return;
     }
 
+    final String currency = CurrencySettings.getInstance().getCurrency().name();
     final CreditItem[] items = new CreditItem[] {
-      new CreditItem(String.format("1 CREDIT = 0.01 %s     ", mCurrencySetting.getCurrency()), null, Bitcoin.stringAmountToLong("0.01")),
-      new CreditItem(String.format("1 CREDIT = 0.005 %s    ", mCurrencySetting.getCurrency()), null, Bitcoin.stringAmountToLong("0.005")),
-      new CreditItem(String.format("1 CREDIT = 0.001 %s    ", mCurrencySetting.getCurrency()), null, Bitcoin.stringAmountToLong("0.001")),
-      new CreditItem(String.format("1 CREDIT = 0.0001 %s   ", mCurrencySetting.getCurrency()), null, Bitcoin.stringAmountToLong("0.0001"))
+      new CreditItem(String.format("1 CREDIT = 0.01 %s     ", currency), null, Bitcoin.stringAmountToLong("0.01")),
+      new CreditItem(String.format("1 CREDIT = 0.005 %s    ", currency), null, Bitcoin.stringAmountToLong("0.005")),
+      new CreditItem(String.format("1 CREDIT = 0.001 %s    ", currency), null, Bitcoin.stringAmountToLong("0.001")),
+      new CreditItem(String.format("1 CREDIT = 0.0001 %s   ", currency), null, Bitcoin.stringAmountToLong("0.0001"))
     };
     showCreditDialog(BJ_SETTING_CREDIT_VALUE, items);
   }
@@ -912,7 +915,7 @@ public class BlackjackActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return mBVC.blackjackReseed();
+      return BlackjackRestClient.getInstance().blackjackReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -923,8 +926,6 @@ public class BlackjackActivity extends GameActivity {
         onDeal(null);
       }
     }
-
-
   }
 
   class ShowCardsRunnable implements Runnable {
@@ -1312,11 +1313,10 @@ public class BlackjackActivity extends GameActivity {
       final String[] commandLookup = {"blackjack/deal", "blackjack/hit", "blackjack/stand", "blackjack/double", "blackjack/split", "blackjack/insurance"};
       if (mCommand == Blackjack.Command.DEAL) {
         long progressiveBet = 0;
-        return mBVC.blackjackDeal(mCreditValue, progressiveBet, mServerSeedHash, getClientSeed(), mUseFakeCredits);
+        return BlackjackRestClient.getInstance().blackjackDeal(mCreditValue, progressiveBet, mServerSeedHash, getClientSeed(), mUseFakeCredits);
       } else {
-        return mBVC.blackjackCommand(commandLookup[mCommand], mGameID, mDealResult.next_hand);
+        return BlackjackRestClient.getInstance().blackjackCommand(commandLookup[mCommand], mGameID, mDealResult.next_hand);
       }
-
     }
 
     @Override
@@ -1370,7 +1370,7 @@ public class BlackjackActivity extends GameActivity {
     }
 
     public JSONBlackjackRulesetResult go(Long... v) throws IOException {
-      return mBVC.blackjackRuleset();
+      return BlackjackRestClient.getInstance().blackjackRuleset();
     }
 
     @Override
