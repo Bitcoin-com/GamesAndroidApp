@@ -591,10 +591,10 @@ abstract public class GameActivity extends CommonActivity {
     // TB TODO - Should never be possible to even be here if you have no account key...
     if (now - mLastNetBalanceCheck >= BALANCE_CHECK_DELAY) {
       mLastNetBalanceCheck = now;
-      if (CurrencySettings.getInstance().getAccountKey() != null) {
+      if (CurrencySettings.getInstance(this).getAccountKey() != null) {
         //Log.v(TAG, bvc.mAccountKey);
         mNetBalanceTask = new GameNetBalanceTask(this);
-        mNetBalanceTask.execute(Long.valueOf(0));
+        mNetBalanceTask.execute(0L);
       }
     }
 
@@ -603,7 +603,7 @@ abstract public class GameActivity extends CommonActivity {
   }
 
   public void updateSatoshiButton(long creditValue) {
-    final String currency = CurrencySettings.getInstance().getCurrency().name();
+    final String currency = CurrencySettings.getInstance(this).getCurrency().name();
     if (creditValue == Bitcoin.stringAmountToLong("0.05")) {
       mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.05", currency));
     } else if (creditValue == Bitcoin.stringAmountToLong("0.01")) {

@@ -172,7 +172,7 @@ public class BlackjackActivity extends GameActivity {
       return;
     }
 
-    final String currency = CurrencySettings.getInstance().getCurrency().name();
+    final String currency = CurrencySettings.getInstance(this).getCurrency().name();
     final CreditItem[] items = new CreditItem[] {
       new CreditItem(String.format("1 CREDIT = 0.01 %s     ", currency), null, Bitcoin.stringAmountToLong("0.01")),
       new CreditItem(String.format("1 CREDIT = 0.005 %s    ", currency), null, Bitcoin.stringAmountToLong("0.005")),
@@ -915,7 +915,7 @@ public class BlackjackActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return BlackjackRestClient.getInstance().blackjackReseed();
+      return BlackjackRestClient.getInstance(mActivity).blackjackReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -1313,9 +1313,9 @@ public class BlackjackActivity extends GameActivity {
       final String[] commandLookup = {"blackjack/deal", "blackjack/hit", "blackjack/stand", "blackjack/double", "blackjack/split", "blackjack/insurance"};
       if (mCommand == Blackjack.Command.DEAL) {
         long progressiveBet = 0;
-        return BlackjackRestClient.getInstance().blackjackDeal(mCreditValue, progressiveBet, mServerSeedHash, getClientSeed(), mUseFakeCredits);
+        return BlackjackRestClient.getInstance(mActivity).blackjackDeal(mCreditValue, progressiveBet, mServerSeedHash, getClientSeed(), mUseFakeCredits);
       } else {
-        return BlackjackRestClient.getInstance().blackjackCommand(commandLookup[mCommand], mGameID, mDealResult.next_hand);
+        return BlackjackRestClient.getInstance(mActivity).blackjackCommand(commandLookup[mCommand], mGameID, mDealResult.next_hand);
       }
     }
 
@@ -1370,7 +1370,7 @@ public class BlackjackActivity extends GameActivity {
     }
 
     public JSONBlackjackRulesetResult go(Long... v) throws IOException {
-      return BlackjackRestClient.getInstance().blackjackRuleset();
+      return BlackjackRestClient.getInstance(mActivity).blackjackRuleset();
     }
 
     @Override

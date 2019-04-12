@@ -35,7 +35,7 @@ class NetBitcoinAddressTask extends NetAsyncTask<Long, Void, JSONBitcoinAddressR
   @Override
   public JSONBitcoinAddressResult go(Long... v) throws IOException {
     Log.v(TAG, "deposit check go!");
-    return AccountRestClient.getInstance().getBitcoinAddress();
+    return AccountRestClient.getInstance(mActivity).getBitcoinAddress();
   }
 
   @Override

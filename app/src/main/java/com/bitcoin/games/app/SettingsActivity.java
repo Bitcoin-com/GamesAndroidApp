@@ -16,7 +16,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.bitcoin.games.R;
-import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonApplication;
 import com.bitcoin.games.lib.CreateAccountTask;
 import com.bitcoin.games.lib.JSONBalanceResult;
@@ -37,10 +36,10 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
   public void updateValues() {
     final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-    if (CurrencySettings.getInstance().getAccountKey() == null) {
+    if (CurrencySettings.getInstance(this).getAccountKey() == null) {
       findPreference("account_key").setSummary("ERROR: Account key is NULL");
     } else {
-      findPreference("account_key").setSummary(CurrencySettings.getInstance().getAccountKey());
+      findPreference("account_key").setSummary(CurrencySettings.getInstance(this).getAccountKey());
     }
 
     if (sharedPref.getBoolean("sound_enable", true)) {
@@ -184,7 +183,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
           updateValues();
         } else {
           AlertDialog.Builder builder = new AlertDialog.Builder(this);
-          builder.setMessage(String.format("This is not a valid account_key QR code. Please go to the Android page at %s and scan the QR code listed under \"IMPORT YOUR WEB ACCOUNT\".", CurrencySettings.getInstance().getServerName()))
+          builder.setMessage(String.format("This is not a valid account_key QR code. Please go to the Android page at %s and scan the QR code listed under \"IMPORT YOUR WEB ACCOUNT\".", CurrencySettings.getInstance(this).getServerName()))
               .setCancelable(false)
               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -230,7 +229,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
     }
 
     public JSONBalanceResult go(Long... v) throws IOException {
-      return AccountRestClient.getInstance().getBalance();
+      return AccountRestClient.getInstance(mActivity).getBalance();
     }
 
     public void onSuccess(JSONBalanceResult result) {

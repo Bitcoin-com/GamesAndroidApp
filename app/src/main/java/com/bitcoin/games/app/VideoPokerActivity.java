@@ -427,7 +427,7 @@ public class VideoPokerActivity extends GameActivity {
       return;
     }
 
-    final String currency = CurrencySettings.getInstance().getCurrency().name();
+    final String currency = CurrencySettings.getInstance(this).getCurrency().name();
     final CreditItem[] items = new CreditItem[]{
         new CreditItem(String.format("1 CREDIT = 0.05 %s", currency), String.format("Win over 200 %s!", currency), Bitcoin.stringAmountToLong("0.05")),
         new CreditItem(String.format("1 CREDIT = 0.01 %s", currency), String.format("Win over 40 %s!", currency), Bitcoin.stringAmountToLong("0.01")),
@@ -950,7 +950,7 @@ public class VideoPokerActivity extends GameActivity {
     public JSONVideoPokerUpdateResult go(Long... v) throws IOException {
       int last = 999999999;
       int chatlast = 999999999;
-      return PokerRestClient.getInstance().videoPokerUpdate(last, chatlast, mCreditValue);
+      return PokerRestClient.getInstance(mActivity).videoPokerUpdate(last, chatlast, mCreditValue);
     }
 
     public void onSuccess(JSONVideoPokerUpdateResult result) {
@@ -971,7 +971,7 @@ public class VideoPokerActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return PokerRestClient.getInstance().videoPokerReseed();
+      return PokerRestClient.getInstance(mActivity).videoPokerReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -1011,7 +1011,7 @@ public class VideoPokerActivity extends GameActivity {
     public JSONVideoPokerDealResult go(Long... v) throws IOException {
       String serverSeedHash = mServerSeedHash;
       // TB TODO - Randomize this!
-      return PokerRestClient.getInstance().videoPokerDeal(mBetSize, mPaytable, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
+      return PokerRestClient.getInstance(mActivity).videoPokerDeal(mBetSize, mPaytable, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
     }
 
     @Override
@@ -1100,7 +1100,7 @@ public class VideoPokerActivity extends GameActivity {
 
     public JSONVideoPokerHoldResult go(Long... v) throws IOException {
       //String holds = "01100";
-      return PokerRestClient.getInstance().videoPokerHold(mDealResult.game_id, mHolds, mServerSeedHash);
+      return PokerRestClient.getInstance(mActivity).videoPokerHold(mDealResult.game_id, mHolds, mServerSeedHash);
     }
 
     @Override
@@ -1184,7 +1184,7 @@ public class VideoPokerActivity extends GameActivity {
 
     public JSONVideoPokerDoubleDealerResult go(Long... v) throws IOException {
       // TB TODO - This must support all rounds of double down!
-      return PokerRestClient.getInstance().videoPokerDoubleDealer(mDealResult.game_id, mDoubleDownServerSeedHash, getClientSeed(), mDoubleDownLevel);
+      return PokerRestClient.getInstance(mActivity).videoPokerDoubleDealer(mDealResult.game_id, mDoubleDownServerSeedHash, getClientSeed(), mDoubleDownLevel);
     }
 
     @Override
@@ -1248,7 +1248,7 @@ public class VideoPokerActivity extends GameActivity {
     }
 
     public JSONVideoPokerDoublePickResult go(Long... v) throws IOException {
-      return PokerRestClient.getInstance().videoPokerDoublePick(mDealResult.game_id, mDoubleDownLevel, mDoubleDownHeldCard);
+      return PokerRestClient.getInstance(mActivity).videoPokerDoublePick(mDealResult.game_id, mDoubleDownLevel, mDoubleDownHeldCard);
     }
 
     @Override

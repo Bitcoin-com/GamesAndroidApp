@@ -594,7 +594,7 @@ public class SlotsActivity extends GameActivity {
       return;
     }
 
-    final String currency = CurrencySettings.getInstance().getCurrency().name();
+    final String currency = CurrencySettings.getInstance(this).getCurrency().name();
     final CreditItem[] items = new CreditItem[]{
         new CreditItem(String.format("1 CREDIT = 0.01 %s     ", currency), String.format("Win over 100 %s!", currency), Bitcoin.stringAmountToLong("0.01")),
         new CreditItem(String.format("1 CREDIT = 0.005 %s    ", currency), String.format("Win over 50 %s!", currency), Bitcoin.stringAmountToLong("0.005")),
@@ -1073,7 +1073,7 @@ public class SlotsActivity extends GameActivity {
     public JSONSlotsUpdateResult go(Long... v) throws IOException {
       int last = 999999999;
       int chatlast = 999999999;
-      return SlotsRestClient.getInstance().slotsUpdate(last, chatlast, mCreditValue);
+      return SlotsRestClient.getInstance(mActivity).slotsUpdate(last, chatlast, mCreditValue);
     }
 
     public void onSuccess(JSONSlotsUpdateResult result) {
@@ -1094,7 +1094,7 @@ public class SlotsActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return SlotsRestClient.getInstance().slotsReseed();
+      return SlotsRestClient.getInstance(mActivity).slotsReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -1153,7 +1153,7 @@ public class SlotsActivity extends GameActivity {
 
     public JSONSlotsPullResult go(Long... v) throws IOException {
       String serverSeedHash = mServerSeedHash;
-      return SlotsRestClient.getInstance().slotsPull(mLines, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
+      return SlotsRestClient.getInstance(mActivity).slotsPull(mLines, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
     }
 
     @Override
@@ -1282,7 +1282,7 @@ public class SlotsActivity extends GameActivity {
     }
 
     public JSONSlotsRulesetResult go(Long... v) throws IOException {
-      return SlotsRestClient.getInstance().slotsRuleset();
+      return SlotsRestClient.getInstance(mActivity).slotsRuleset();
     }
 
     @Override

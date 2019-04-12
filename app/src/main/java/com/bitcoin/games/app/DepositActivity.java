@@ -58,9 +58,9 @@ public class DepositActivity extends CommonActivity {
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     if (bvc.mIntBalance != -1) {
       String balance = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
-      mBalance.setText(getString(R.string.bitcoin_balance, balance, CurrencySettings.getInstance().getCurrency().name()));
+      mBalance.setText(getString(R.string.bitcoin_balance, balance, CurrencySettings.getInstance(this).getCurrency().name()));
     } else {
-      mBalance.setText(CurrencySettings.getInstance().getCurrency().name());
+      mBalance.setText(CurrencySettings.getInstance(this).getCurrency().name());
     }
 
     if (bvc.mUnconfirmed) {
@@ -70,7 +70,7 @@ public class DepositActivity extends CommonActivity {
     }
 
     if (depositAddress == null) {
-      CurrencySettings.getInstance().retrieveAddress(this, address -> {
+      CurrencySettings.getInstance(this).retrieveAddress(this, address -> {
         depositAddress = address;
         updateAddressOnUI();
       });
@@ -129,8 +129,8 @@ public class DepositActivity extends CommonActivity {
   }
 
   public void timeUpdate() {
-    if (CurrencySettings.getInstance().getAccountKey() != null) {
-      Log.v(TAG, CurrencySettings.getInstance().getAccountKey());
+    if (CurrencySettings.getInstance(this).getAccountKey() != null) {
+      Log.v(TAG, CurrencySettings.getInstance(this).getAccountKey());
       mNetBalanceTask = new DepositNetBalanceTask(this);
       mNetBalanceTask.executeParallel(Long.valueOf(0));
     }
@@ -241,32 +241,29 @@ public class DepositActivity extends CommonActivity {
   @SuppressLint("NewApi")
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   public void onDepositAddress(View button) {
-    CurrencySettings.getInstance().retrieveAddress(this, address -> {
+    if (depositAddress != null) {
       // http://stackoverflow.com/questions/238284/how-to-copy-text-programatically-in-my-android-app
       if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
         // TB - Old crappy way
         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        clipboard.setText(address.toString());
+        clipboard.setText(depositAddress.toString());
       } else {
         // TB - New hotness
         android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        android.content.ClipData clip = android.content.ClipData.newPlainText("Bitcoin Address", address.toString());
+        android.content.ClipData clip = android.content.ClipData.newPlainText("Bitcoin Address", depositAddress.toString());
         clipboard.setPrimaryClip(clip);
       }
 
       Toast.makeText(this, "Deposit address has been copied to your clipboard", Toast.LENGTH_SHORT).show();
-    });
+    }
   }
 
   public void onExternalApp(View button) {
     // TB TODO - Verify that an external app actually exists!!!
     // TB TODO - Get correct deposit address from service call
-    CurrencySettings.getInstance().retrieveAddress(this, address -> {
-      if (address == null) {
-        return;
-      }
+    if (depositAddress != null) {
       Intent intent = new Intent(Intent.ACTION_VIEW);
-      intent.setData(Uri.parse(address.toString()));
+      intent.setData(Uri.parse(depositAddress.toString()));
       //intent.setFlags( Intent.FLAG_ACTIVITY_SINGLE_TOP );
 
       try {
@@ -281,7 +278,7 @@ public class DepositActivity extends CommonActivity {
       } catch (ActivityNotFoundException e) {
         handleMissingExternalApp();
       }
-    });
+    }
   }
 
   class DepositNetBalanceTask extends NetBalanceTask {

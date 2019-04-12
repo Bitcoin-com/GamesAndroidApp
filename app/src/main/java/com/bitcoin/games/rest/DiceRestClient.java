@@ -1,5 +1,6 @@
 package com.bitcoin.games.rest;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.bitcoin.games.lib.JSONDiceRulesetResult;
@@ -16,18 +17,19 @@ public class DiceRestClient extends RestClient {
 
   private static DiceRestClient instance;
 
-  public static DiceRestClient getInstance() {
+  public static DiceRestClient getInstance(final Context ctx) {
     if (instance == null) {
       synchronized (DiceRestClient.class) {
         if (instance == null) {
-          instance = new DiceRestClient();
+          instance = new DiceRestClient(ctx);
         }
       }
     }
     return instance;
   }
 
-  private DiceRestClient() {
+  private DiceRestClient(final Context ctx) {
+    super(ctx);
   }
 
   public JSONDiceRulesetResult diceRuleset() throws IOException {
@@ -36,7 +38,7 @@ public class DiceRestClient extends RestClient {
   }
 
   public JSONReseedResult diceReseed() throws IOException {
-    InputStreamReader is = getInputStreamReader("dice/reseed", null, CurrencySettings.getInstance().getAccountKey());
+    InputStreamReader is = getInputStreamReader("dice/reseed", null, CurrencySettings.getInstance(ctx).getAccountKey());
     return new Gson().fromJson(is, JSONReseedResult.class);
   }
 
@@ -51,7 +53,7 @@ public class DiceRestClient extends RestClient {
 
     Log.v(tag(), params);
 
-    InputStreamReader is = getInputStreamReader("dice/throw", params, CurrencySettings.getInstance().getAccountKey());
+    InputStreamReader is = getInputStreamReader("dice/throw", params, CurrencySettings.getInstance(ctx).getAccountKey());
     return new Gson().fromJson(is, JSONDiceThrowResult.class);
   }
 
@@ -60,7 +62,7 @@ public class DiceRestClient extends RestClient {
     params += "&" + encodeKeyValuePair("chatlast", chatlast);
     params += "&" + encodeKeyValuePair("credit_btc_value", creditValue);
 
-    InputStreamReader is = getInputStreamReader("dice/update", params, CurrencySettings.getInstance().getAccountKey());
+    InputStreamReader is = getInputStreamReader("dice/update", params, CurrencySettings.getInstance(ctx).getAccountKey());
     return new Gson().fromJson(is, JSONDiceUpdateResult.class);
   }
 }

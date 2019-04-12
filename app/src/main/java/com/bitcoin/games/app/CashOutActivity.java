@@ -76,7 +76,7 @@ public class CashOutActivity extends CommonActivity {
     if (bvc.mLastWithdrawAddress != null) {
       mWithdrawAddress.setText(bvc.mLastWithdrawAddress);
     }
-    final String currency = CurrencySettings.getInstance().getCurrency().name();
+    final String currency = CurrencySettings.getInstance(this).getCurrency().name();
     ((TextView) findViewById(R.id.foo3)).setText(getString(R.string.cashout_amount_satoshi, currency));
     ((TextView) findViewById(R.id.cashout_transaction_fee)).setText(getString(R.string.cashout_transaction_fee_info, currency));
   }
@@ -162,7 +162,7 @@ public class CashOutActivity extends CommonActivity {
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     if (bvc.mIntBalance != -1) {
       String balance = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
-      mBalance.setText(getString(R.string.bitcoin_balance, balance, CurrencySettings.getInstance().getCurrency().name()));
+      mBalance.setText(getString(R.string.bitcoin_balance, balance, CurrencySettings.getInstance(this).getCurrency().name()));
     } else {
       mBalance.setText(getString(R.string.main_connecting));
     }
@@ -203,7 +203,7 @@ public class CashOutActivity extends CommonActivity {
     		*/
       Log.v("Withdraw", mStringAmount);
       Log.v("Withdraw", Long.toString(mIntAmount));
-      return AccountRestClient.getInstance().getWithdraw(mStringAddress, mIntAmount);
+      return AccountRestClient.getInstance(mActivity).getWithdraw(mStringAddress, mIntAmount);
     }
 
     public void onSuccess(JSONWithdrawResult result) {
@@ -217,7 +217,7 @@ public class CashOutActivity extends CommonActivity {
 
         //Toast.makeText(mActivity, "Success!", Toast.LENGTH_SHORT).show();
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setMessage(getString(R.string.cashout_dialog_success, mStringAmount, CurrencySettings.getInstance().getCurrency().name(), mStringAddress))
+        builder.setMessage(getString(R.string.cashout_dialog_success, mStringAmount, CurrencySettings.getInstance(mActivity).getCurrency().name(), mStringAddress))
             .setTitle(R.string.success)
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
               public void onClick(DialogInterface dialog, int id) {

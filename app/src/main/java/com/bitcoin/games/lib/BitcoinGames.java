@@ -60,7 +60,7 @@ public class BitcoinGames {
     }
   }
 
-  public static BitcoinGames getInstance(Context ctx) {
+  public static BitcoinGames getInstance(final Context ctx) {
 
     // TB TODO - Could do settings stuff here???
     // accountkey, etc, etc
@@ -71,7 +71,7 @@ public class BitcoinGames {
       mInstance = new BitcoinGames();
     }
 
-    final String currencyPrefix = CurrencySettings.getInstance().getCurrency().getPrefix();
+    final String currencyPrefix = CurrencySettings.getInstance(ctx).getCurrency().name().toLowerCase();
 
     SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
     mInstance.mLastWithdrawAddress = sharedPref.getString(currencyPrefix + "_last_withdraw_address", null);

@@ -16,7 +16,7 @@ public class NetBalanceTask extends NetAsyncTask<Long, Void, JSONBalanceResult> 
   }
 
   public JSONBalanceResult go(Long... v) throws IOException {
-    return AccountRestClient.getInstance().getBalance();
+    return AccountRestClient.getInstance(mActivity).getBalance();
   }
 
   public void onUserConfirmNewBalance() {
@@ -30,7 +30,7 @@ public class NetBalanceTask extends NetAsyncTask<Long, Void, JSONBalanceResult> 
 
     if (result.notify_transaction != null) {
       new AlertDialog.Builder(mActivity)
-        .setMessage(String.format("Received %s %s\n\nTransaction ID: %s", result.notify_transaction.amount, CurrencySettings.getInstance().getCurrency().name(), result.notify_transaction.txid))
+        .setMessage(String.format("Received %s %s\n\nTransaction ID: %s", result.notify_transaction.amount, CurrencySettings.getInstance(mActivity).getCurrency().name(), result.notify_transaction.txid))
         .setTitle("New Deposit")
         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
           public void onClick(DialogInterface dialog, int id) {

@@ -1,27 +1,31 @@
 package com.bitcoin.games.settings;
 
+import android.content.Context;
+
 import com.bitcoin.games.lib.Bitcoin;
 
 public class DiceSettings {
 
   private static DiceSettings instance;
+  private final Context ctx;
 
-  public static DiceSettings getInstance() {
+  public static DiceSettings getInstance(final Context ctx) {
     if (instance == null) {
       synchronized (DiceSettings.class) {
         if (instance == null) {
-          instance = new DiceSettings();
+          instance = new DiceSettings(ctx);
         }
       }
     }
     return instance;
   }
 
-  private DiceSettings() {
+  private DiceSettings(final Context ctx) {
+    this.ctx = ctx;
   }
 
   public long getCreditValue() {
     return Bitcoin.stringAmountToLong(
-      CurrencySettings.getInstance().getCurrency() == Currency.BCH ? "0.001" : "0.0001");
+      CurrencySettings.getInstance(ctx).getCurrency() == Currency.BCH ? "0.001" : "0.0001");
   }
 }

@@ -151,7 +151,7 @@ public class DiceActivity extends GameActivity {
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     mTimeUpdateDelay = 50;
-    mCreditValue = DiceSettings.getInstance().getCreditValue();
+    mCreditValue = DiceSettings.getInstance(this).getCreditValue();
 
     mGameState = DiceGameState.WAIT_USER_THROW;
     mDice = new Dice();
@@ -1003,7 +1003,7 @@ public class DiceActivity extends GameActivity {
       int last = 999999999;
       int chatlast = 999999999;
 
-      return DiceRestClient.getInstance().diceUpdate(last, chatlast, mCreditValue);
+      return DiceRestClient.getInstance(mActivity).diceUpdate(last, chatlast, mCreditValue);
     }
 
     public void onSuccess(JSONDiceUpdateResult result) {
@@ -1023,7 +1023,7 @@ public class DiceActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return DiceRestClient.getInstance().diceReseed();
+      return DiceRestClient.getInstance(mActivity).diceReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -1066,7 +1066,7 @@ public class DiceActivity extends GameActivity {
 
       long bet = mAmountValue * mCreditValue;
       long payout = (long) (mPayoutValue * 100000000);
-      return DiceRestClient.getInstance().diceThrow(serverSeedHash, getClientSeed(), bet, payout, mTargetValue, mUseFakeCredits);
+      return DiceRestClient.getInstance(mActivity).diceThrow(serverSeedHash, getClientSeed(), bet, payout, mTargetValue, mUseFakeCredits);
     }
 
     @Override
@@ -1160,7 +1160,7 @@ public class DiceActivity extends GameActivity {
     }
 
     public JSONDiceRulesetResult go(Long... v) throws IOException {
-      return DiceRestClient.getInstance().diceRuleset();
+      return DiceRestClient.getInstance(mActivity).diceRuleset();
     }
 
     @Override

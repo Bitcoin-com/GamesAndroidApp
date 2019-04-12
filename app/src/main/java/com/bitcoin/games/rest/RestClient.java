@@ -1,5 +1,6 @@
 package com.bitcoin.games.rest;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.bitcoin.games.settings.CurrencySettings;
@@ -14,6 +15,12 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 abstract class RestClient {
+
+  protected Context ctx;
+
+  RestClient(final Context ctx) {
+    this.ctx = ctx;
+  }
 
   String tag() {
     return this.getClass().getSimpleName();
@@ -66,7 +73,7 @@ abstract class RestClient {
   }
 
   private HttpURLConnection connect(String method, String path, String accountKey) throws IOException {
-    URL u = new URL(CurrencySettings.getInstance().getServerAddress() + "/" + path);
+    URL u = new URL(CurrencySettings.getInstance(ctx).getServerAddress() + "/" + path);
     HttpURLConnection conn = (HttpURLConnection) u.openConnection();
     Log.v(method, u.toString());
     conn.setRequestMethod(method);
@@ -100,5 +107,9 @@ abstract class RestClient {
 
   String encodeKeyValuePair(String key, boolean value) throws UnsupportedEncodingException {
     return encodeKeyValuePair(key, Boolean.toString(value));
+  }
+
+  protected String getAccountKey() {
+    return CurrencySettings.getInstance(ctx).getAccountKey();
   }
 }

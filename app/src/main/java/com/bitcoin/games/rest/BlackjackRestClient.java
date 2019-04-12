@@ -1,35 +1,36 @@
 package com.bitcoin.games.rest;
 
+import android.content.Context;
+
 import com.bitcoin.games.lib.JSONBlackjackCommandResult;
 import com.bitcoin.games.lib.JSONBlackjackRulesetResult;
 import com.bitcoin.games.lib.JSONReseedResult;
-import com.bitcoin.games.settings.CurrencySettings;
 import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 
 public class BlackjackRestClient extends RestClient {
 
   private static BlackjackRestClient instance;
 
-  public static BlackjackRestClient getInstance() {
+  public static BlackjackRestClient getInstance(final Context ctx) {
     if (instance == null) {
       synchronized (BlackjackRestClient.class) {
         if (instance == null) {
-          instance = new BlackjackRestClient();
+          instance = new BlackjackRestClient(ctx);
         }
       }
     }
     return instance;
   }
 
-  private BlackjackRestClient() {
+  private BlackjackRestClient(final Context ctx) {
+    super(ctx);
   }
 
   public JSONReseedResult blackjackReseed() throws IOException {
-    InputStreamReader is = getInputStreamReader("blackjack/reseed", null, CurrencySettings.getInstance().getAccountKey());
+    InputStreamReader is = getInputStreamReader("blackjack/reseed", null, getAccountKey());
     return new Gson().fromJson(is, JSONReseedResult.class);
   }
 
@@ -45,34 +46,34 @@ public class BlackjackRestClient extends RestClient {
     params += "&" + encodeKeyValuePair("client_seed", clientSeed);
     params += "&" + encodeKeyValuePair("use_fake_credits", useFakeCredits);
 
-    InputStreamReader is = getInputStreamReader("blackjack/deal", params, CurrencySettings.getInstance().getAccountKey());
+    InputStreamReader is = getInputStreamReader("blackjack/deal", params, getAccountKey());
     return new Gson().fromJson(is, JSONBlackjackCommandResult.class);
   }
 
   public JSONBlackjackCommandResult blackjackCommand(String url, String gameID, int handIndex) throws IOException {
     String params = encodeKeyValuePair("game_id", gameID);
     params += "&" + encodeKeyValuePair("hand_index", handIndex);
-    InputStreamReader is = getInputStreamReader(url, params, CurrencySettings.getInstance().getAccountKey());
+    InputStreamReader is = getInputStreamReader(url, params, getAccountKey());
     return new Gson().fromJson(is, JSONBlackjackCommandResult.class);
   }
 
-  public JSONBlackjackCommandResult blackjackStand(String gameID, int handIndex) throws UnsupportedEncodingException, IOException {
+  public JSONBlackjackCommandResult blackjackStand(String gameID, int handIndex) throws IOException {
     return blackjackCommand("blackjack/stand", gameID, handIndex);
   }
 
-  public JSONBlackjackCommandResult blackjackHit(final String accountKey, String gameID, int handIndex) throws UnsupportedEncodingException, IOException {
+  public JSONBlackjackCommandResult blackjackHit(final String accountKey, String gameID, int handIndex) throws IOException {
     return blackjackCommand("blackjack/stand", gameID, handIndex);
   }
 
-  public JSONBlackjackCommandResult blackjackSplit(final String accountKey, String gameID, int handIndex) throws UnsupportedEncodingException, IOException {
+  public JSONBlackjackCommandResult blackjackSplit(final String accountKey, String gameID, int handIndex) throws IOException {
     return blackjackCommand("blackjack/split", gameID, handIndex);
   }
 
-  public JSONBlackjackCommandResult blackjackDouble(final String accountKey, String gameID, int handIndex) throws UnsupportedEncodingException, IOException {
+  public JSONBlackjackCommandResult blackjackDouble(final String accountKey, String gameID, int handIndex) throws IOException {
     return blackjackCommand("blackjack/double", gameID, handIndex);
   }
 
-  public JSONBlackjackCommandResult blackjackInsurance(final String accountKey, String gameID, int handIndex) throws UnsupportedEncodingException, IOException {
+  public JSONBlackjackCommandResult blackjackInsurance(final String accountKey, String gameID, int handIndex) throws IOException {
     return blackjackCommand("blackjack/insurance", gameID, handIndex);
   }
 }

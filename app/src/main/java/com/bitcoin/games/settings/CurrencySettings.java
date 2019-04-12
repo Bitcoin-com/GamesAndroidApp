@@ -1,5 +1,10 @@
 package com.bitcoin.games.settings;
 
+import android.arch.lifecycle.Observer;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Observable;
+import android.preference.PreferenceManager;
 import android.util.Pair;
 
 import com.bitcoin.games.lib.BitcoinGames;
@@ -9,13 +14,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class CurrencySettings {
+import static com.bitcoin.games.lib.BitcoinGames.RunEnvironment.*;
 
-  private static final String TAG = CurrencySettings.class.getSimpleName();
-  private Map<Currency, String> accountKeyMap = new HashMap<>();
+public class CurrencySettings extends Observable<Observer<Currency>> {
+
+  private final static String ACCOUNT_KEY_SUFFIX = "_account_key";
+  private final static String CURRENT_CURRENCY = "current_currency";
+
+  private Context ctx;
   private Currency currentCurrency;
-
-
 
   private static Map<Pair<Integer, Currency>, CurrencySetting> cacheMap = new HashMap<>();
 
@@ -28,42 +35,71 @@ public class CurrencySettings {
       ("games.btctest.net", Currency.BTC, "games@btctest.net");
     final CurrencySetting prodBtcSetting = new CurrencySetting
       ("games.bitcoin.com", Currency.BTC, "games@bitcoin.com");
-    cacheMap.put(Pair.create(BitcoinGames.RunEnvironment.EMULATOR, Currency.BCH), testBchSetting);
-    cacheMap.put(Pair.create(BitcoinGames.RunEnvironment.LOCAL, Currency.BCH), testBchSetting);
-    cacheMap.put(Pair.create(BitcoinGames.RunEnvironment.PRODUCTION, Currency.BCH), prodBchSetting);
-    cacheMap.put(Pair.create(BitcoinGames.RunEnvironment.EMULATOR, Currency.BTC), testBtcSetting);
-    cacheMap.put(Pair.create(BitcoinGames.RunEnvironment.LOCAL, Currency.BTC), testBtcSetting);
-    cacheMap.put(Pair.create(BitcoinGames.RunEnvironment.PRODUCTION, Currency.BTC), prodBtcSetting);
+    cacheMap.put(Pair.create(EMULATOR, Currency.BCH), testBchSetting);
+    cacheMap.put(Pair.create(LOCAL, Currency.BCH), testBchSetting);
+    cacheMap.put(Pair.create(PRODUCTION, Currency.BCH), prodBchSetting);
+    cacheMap.put(Pair.create(EMULATOR, Currency.BTC), testBtcSetting);
+    cacheMap.put(Pair.create(LOCAL, Currency.BTC), testBtcSetting);
+    cacheMap.put(Pair.create(PRODUCTION, Currency.BTC), prodBtcSetting);
   }
 
-  CurrencySettings() {
-    currentCurrency = Currency.BCH;
+  CurrencySettings(final Context ctx) {
+    this.ctx = ctx;
+    final String currentCurrency = PreferenceManager.getDefaultSharedPreferences(ctx).getString(CURRENT_CURRENCY, null);
+    if (currentCurrency == null) {
+      setCurrentCurrency(Currency.BCH, true);
+    } else {
+      setCurrentCurrency(Currency.valueOf(currentCurrency), false);
+    }
+  }
+
+  private void setCurrentCurrency(final Currency currency, final boolean saveToPreferences) {
+    if (saveToPreferences) {
+      final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(ctx).edit();
+      editor.putString(CURRENT_CURRENCY, currency.name());
+      editor.apply();
+    }
+    this.currentCurrency = currency;
+    this.mObservers.forEach(o -> o.onChanged(currency));
   }
 
   private static CurrencySettings instance;
 
-  public static CurrencySettings getInstance() {
+  public static CurrencySettings getInstance(final Context ctx) {
     if (instance == null) {
       synchronized (CurrencySettings.class) {
         if (instance == null) {
-          instance = new CurrencySettings();
+          instance = new CurrencySettings(ctx);
         }
       }
     }
+    instance.ctx = ctx;
 
     return instance;
   }
 
   public void reload(final String currency) {
-    this.currentCurrency = Currency.valueOf(currency);
+    setCurrentCurrency(Currency.valueOf(currency), true);
+  }
+
+  @Override
+  public void registerObserver(Observer<Currency> observer) {
+    super.registerObserver(observer);
+    observer.onChanged(currentCurrency);
   }
 
   public void setAccountKey(final String accountKey) {
-    this.accountKeyMap.put(currentCurrency, accountKey);
+    final SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(ctx).edit();
+    edit.putString(accountKey(), accountKey);
+    edit.apply();
   }
 
   public String getAccountKey() {
-    return accountKeyMap.get(currentCurrency);
+    return PreferenceManager.getDefaultSharedPreferences(ctx).getString(accountKey(), null);
+  }
+
+  private String accountKey() {
+    return currentCurrency.name().toLowerCase() + ACCOUNT_KEY_SUFFIX;
   }
 
   public String getServerName() {
@@ -85,7 +121,7 @@ public class CurrencySettings {
   public void retrieveAddress(final CommonActivity activity, Consumer<BitcoinAddress> onSuccessCallback) {
     final NetBitcoinAddressTask task = new NetBitcoinAddressTask(activity, result ->
       onSuccessCallback.accept(new BitcoinAddress(getCurrency().getPrefix(), result.address)));
-    task.executeParallel(Long.valueOf(0));
+    task.executeParallel();
   }
 
   private CurrencySetting getCurrencySetting() {

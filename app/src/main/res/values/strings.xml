@@ -98,6 +98,11 @@
     <string name="not_enough_credits">Not enough credits</string>
     <string name="deposit_credits_dialog_text_1">To keep playing deposit bitcoins.</string>
     <string name="deposit_credits_dialog_text_2">To buy bitcoin, please visit buy.bitcoin.com.</string>
+    <string name="bitcoin_account">Bitcoin (%s) Account</string>
+    <string name="add_existing_account_key">Add your existing (%s) Account Key</string>
+    <string name="open_account">Open %s Account</string>
+    <string name="do_not_have_an_account">I do not have a %s account yet, please generate one for me</string>
+    <string name="create">Create</string>
 
     <string-array name="auto_strategy_array">
         <item>Repeat same bet</item>

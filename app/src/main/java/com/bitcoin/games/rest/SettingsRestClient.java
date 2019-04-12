@@ -1,5 +1,7 @@
 package com.bitcoin.games.rest;
 
+import android.content.Context;
+
 import com.bitcoin.games.lib.JSONAndroidAppVersionResult;
 import com.google.gson.Gson;
 
@@ -10,18 +12,19 @@ public class SettingsRestClient extends RestClient {
 
   private static SettingsRestClient instance;
 
-  public static SettingsRestClient getInstance() {
+  public static SettingsRestClient getInstance(final Context ctx) {
     if (instance == null) {
       synchronized (SettingsRestClient.class) {
         if (instance == null) {
-          instance = new SettingsRestClient();
+          instance = new SettingsRestClient(ctx);
         }
       }
     }
     return instance;
   }
 
-  private SettingsRestClient() {
+  private SettingsRestClient(final Context ctx) {
+    super(ctx);
   }
 
   public JSONAndroidAppVersionResult getAndroidAppVersion() throws IOException {

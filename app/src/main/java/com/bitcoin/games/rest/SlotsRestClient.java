@@ -1,5 +1,7 @@
 package com.bitcoin.games.rest;
 
+import android.content.Context;
+
 import com.bitcoin.games.lib.JSONReseedResult;
 import com.bitcoin.games.lib.JSONSlotsPullResult;
 import com.bitcoin.games.lib.JSONSlotsRulesetResult;
@@ -14,18 +16,19 @@ public class SlotsRestClient extends RestClient {
 
   private static SlotsRestClient instance;
 
-  public static SlotsRestClient getInstance() {
+  public static SlotsRestClient getInstance(final Context ctx) {
     if (instance == null) {
       synchronized (SlotsRestClient.class) {
         if (instance == null) {
-          instance = new SlotsRestClient();
+          instance = new SlotsRestClient(ctx);
         }
       }
     }
     return instance;
   }
 
-  private SlotsRestClient() {
+  private SlotsRestClient(final Context ctx) {
+    super(ctx);
   }
 
   public JSONSlotsRulesetResult slotsRuleset() throws IOException {
@@ -35,7 +38,7 @@ public class SlotsRestClient extends RestClient {
   }
 
   public JSONReseedResult slotsReseed() throws IOException {
-    InputStreamReader is = getInputStreamReader("slots/reseed", null, CurrencySettings.getInstance().getAccountKey());
+    InputStreamReader is = getInputStreamReader("slots/reseed", null, CurrencySettings.getInstance(ctx).getAccountKey());
     return new Gson().fromJson(is, JSONReseedResult.class);
   }
 
@@ -46,7 +49,7 @@ public class SlotsRestClient extends RestClient {
     params += "&" + encodeKeyValuePair("client_seed", clientSeed);
     params += "&" + encodeKeyValuePair("use_fake_credits", useFakeCredits);
 
-    InputStreamReader is = getInputStreamReader("slots/pull", params, CurrencySettings.getInstance().getAccountKey());
+    InputStreamReader is = getInputStreamReader("slots/pull", params, CurrencySettings.getInstance(ctx).getAccountKey());
     return new Gson().fromJson(is, JSONSlotsPullResult.class);
   }
 
@@ -55,7 +58,7 @@ public class SlotsRestClient extends RestClient {
     params += "&" + encodeKeyValuePair("chatlast", chatlast);
     params += "&" + encodeKeyValuePair("credit_btc_value", creditBTCValue);
 
-    InputStreamReader is = getInputStreamReader("slots/update", params, CurrencySettings.getInstance().getAccountKey());
+    InputStreamReader is = getInputStreamReader("slots/update", params, CurrencySettings.getInstance(ctx).getAccountKey());
     return new Gson().fromJson(is, JSONSlotsUpdateResult.class);
   }
 }
