@@ -1,6 +1,7 @@
 package com.bitcoin.games.app;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,7 +13,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -33,6 +33,8 @@ import com.bitcoin.games.settings.Currency;
 import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
+
+import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
 public class MainActivity extends CommonActivity {
 
@@ -57,14 +59,12 @@ public class MainActivity extends CommonActivity {
   final static String SETTING_ANDROID_APP_VERSION_CHECK = "android_app_version_check";
   Typeface mRobotoLight;
   Typeface mRobotoBold;
-  private CurrencyChangeListener currencyChangeListener;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
     setContentView(R.layout.activity_main);
 
     // TB TEMP TEST - For now always reset the preferences (true) so that we
@@ -108,21 +108,18 @@ public class MainActivity extends CommonActivity {
       mTestLocalWarning.setVisibility(View.GONE);
     }
 
-    final CurrencySettings currencySettings = CurrencySettings.getInstance(this);
+    final Context self = this;
+    ((RadioButton) findViewById(CurrencySettings.getInstance(self).getCurrency() == Currency.BCH ? R.id.radioBch : R.id.radioBtc)).setChecked(true);
     ((RadioGroup) findViewById(R.id.radioCurrency)).setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
       @Override
       public void onCheckedChanged(RadioGroup group, int checkedId) {
-        currencySettings.reload(((RadioButton) findViewById(checkedId)).getText().toString());
+        mBalance.setText(getString(R.string.loading));
+        CurrencySettings.getInstance(self).reload(((RadioButton) findViewById(checkedId)).getText().toString());
+        if (CurrencySettings.getInstance(self).getAccountKey() == null) {
+          startActivity(new Intent(self, CreateAccountActivity.class));
+        }
       }
     });
-    currencyChangeListener = new CurrencyChangeListener(this::updateValues);
-    currencySettings.registerObserver(currencyChangeListener);
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    CurrencySettings.getInstance(this).unregisterObserver(currencyChangeListener);
   }
 
   public void timeUpdate() {
@@ -157,7 +154,7 @@ public class MainActivity extends CommonActivity {
       String balance = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
       mBalance.setText(getString(R.string.bitcoin_balance, balance, currency.name()));
     } else {
-      mBalance.setText(R.string.main_connecting);
+      mBalance.setText(getString(R.string.main_connecting));
     }
   }
 

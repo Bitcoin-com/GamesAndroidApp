@@ -25,10 +25,12 @@ public class CreateAccountActivity extends CommonActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    final CurrencySettings currencySettings = CurrencySettings.getInstance(this);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
     setContentView(R.layout.activity_create_account);
+
+    final CurrencySettings currencySettings = CurrencySettings.getInstance(this);
+    ((RadioButton) findViewById(currencySettings.getCurrency() == Currency.BCH ? R.id.radioBch : R.id.radioBtc)).setChecked(true);
 
     // TB TEMP TEST - For now always reset the preferences (true) so that we
     // can get first time players working.
@@ -38,10 +40,24 @@ public class CreateAccountActivity extends CommonActivity {
       @Override
       public void onCheckedChanged(RadioGroup group, int checkedId) {
         currencySettings.reload(((RadioButton) group.findViewById(checkedId)).getText().toString());
+        if (currencySettings.getAccountKey() != null) {
+          ((EditText) findViewById(R.id.txtAccountKey)).setText(currencySettings.getAccountKey());
+        }
       }
     });
     currencyChangeListener = new CurrencyChangeListener(this::updateValues);
-    currencySettings.registerObserver(currencyChangeListener);
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+    CurrencySettings.getInstance(this).registerObserver(currencyChangeListener);
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+    CurrencySettings.getInstance(this).unregisterObserver(currencyChangeListener);
   }
 
   private void updateValues(Currency currency) {
@@ -55,14 +71,8 @@ public class CreateAccountActivity extends CommonActivity {
     }
   }
 
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    CurrencySettings.getInstance(this).unregisterObserver(currencyChangeListener);
-  }
-
   public void onSetAccount(View view) {
-    CurrencySettings.getInstance(this).setAccountKey(((EditText) view.findViewById(R.id.txtAccountKey)).getText().toString());
+    CurrencySettings.getInstance(this).setAccountKey(((EditText) findViewById(R.id.txtAccountKey)).getText().toString());
     startMainActivity();
   }
 

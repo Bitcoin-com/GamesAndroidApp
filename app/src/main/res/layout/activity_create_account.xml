@@ -47,7 +47,6 @@
                     android:id="@+id/radioBch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true"
                     android:text="@string/bch" />
                 <RadioButton
                     android:id="@+id/radioBtc"
@@ -69,7 +68,6 @@
                 android:gravity="center_horizontal"
                 android:textSize="22sp"
                 android:layout_marginTop="20dp"
-                android:textColor="@color/gold"
                 android:text="Create Account"/>
             <TextView
                 android:id="@+id/subTitle"
@@ -78,7 +76,6 @@
                 android:gravity="center_horizontal"
                 android:textSize="18sp"
                 android:layout_marginTop="20dp"
-                android:textColor="@color/gold"
                 android:text="Add your existing Account Key"/>
             <EditText
                 android:id="@+id/txtAccountKey"
@@ -108,7 +105,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="20dp"
                     android:textSize="18sp"
-                    android:textColor="@color/gold"
                     android:text="I do not have an account yet, please generate one for me"/>
                 <Button
                     android:layout_width="wrap_content"

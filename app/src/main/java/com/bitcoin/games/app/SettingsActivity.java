@@ -226,32 +226,32 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
     NetVerifyAccountTask(Activity a, String accountKey) {
       super(a);
       mAccountKey = accountKey;
+      mShowDialogOnError = false;
     }
 
+    @Override
     public JSONBalanceResult go(Long... v) throws IOException {
-      return AccountRestClient.getInstance(mActivity).getBalance();
+      return AccountRestClient.getInstance(mActivity).isAccountKeyValid(mAccountKey);
     }
 
+    @Override
+    public void onError(JSONBalanceResult result) {
+      super.onError(result);
+
+      new AlertDialog.Builder(mActivity)
+        .setMessage("This account key is not valid. Please check the value and try again.")
+        .setCancelable(false)
+        .setPositiveButton("OK", (dialog, id) -> dialog.cancel())
+        .create()
+        .show();
+    }
+
+    @Override
     public void onSuccess(JSONBalanceResult result) {
       super.onSuccess(result);
 
-      if (result.status != null && result.status.contains("error")) {
-        // TB TODO - This code never gets called, since NetAsyncTask onPostExecute intercepts the error and displays a generic message.
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setMessage("This account key is not valid. Please check the value and try again.")
-            .setCancelable(false)
-            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog, int id) {
-                dialog.cancel();
-              }
-            });
-        AlertDialog alert = builder.create();
-        alert.show();
-      } else {
-        CreateAccountTask.setAccountKeyInPreferences(mActivity, mAccountKey);
-        Toast.makeText(mActivity, "Account key has been updated.", Toast.LENGTH_SHORT).show();
-      }
-
+      CreateAccountTask.setAccountKeyInPreferences(mActivity, mAccountKey);
+      Toast.makeText(mActivity, "Account key has been updated.", Toast.LENGTH_SHORT).show();
     }
 
     public void onDone() {
@@ -260,7 +260,6 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
         mVerifyAccountDialog.dismiss();
         mVerifyAccountDialog = null;
       }
-
     }
   }
 }

@@ -1,7 +1,6 @@
 package com.bitcoin.games.rest;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.JSONBalanceResult;
@@ -50,12 +49,6 @@ public class AccountRestClient extends RestClient {
     return new Gson().fromJson(is, JSONCreateAccountResult.class);
   }
 
-  private void printInputStreamReader(InputStreamReader is) {
-    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-    String str = s.hasNext() ? s.next() : "";
-    Log.v(tag(), str);
-  }
-
   public JSONWithdrawResult getWithdraw(String address, long intAmount) throws IOException {
     String params = encodeKeyValuePair("address", address);
     params += "&" + encodeKeyValuePair("intamount", intAmount);
@@ -64,10 +57,13 @@ public class AccountRestClient extends RestClient {
     return new Gson().fromJson(is, JSONWithdrawResult.class);
   }
 
-  // We also use this service call to check the validity of an account_key before setting it,
-  // so we need this method to ignore what value is currently set in this class.
   public JSONBalanceResult getBalance() throws IOException {
     InputStreamReader is = getInputStreamReader("account/balance", null, getAccountKey());
+    return new Gson().fromJson(is, JSONBalanceResult.class);
+  }
+
+  public JSONBalanceResult isAccountKeyValid(final String accountKey) throws IOException {
+    InputStreamReader is = getInputStreamReader("account/balance", null, accountKey);
     return new Gson().fromJson(is, JSONBalanceResult.class);
   }
 
