@@ -6,7 +6,7 @@
     android:layout_height="fill_parent"
     tools:context=".app.MainActivity">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:splitMotionEvents="false"
@@ -22,39 +22,48 @@
 
             <ImageView
                 android:id="@+id/title_image"
-                android:layout_width="326dp"
+                android:layout_width="275dp"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="false"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ref_logo" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="10dp"
-                android:text="@string/select_coin"
-                android:textSize="20sp"/>
-
-            <RadioGroup
-                android:id="@+id/radioCurrency"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="end"
                 android:orientation="horizontal"
-                android:layout_marginStart="10dp"
-                android:layout_gravity="center_vertical">
-                <RadioButton
-                    android:id="@+id/radioBch"
+                android:layout_marginEnd="10dp">
+
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/bch" />
-                <RadioButton
-                    android:id="@+id/radioBtc"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/select_coin"
+                    android:textSize="15sp"/>
+
+                <RadioGroup
+                    android:id="@+id/radioCurrency"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:layout_marginStart="10dp"
-                    android:text="@string/btc" />
-            </RadioGroup>
+                    android:layout_gravity="center_vertical">
+                    <RadioButton
+                        android:id="@+id/radioBch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="15sp"
+                        android:text="@string/bch" />
+                    <RadioButton
+                        android:id="@+id/radioBtc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="15sp"
+                        android:layout_marginStart="10dp"
+                        android:text="@string/btc" />
+                </RadioGroup>
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
