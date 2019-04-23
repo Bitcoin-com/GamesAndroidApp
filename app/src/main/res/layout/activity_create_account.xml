@@ -101,6 +101,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_gravity="center_horizontal"
                 android:onClick="onSetAccount"
+                android:enabled="false"
                 android:text="Open Account"/>
             <LinearLayout
                 android:layout_width="wrap_content"

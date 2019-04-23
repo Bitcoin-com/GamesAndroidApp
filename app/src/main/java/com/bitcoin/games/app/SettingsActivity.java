@@ -1,6 +1,5 @@
 package com.bitcoin.games.app;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -18,14 +17,10 @@ import android.widget.Toast;
 import com.bitcoin.games.R;
 import com.bitcoin.games.lib.CommonApplication;
 import com.bitcoin.games.lib.CreateAccountTask;
-import com.bitcoin.games.lib.JSONBalanceResult;
-import com.bitcoin.games.lib.NetBalanceTask;
-import com.bitcoin.games.rest.AccountRestClient;
 import com.bitcoin.games.settings.CurrencySettings;
+import com.bitcoin.games.tasks.NetVerifyAccountTask;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
-import java.io.IOException;
 
 public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
@@ -79,7 +74,12 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
         handler.postDelayed(new Runnable() {
           public void run() {
             mVerifyAccountDialog = ProgressDialog.show(that, "", "Verifying account_key...", true);
-            mNetVerifyAccountTask = new NetVerifyAccountTask(that, accountKey);
+            mNetVerifyAccountTask = new NetVerifyAccountTask(that, accountKey, () -> {
+              if (mVerifyAccountDialog != null) {
+                mVerifyAccountDialog.dismiss();
+                mVerifyAccountDialog = null;
+              }
+            });
             mNetVerifyAccountTask.execute(Long.valueOf(0));
           }
         }, 200);
@@ -219,47 +219,5 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
     updateValues();
   }
 
-  class NetVerifyAccountTask extends NetBalanceTask {
 
-    String mAccountKey;
-
-    NetVerifyAccountTask(Activity a, String accountKey) {
-      super(a);
-      mAccountKey = accountKey;
-      mShowDialogOnError = false;
-    }
-
-    @Override
-    public JSONBalanceResult go(Long... v) throws IOException {
-      return AccountRestClient.getInstance(mActivity).isAccountKeyValid(mAccountKey);
-    }
-
-    @Override
-    public void onError(JSONBalanceResult result) {
-      super.onError(result);
-
-      new AlertDialog.Builder(mActivity)
-        .setMessage("This account key is not valid. Please check the value and try again.")
-        .setCancelable(false)
-        .setPositiveButton("OK", (dialog, id) -> dialog.cancel())
-        .create()
-        .show();
-    }
-
-    @Override
-    public void onSuccess(JSONBalanceResult result) {
-      super.onSuccess(result);
-
-      CreateAccountTask.setAccountKeyInPreferences(mActivity, mAccountKey);
-      Toast.makeText(mActivity, "Account key has been updated.", Toast.LENGTH_SHORT).show();
-    }
-
-    public void onDone() {
-      super.onDone();
-      if (mVerifyAccountDialog != null) {
-        mVerifyAccountDialog.dismiss();
-        mVerifyAccountDialog = null;
-      }
-    }
-  }
 }

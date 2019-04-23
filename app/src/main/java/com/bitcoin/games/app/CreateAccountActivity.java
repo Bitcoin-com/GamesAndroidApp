@@ -3,6 +3,8 @@ package com.bitcoin.games.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
@@ -15,6 +17,9 @@ import com.bitcoin.games.lib.CommonActivity;
 import com.bitcoin.games.lib.CreateAccountTask;
 import com.bitcoin.games.settings.Currency;
 import com.bitcoin.games.settings.CurrencySettings;
+import com.bitcoin.games.tasks.NetVerifyAccountTask;
+
+import org.apache.commons.lang3.StringUtils;
 
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
@@ -45,6 +50,20 @@ public class CreateAccountActivity extends CommonActivity {
         }
       }
     });
+    ((EditText) findViewById(R.id.txtAccountKey)).addTextChangedListener(new TextWatcher() {
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+      }
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        findViewById(R.id.btnOpenAccount).setEnabled(!StringUtils.isEmpty(s));
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+      }
+    });
     currencyChangeListener = new CurrencyChangeListener(this::updateValues);
   }
 
@@ -72,8 +91,11 @@ public class CreateAccountActivity extends CommonActivity {
   }
 
   public void onSetAccount(View view) {
-    CurrencySettings.getInstance(this).setAccountKey(((EditText) findViewById(R.id.txtAccountKey)).getText().toString());
-    startMainActivity();
+    final NetVerifyAccountTask task = new NetVerifyAccountTask(
+      this,
+      ((EditText) findViewById(R.id.txtAccountKey)).getText().toString(),
+      ignored -> startMainActivity());
+    task.executeParallel();
   }
 
   private void startMainActivity() {
