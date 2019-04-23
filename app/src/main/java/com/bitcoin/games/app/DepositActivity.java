@@ -31,12 +31,13 @@ import com.bitcoin.games.lib.JSONBitcoinAddressResult;
 import com.bitcoin.games.lib.NetAsyncTask;
 import com.bitcoin.games.lib.NetBalanceTask;
 import com.bitcoin.games.lib.QrCode;
+import com.bitcoin.games.settings.BitcoinAddress;
+import com.bitcoin.games.settings.CurrencySettings;
 import com.google.zxing.WriterException;
 
-import java.io.IOException;
-
-
 public class DepositActivity extends CommonActivity {
+
+  private BitcoinAddress depositAddress;
 
   TextView mBalance;
   TextView mUnconfirmedWarning;
@@ -45,8 +46,7 @@ public class DepositActivity extends CommonActivity {
   Button mExternalApp;
   ImageView mQrCodeImage;
 
-  final static String TAG = "DepositActivity";
-  NetBitcoinAddressTask mNetBitcoinAddressTask;
+  private final static String TAG = DepositActivity.class.getSimpleName();
   final static int REQUEST_CODE_DEPOSIT_APP = 0;
   DepositNetBalanceTask mNetBalanceTask;
 
@@ -57,10 +57,10 @@ public class DepositActivity extends CommonActivity {
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     if (bvc.mIntBalance != -1) {
-      String btc = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
-      mBalance.setText(getString(R.string.bitcoin_balance, btc));
+      String balance = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
+      mBalance.setText(getString(R.string.bitcoin_balance, balance, CurrencySettings.getInstance(this).getCurrency().name()));
     } else {
-      mBalance.setText(R.string.btc);
+      mBalance.setText(CurrencySettings.getInstance(this).getCurrency().name());
     }
 
     if (bvc.mUnconfirmed) {
@@ -69,16 +69,27 @@ public class DepositActivity extends CommonActivity {
       mUnconfirmedWarning.setVisibility(View.GONE);
     }
 
-    String address = bvc.mDepositAddress;
+    if (depositAddress == null) {
+      CurrencySettings.getInstance(this).retrieveAddress(this, address -> {
+        depositAddress = address;
+        updateAddressOnUI();
+      });
+    } else {
+      updateAddressOnUI();
+    }
+    // TB TODO - Enable/disable external app button depending on whether an address exists yet
+    // TB TODO - Enable/disable external app button if no bitcoin intent handler app exists
+  }
 
-    if (address == null) {
-      mDepositAddress.setText(R.string.main_connecting);
+  private void updateAddressOnUI() {
+    if (depositAddress == null) {
+      mDepositAddress.setText(getString(R.string.main_connecting));
       if (mQrCodeImage != null) mQrCodeImage.setVisibility(View.GONE);
     } else {
-      mDepositAddress.setText(address);
+      mDepositAddress.setText(depositAddress.getAddress());
       if (mQrCodeImage != null) {
         try {
-          Bitmap bmp = QrCode.encodeAsBitmap("bitcoin:" + address);
+          Bitmap bmp = QrCode.encodeAsBitmap(depositAddress.toString());
           mQrCodeImage.setImageBitmap(bmp);
           mQrCodeImage.setVisibility(View.VISIBLE);
         } catch (WriterException e) {
@@ -86,8 +97,6 @@ public class DepositActivity extends CommonActivity {
         }
       }
     }
-    // TB TODO - Enable/disable external app button depending on whether an address exists yet
-    // TB TODO - Enable/disable external app button if no bitcoin intent handler app exists
   }
 
   @Override
@@ -106,7 +115,6 @@ public class DepositActivity extends CommonActivity {
     Typeface robotoLight = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Light.ttf");
     Typeface robotoBold = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Bold.ttf");
 
-    mNetBitcoinAddressTask = null;
     mNetBalanceTask = null;
     mTitle.setText(R.string.deposit);
     mTitle.setTypeface(robotoLight);
@@ -120,36 +128,22 @@ public class DepositActivity extends CommonActivity {
     mWaitingForDepositAlert = null;
   }
 
-  private Runnable mTimeUpdateRunnable = new Runnable() {
-    public void run() {
-      timeUpdate();
-    }
-  };
-
   public void timeUpdate() {
-
-    BitcoinGames bvc = BitcoinGames.getInstance(this);
-    if (bvc.mAccountKey != null) {
-      Log.v(TAG, bvc.mAccountKey);
+    if (CurrencySettings.getInstance(this).getAccountKey() != null) {
+      Log.v(TAG, CurrencySettings.getInstance(this).getAccountKey());
       mNetBalanceTask = new DepositNetBalanceTask(this);
       mNetBalanceTask.executeParallel(Long.valueOf(0));
     }
 
     // Every 5 seconds
     final int timeUpdateDelay = 5000;
-    mHandler.postDelayed(mTimeUpdateRunnable, timeUpdateDelay);
+    mHandler.postDelayed(this::timeUpdate, timeUpdateDelay);
   }
 
 
   @Override
   public void onResume() {
     super.onResume();
-
-    BitcoinGames bvc = BitcoinGames.getInstance(this);
-    if (bvc.mDepositAddress == null || bvc.mDepositAddress.length() < 10) {
-      mNetBitcoinAddressTask = new NetBitcoinAddressTask(this);
-      mNetBitcoinAddressTask.executeParallel(Long.valueOf(0));
-    }
 
     // Sucky hack since we can't rely on onActivityResult() being called after a deposit is made. :(
     Log.v(TAG, "onResume: " + mWillReturnFromDeposit);
@@ -176,7 +170,7 @@ public class DepositActivity extends CommonActivity {
   public void onPause() {
     super.onPause();
     Log.v(TAG, "OnPause");
-    mHandler.removeCallbacks(mTimeUpdateRunnable);
+    mHandler.removeCallbacks(this::timeUpdate);
   }
 
   public void handleBlockchainCrash() {
@@ -247,89 +241,43 @@ public class DepositActivity extends CommonActivity {
   @SuppressLint("NewApi")
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   public void onDepositAddress(View button) {
-    String address = BitcoinGames.getInstance(this).mDepositAddress;
+    if (depositAddress != null) {
+      // http://stackoverflow.com/questions/238284/how-to-copy-text-programatically-in-my-android-app
+      if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+        // TB - Old crappy way
+        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setText(depositAddress.toString());
+      } else {
+        // TB - New hotness
+        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        android.content.ClipData clip = android.content.ClipData.newPlainText("Bitcoin Address", depositAddress.toString());
+        clipboard.setPrimaryClip(clip);
+      }
 
-    // http://stackoverflow.com/questions/238284/how-to-copy-text-programatically-in-my-android-app
-    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-      // TB - Old crappy way
-      android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-      clipboard.setText(address);
-    } else {
-      // TB - New hotness
-      android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-      android.content.ClipData clip = android.content.ClipData.newPlainText("Bitcoin Address", address);
-      clipboard.setPrimaryClip(clip);
+      Toast.makeText(this, "Deposit address has been copied to your clipboard", Toast.LENGTH_SHORT).show();
     }
-
-    Toast.makeText(this, "Deposit address has been copied to your clipboard", Toast.LENGTH_SHORT).show();
   }
 
   public void onExternalApp(View button) {
     // TB TODO - Verify that an external app actually exists!!!
     // TB TODO - Get correct deposit address from service call
-    String address = BitcoinGames.getInstance(this).mDepositAddress;
-    if (address == null) {
-      return;
-    }
-    String url = "bitcoin://" + address;
-    Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.setData(Uri.parse(url));
-    //intent.setFlags( Intent.FLAG_ACTIVITY_SINGLE_TOP );
+    if (depositAddress != null) {
+      Intent intent = new Intent(Intent.ACTION_VIEW);
+      intent.setData(Uri.parse(depositAddress.toString()));
+      //intent.setFlags( Intent.FLAG_ACTIVITY_SINGLE_TOP );
 
-    try {
-      // TB TODO - This will immediately call onActivityResult because android:launchMode in the bitcoin app is android:launchMode="singleTask",
-      // which apparently causes this. So could just run the balance checker or something...
-      // So for now just call startActivity and hack in a progress alert when you return... sucky...
-      //startActivityForResult( intent, REQUEST_CODE_DEPOSIT_APP );
-      startActivity(intent);
+      try {
+        // TB TODO - This will immediately call onActivityResult because android:launchMode in the bitcoin app is android:launchMode="singleTask",
+        // which apparently causes this. So could just run the balance checker or something...
+        // So for now just call startActivity and hack in a progress alert when you return... sucky...
+        //startActivityForResult( intent, REQUEST_CODE_DEPOSIT_APP );
+        startActivity(intent);
 
-      // TB - This hack sucks, since we don't know what the user actually did in the other app. If he didn't deposit anything, we won't know!
-      mWillReturnFromDeposit = true;
-    } catch (ActivityNotFoundException e) {
-      handleMissingExternalApp();
-    }
-
-  }
-
-  class NetBitcoinAddressTask extends NetAsyncTask<Long, Void, JSONBitcoinAddressResult> {
-
-    ProgressDialog mAlert;
-
-    NetBitcoinAddressTask(CommonActivity a) {
-      super(a);
-      Log.v(TAG, "NetBitcoinAddressTask go!");
-      mAlert = ProgressDialog.show(a, "", getString(R.string.deposit_message_retrieving_dep_address), true);
-    }
-
-    public void onDone() {
-      mAlert.cancel();
-    }
-
-    public JSONBitcoinAddressResult go(Long... v) throws IOException {
-      Log.v(TAG, "deposit check go!");
-      return mBVC.getBitcoinAddress();
-    }
-
-    public void onSuccess(JSONBitcoinAddressResult result) {
-      Log.v(TAG, "deposit check success!");
-      // TB TODO - Error checking!
-      mBVC.mDepositAddress = result.address;
-
-      // TB - Don't remember the deposit address, so we don't run into the same problem of people
-      // being stuck with an old address that is no longer valid.
-            /*
-			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putString("deposit_address", result.address);
-			editor.commit();
-			*/
-
-      updateValues();
-    }
-
-    public void onError(JSONBitcoinAddressResult r) {
-      mShowDialogOnError = false;
-      GameActivity.handleCriticalConnectionError(mActivity);
+        // TB - This hack sucks, since we don't know what the user actually did in the other app. If he didn't deposit anything, we won't know!
+        mWillReturnFromDeposit = true;
+      } catch (ActivityNotFoundException e) {
+        handleMissingExternalApp();
+      }
     }
   }
 

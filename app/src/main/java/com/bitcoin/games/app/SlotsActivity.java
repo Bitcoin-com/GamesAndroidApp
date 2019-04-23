@@ -38,6 +38,8 @@ import com.bitcoin.games.lib.JSONSlotsPullResult;
 import com.bitcoin.games.lib.JSONSlotsRulesetResult;
 import com.bitcoin.games.lib.JSONSlotsUpdateResult;
 import com.bitcoin.games.lib.NetAsyncTask;
+import com.bitcoin.games.rest.SlotsRestClient;
+import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -120,7 +122,7 @@ public class SlotsActivity extends GameActivity {
   public static final int COLUMN_DIVIDER_WIDTH = 2;
   public static final int WIDGET_WIDTH = 31;
   public static final int WIDGET_HEIGHT = 24;
-  final private String SL_SETTING_CREDIT_BTC_VALUE = "sl_credit_btc_value";
+  final private String SL_SETTING_CREDIT_VALUE = "sl_credit_value";
 
   private static final int WIN_REVEAL_STATE_SHOW_ALL = 0;
   private static final int WIN_REVEAL_STATE_SHOW_SCATTERS = 1;
@@ -169,9 +171,9 @@ public class SlotsActivity extends GameActivity {
     mOffscreenBitmap = Bitmap.createBitmap(640, 342 + 4, Bitmap.Config.ARGB_8888);
     mOffscreenCanvas = new Canvas(mOffscreenBitmap);
 
-    // Starting value (0.001 BTC) gets set in GameActivity::onCreate()
-    mCreditBTCValue = sharedPref.getLong(SL_SETTING_CREDIT_BTC_VALUE, mCreditBTCValue);
-    updateBTCButton(mCreditBTCValue);
+    // Starting value (0.001) gets set in GameActivity::onCreate()
+    mCreditValue = sharedPref.getLong(SL_SETTING_CREDIT_VALUE, mCreditValue);
+    updateSatoshiButton(mCreditValue);
 
     mPullButton = (Button) findViewById(R.id.pull_button);
     mAutoButton = (Button) findViewById(R.id.auto_button);
@@ -583,25 +585,26 @@ public class SlotsActivity extends GameActivity {
     setAuto(false);
   }
 
-  boolean canCreditBTC() {
+  boolean canCreditSatoshi() {
     return canChangeLines();
   }
 
-  public void onCreditBTC(View button) {
-    if (!canCreditBTC()) {
+  public void onCreditSatoshi(View button) {
+    if (!canCreditSatoshi()) {
       return;
     }
 
-    CreditBTCItem[] items = new CreditBTCItem[]{
-        new CreditBTCItem("1 CREDIT = 0.01 BTC    ", "Win over 100 BTC!", Bitcoin.stringAmountToLong("0.01")),
-        new CreditBTCItem("1 CREDIT = 0.005 BTC    ", "Win over 50 BTC!", Bitcoin.stringAmountToLong("0.005")),
-        new CreditBTCItem("1 CREDIT = 0.001 BTC    ", "Win over 10 BTC!", Bitcoin.stringAmountToLong("0.001")),
-        new CreditBTCItem("1 CREDIT = 0.0001 BTC   ", "Win over 1 BTC!", Bitcoin.stringAmountToLong("0.0001"))};
-    showCreditBTCDialog(SL_SETTING_CREDIT_BTC_VALUE, items);
+    final String currency = CurrencySettings.getInstance(this).getCurrency().name();
+    final CreditItem[] items = new CreditItem[]{
+        new CreditItem(String.format("1 CREDIT = 0.01 %s     ", currency), String.format("Win over 100 %s!", currency), Bitcoin.stringAmountToLong("0.01")),
+        new CreditItem(String.format("1 CREDIT = 0.005 %s    ", currency), String.format("Win over 50 %s!", currency), Bitcoin.stringAmountToLong("0.005")),
+        new CreditItem(String.format("1 CREDIT = 0.001 %s    ", currency), String.format("Win over 10 %s!", currency), Bitcoin.stringAmountToLong("0.001")),
+        new CreditItem(String.format("1 CREDIT = 0.0001 %s   ", currency), String.format("Win over 1 %s!", currency), Bitcoin.stringAmountToLong("0.0001"))};
+    showCreditDialog(SL_SETTING_CREDIT_VALUE, items);
   }
 
   @Override
-  public void handleCreditBTCChanged() {
+  public void handleCreditSatoshiChanged() {
 
     // Gotta reset the jackpot until we get the new value
     mProgressiveJackpot = -1;
@@ -705,7 +708,7 @@ public class SlotsActivity extends GameActivity {
       }
       BitcoinGames bvc = BitcoinGames.getInstance(this);
 
-      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - (mLines * mCreditBTCValue) < 0) {
+      if ((mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance) - (mLines * mCreditValue) < 0) {
         handleNotEnoughCredits();
         return;
       }
@@ -738,10 +741,10 @@ public class SlotsActivity extends GameActivity {
     if (canPull()) {
       mPullButton.setBackgroundResource(R.drawable.button_blue);
       mPullButton.setTextColor(Color.WHITE);
-      mBTCButton.setTextColor(Color.WHITE);
+      mSatoshiButton.setTextColor(Color.WHITE);
     } else {
       mPullButton.setTextColor(Color.GRAY);
-      mBTCButton.setTextColor(Color.GRAY);
+      mSatoshiButton.setTextColor(Color.GRAY);
     }
 
     if (mIsAutoOn) {
@@ -1026,7 +1029,7 @@ public class SlotsActivity extends GameActivity {
     if (mFreeSpinsLeft == 0) {
       super.updateCredits(intbalance);
     } else {
-      super.updateCredits(mFreeSpinsLeft * mCreditBTCValue, R.string.free_spins);
+      super.updateCredits(mFreeSpinsLeft * mCreditValue, R.string.free_spins);
     }
   }
 
@@ -1070,7 +1073,7 @@ public class SlotsActivity extends GameActivity {
     public JSONSlotsUpdateResult go(Long... v) throws IOException {
       int last = 999999999;
       int chatlast = 999999999;
-      return mBVC.slotsUpdate(last, chatlast, mCreditBTCValue);
+      return SlotsRestClient.getInstance(mActivity).slotsUpdate(last, chatlast, mCreditValue);
     }
 
     public void onSuccess(JSONSlotsUpdateResult result) {
@@ -1091,7 +1094,7 @@ public class SlotsActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return mBVC.slotsReseed();
+      return SlotsRestClient.getInstance(mActivity).slotsReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -1121,7 +1124,7 @@ public class SlotsActivity extends GameActivity {
         mIsFreeSpin = true;
         updateCredits(mUseFakeCredits ? mBVC.mFakeIntBalance : mBVC.mIntBalance);
       } else {
-        updateCredits((mUseFakeCredits ? mBVC.mFakeIntBalance : mBVC.mIntBalance) - (mLines * mCreditBTCValue));
+        updateCredits((mUseFakeCredits ? mBVC.mFakeIntBalance : mBVC.mIntBalance) - (mLines * mCreditValue));
       }
 
       // TB TEMP TEST - There's probably a better place to put this?
@@ -1150,7 +1153,7 @@ public class SlotsActivity extends GameActivity {
 
     public JSONSlotsPullResult go(Long... v) throws IOException {
       String serverSeedHash = mServerSeedHash;
-      return mBVC.slotsPull(mLines, mCreditBTCValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
+      return SlotsRestClient.getInstance(mActivity).slotsPull(mLines, mCreditValue, serverSeedHash, getClientSeed(), mUseFakeCredits);
     }
 
     @Override
@@ -1188,9 +1191,9 @@ public class SlotsActivity extends GameActivity {
           int numLines = mPullResult.prizes.size();
           int numScatters = mPullResult.num_scatters;
           if (numLines > 0 || numScatters >= SlotsActivity.SCATTERS_FOR_PRIZE) {
-            long delta = mCreditBTCValue;
-            if (result.intwinnings / mCreditBTCValue >= 50) {
-              delta = mCreditBTCValue * 5;
+            long delta = mCreditValue;
+            if (result.intwinnings / mCreditValue >= 50) {
+              delta = mCreditValue * 5;
             }
             if (mIsAutoOn) {
               delta = result.intwinnings;
@@ -1279,7 +1282,7 @@ public class SlotsActivity extends GameActivity {
     }
 
     public JSONSlotsRulesetResult go(Long... v) throws IOException {
-      return mBVC.slotsRuleset();
+      return SlotsRestClient.getInstance(mActivity).slotsRuleset();
     }
 
     @Override

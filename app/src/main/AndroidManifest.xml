@@ -18,16 +18,21 @@
             android:name=".app.IntroActivity"
             android:screenOrientation="landscape"
             android:noHistory="true"
-            android:label="Bitcoin Games" />
-        <activity
-            android:name=".app.MainActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppTheme">
+            android:label="Bitcoin Games">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".app.CreateAccountActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity
+            android:name=".app.MainActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".app.SettingsActivity"
             android:screenOrientation="landscape"

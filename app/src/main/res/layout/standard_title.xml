@@ -39,7 +39,7 @@
             android:textSize="18sp"
             android:textColor="#008800"
             android:layout_gravity="end"
-            android:text="@string/warning_waiting_for_btc_confirmations" />
+            android:text="@string/warning_waiting_for_confirmations" />
 
     </LinearLayout>
 

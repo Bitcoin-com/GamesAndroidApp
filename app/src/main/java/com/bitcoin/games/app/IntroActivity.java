@@ -16,6 +16,7 @@ import android.widget.ImageView;
 
 import com.bitcoin.games.R;
 import com.bitcoin.games.lib.CommonActivity;
+import com.bitcoin.games.settings.CurrencySettings;
 
 public class IntroActivity extends CommonActivity {
 
@@ -28,7 +29,7 @@ public class IntroActivity extends CommonActivity {
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     setContentView(R.layout.activity_intro);
-    mTitleImage = (ImageView) findViewById(R.id.title_image);
+    mTitleImage = findViewById(R.id.title_image);
     mStartedNewIntent = false;
   }
 
@@ -90,14 +91,14 @@ public class IntroActivity extends CommonActivity {
     });
   }
 
-  public void onContainer(View button) {
-    startMainActivity();
-  }
+//  public void onContainer(View button) {
+//    startActivity();
+//  }
 
-  private void startMainActivity() {
+  private void startActivity() {
     if (!mStartedNewIntent) {
-      Intent intent = new Intent(this, MainActivity.class);
-      startActivity(intent);
+      startActivity(new Intent(this,
+        CurrencySettings.getInstance(this).getAccountKey() == null ? CreateAccountActivity.class : MainActivity.class));
     }
   }
 
@@ -110,11 +111,7 @@ public class IntroActivity extends CommonActivity {
 
       public void onAnimationEnd(Animation animation) {
         view.setVisibility(View.VISIBLE);
-        mHandler.postDelayed(new Runnable() {
-          public void run() {
-            fadeOut();
-          }
-        }, 1500);
+        mHandler.postDelayed(() -> fadeOut(), 1500);
       }
 
       public void onAnimationRepeat(Animation animation) {
@@ -136,7 +133,7 @@ public class IntroActivity extends CommonActivity {
 
       public void onAnimationEnd(Animation animation) {
         view.setVisibility(View.INVISIBLE);
-        startMainActivity();
+        startActivity();
       }
 
       public void onAnimationRepeat(Animation animation) {
@@ -152,20 +149,11 @@ public class IntroActivity extends CommonActivity {
   @Override
   public void onResume() {
     super.onResume();
-    mHandler.postDelayed(new Runnable() {
-      public void run() {
-        fadeIn();
-      }
-    }, 1000);
-    //int[] images = { R.drawable.ref_logo };
-    //animate(mTitleImage, images, 0);
-
+    mHandler.postDelayed(this::fadeIn, 1000);
   }
 
   @Override
   public void onPause() {
     super.onPause();
   }
-
-
 }

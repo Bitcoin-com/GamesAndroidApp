@@ -39,6 +39,8 @@ import com.bitcoin.games.lib.JSONBlackjackCommandResult;
 import com.bitcoin.games.lib.JSONBlackjackRulesetResult;
 import com.bitcoin.games.lib.JSONReseedResult;
 import com.bitcoin.games.lib.NetAsyncTask;
+import com.bitcoin.games.rest.BlackjackRestClient;
+import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,7 +49,7 @@ import java.util.List;
 
 public class BlackjackActivity extends GameActivity {
 
-  private static final String BJ_SETTING_CREDIT_BTC_VALUE = "bj_credit_btc_value";
+  private static final String BJ_SETTING_CREDIT_VALUE = "bj_credit_value";
 
   class BlackjackGameState extends GameState {
     final static public int WAIT_USER_DEAL = 0;
@@ -134,10 +136,10 @@ public class BlackjackActivity extends GameActivity {
     mSoundWinProgressive = mSoundPool.load(this, R.raw.slot_machine_win_19, 1);
     mSoundCanSplit = mSoundPool.load(this, R.raw.slot_machine_bet_10, 1);
 
-    // Starting value (0.001 BTC) gets set in GameActivity::onCreate()
+    // Starting value (0.001) gets set in GameActivity::onCreate()
     SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    mCreditBTCValue = sharedPref.getLong(BJ_SETTING_CREDIT_BTC_VALUE, mCreditBTCValue);
-    updateBTCButton(mCreditBTCValue);
+    mCreditValue = sharedPref.getLong(BJ_SETTING_CREDIT_VALUE, mCreditValue);
+    updateSatoshiButton(mCreditValue);
 
     mRuleset = null;
     mHandGroups = new HandGroup[2];
@@ -160,22 +162,24 @@ public class BlackjackActivity extends GameActivity {
     mBitmapCache.clear();
   }
 
-  boolean canCreditBTC() {
+  boolean canCreditSatoshi() {
     return (mGameState == BlackjackGameState.WAIT_USER_DEAL && !mIsGameBusy && !mIsWaitingForServer);
   }
 
 
-  public void onCreditBTC(View button) {
-    if (!canCreditBTC()) {
+  public void onCreditSatoshi(View button) {
+    if (!canCreditSatoshi()) {
       return;
     }
 
-    CreditBTCItem[] items = new CreditBTCItem[]{
-        new CreditBTCItem("1 CREDIT = 0.01 BTC    ", null, Bitcoin.stringAmountToLong("0.01")),
-        new CreditBTCItem("1 CREDIT = 0.005 BTC    ", null, Bitcoin.stringAmountToLong("0.005")),
-        new CreditBTCItem("1 CREDIT = 0.001 BTC    ", null, Bitcoin.stringAmountToLong("0.001")),
-        new CreditBTCItem("1 CREDIT = 0.0001 BTC   ", null, Bitcoin.stringAmountToLong("0.0001"))};
-    showCreditBTCDialog(BJ_SETTING_CREDIT_BTC_VALUE, items);
+    final String currency = CurrencySettings.getInstance(this).getCurrency().name();
+    final CreditItem[] items = new CreditItem[] {
+      new CreditItem(String.format("1 CREDIT = 0.01 %s     ", currency), null, Bitcoin.stringAmountToLong("0.01")),
+      new CreditItem(String.format("1 CREDIT = 0.005 %s    ", currency), null, Bitcoin.stringAmountToLong("0.005")),
+      new CreditItem(String.format("1 CREDIT = 0.001 %s    ", currency), null, Bitcoin.stringAmountToLong("0.001")),
+      new CreditItem(String.format("1 CREDIT = 0.0001 %s   ", currency), null, Bitcoin.stringAmountToLong("0.0001"))
+    };
+    showCreditDialog(BJ_SETTING_CREDIT_VALUE, items);
   }
 
   private boolean isBetAmountOK(long bet) {
@@ -289,7 +293,7 @@ public class BlackjackActivity extends GameActivity {
       return false;
     }
 
-    if (!isBetAmountOK(mCreditBTCValue)) {
+    if (!isBetAmountOK(mCreditValue)) {
       return false;
     }
 
@@ -448,7 +452,7 @@ public class BlackjackActivity extends GameActivity {
     tryNetCommandTask(Blackjack.Command.INSURANCE);
   }
 
-  public void handleCreditBTCChanged() {
+  public void handleCreditSatoshiChanged() {
     // No jackpot or anything to update here...
   }
 
@@ -532,7 +536,7 @@ public class BlackjackActivity extends GameActivity {
     mDoubleButton.setTextColor(canDouble() ? Color.WHITE : Color.GRAY);
     mHitButton.setTextColor(canHit() ? Color.WHITE : Color.GRAY);
     mStandButton.setTextColor(canStand() ? Color.WHITE : Color.GRAY);
-    mBTCButton.setTextColor(canDeal() ? Color.WHITE : Color.GRAY);
+    mSatoshiButton.setTextColor(canDeal() ? Color.WHITE : Color.GRAY);
 
     if (canInsurance()) {
       mInsuranceButton.setVisibility(View.VISIBLE);
@@ -594,7 +598,7 @@ public class BlackjackActivity extends GameActivity {
         long progressiveBet = 0;
 
         BitcoinGames bvc = BitcoinGames.getInstance(this);
-        int command = Blackjack.player_action(dealerShows, playerHands, mDealResult.next_hand, mActions, takeInsuranceFreq, mRuleset.result.max_split_count, progressiveBet, mCreditBTCValue, bvc.mIntBalance);
+        int command = Blackjack.player_action(dealerShows, playerHands, mDealResult.next_hand, mActions, takeInsuranceFreq, mRuleset.result.max_split_count, progressiveBet, mCreditValue, bvc.mIntBalance);
         switch (command) {
           case Blackjack.Command.HIT:
             if (!canHit()) {
@@ -911,7 +915,7 @@ public class BlackjackActivity extends GameActivity {
     }
 
     public JSONReseedResult go(Long... v) throws IOException {
-      return mBVC.blackjackReseed();
+      return BlackjackRestClient.getInstance(mActivity).blackjackReseed();
     }
 
     public void onSuccess(JSONReseedResult result) {
@@ -922,8 +926,6 @@ public class BlackjackActivity extends GameActivity {
         onDeal(null);
       }
     }
-
-
   }
 
   class ShowCardsRunnable implements Runnable {
@@ -1092,7 +1094,7 @@ public class BlackjackActivity extends GameActivity {
 
         long delta = 1L;
 
-        delta *= mCreditBTCValue;
+        delta *= mCreditValue;
         if (mIsAutoOn) {
           delta = winnings;
         }
@@ -1219,9 +1221,9 @@ public class BlackjackActivity extends GameActivity {
   long getCommandCost(int command) {
     long cost = 0;
     if (command == Blackjack.Command.DEAL || command == Blackjack.Command.DOUBLE || command == Blackjack.Command.SPLIT) {
-      cost = mCreditBTCValue;
+      cost = mCreditValue;
     } else if (command == Blackjack.Command.INSURANCE) {
-      cost = mCreditBTCValue / 2;
+      cost = mCreditValue / 2;
     }
     return cost;
   }
@@ -1311,11 +1313,10 @@ public class BlackjackActivity extends GameActivity {
       final String[] commandLookup = {"blackjack/deal", "blackjack/hit", "blackjack/stand", "blackjack/double", "blackjack/split", "blackjack/insurance"};
       if (mCommand == Blackjack.Command.DEAL) {
         long progressiveBet = 0;
-        return mBVC.blackjackDeal(mCreditBTCValue, progressiveBet, mServerSeedHash, getClientSeed(), mUseFakeCredits);
+        return BlackjackRestClient.getInstance(mActivity).blackjackDeal(mCreditValue, progressiveBet, mServerSeedHash, getClientSeed(), mUseFakeCredits);
       } else {
-        return mBVC.blackjackCommand(commandLookup[mCommand], mGameID, mDealResult.next_hand);
+        return BlackjackRestClient.getInstance(mActivity).blackjackCommand(commandLookup[mCommand], mGameID, mDealResult.next_hand);
       }
-
     }
 
     @Override
@@ -1369,7 +1370,7 @@ public class BlackjackActivity extends GameActivity {
     }
 
     public JSONBlackjackRulesetResult go(Long... v) throws IOException {
-      return mBVC.blackjackRuleset();
+      return BlackjackRestClient.getInstance(mActivity).blackjackRuleset();
     }
 
     @Override

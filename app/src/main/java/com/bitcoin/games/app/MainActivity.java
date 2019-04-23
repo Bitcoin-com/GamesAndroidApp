@@ -1,6 +1,7 @@
 package com.bitcoin.games.app;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,9 +13,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.bitcoin.games.R;
@@ -22,14 +24,17 @@ import com.bitcoin.games.lib.Bitcoin;
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
 import com.bitcoin.games.lib.CommonApplication;
-import com.bitcoin.games.lib.CreateAccountTask;
 import com.bitcoin.games.lib.JSONAndroidAppVersionResult;
 import com.bitcoin.games.lib.JSONBalanceResult;
-import com.bitcoin.games.lib.JSONCreateAccountResult;
 import com.bitcoin.games.lib.NetAsyncTask;
 import com.bitcoin.games.lib.NetBalanceTask;
+import com.bitcoin.games.rest.SettingsRestClient;
+import com.bitcoin.games.settings.Currency;
+import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
+
+import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
 public class MainActivity extends CommonActivity {
 
@@ -45,7 +50,6 @@ public class MainActivity extends CommonActivity {
   Button mCashOut;
   Button mShare;
   MainNetBalanceTask mNetBalanceTask;
-  MainCreateAccountTask mCreateAccountTask;
   NetAndroidAppVersionTask mAndroidAppVersionTask;
   Handler mHandler;
   final static String TAG = "MainActivity";
@@ -60,8 +64,7 @@ public class MainActivity extends CommonActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
     setContentView(R.layout.activity_main);
 
     // TB TEMP TEST - For now always reset the preferences (true) so that we
@@ -96,7 +99,6 @@ public class MainActivity extends CommonActivity {
     mShare.setTypeface(mRobotoLight);
 
     mNetBalanceTask = null;
-    mCreateAccountTask = null;
     mAndroidAppVersionTask = null;
     mHandler = new Handler();
     mLastNetBalanceCheck = 0;
@@ -105,31 +107,31 @@ public class MainActivity extends CommonActivity {
     if (BitcoinGames.RUN_ENVIRONMENT == BitcoinGames.RunEnvironment.PRODUCTION) {
       mTestLocalWarning.setVisibility(View.GONE);
     }
-  }
 
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
+    final Context self = this;
+    ((RadioButton) findViewById(CurrencySettings.getInstance(self).getCurrency() == Currency.BCH ? R.id.radioBch : R.id.radioBtc)).setChecked(true);
+    ((RadioGroup) findViewById(R.id.radioCurrency)).setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(RadioGroup group, int checkedId) {
+        mBalance.setText(getString(R.string.loading));
+        CurrencySettings.getInstance(self).reload(((RadioButton) findViewById(checkedId)).getText().toString());
+        if (CurrencySettings.getInstance(self).getAccountKey() == null) {
+          startActivity(new Intent(self, CreateAccountActivity.class));
+        }
+      }
+    });
   }
-
-  private Runnable mTimeUpdateRunnable = new Runnable() {
-    public void run() {
-      timeUpdate();
-    }
-  };
 
   public void timeUpdate() {
-    //Log.v(TAG, "timeUpdate!");
-
     mBlinkOn = !mBlinkOn;
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
     long now = System.currentTimeMillis();
     if (now - mLastNetBalanceCheck > 5000) {
       mLastNetBalanceCheck = now;
-      if (bvc.mAccountKey != null) {
+      if (CurrencySettings.getInstance(this).getAccountKey() != null) {
         mNetBalanceTask = new MainNetBalanceTask(this);
-        mNetBalanceTask.execute(Long.valueOf(0));
+        mNetBalanceTask.execute(0L);
       }
     }
 
@@ -141,52 +143,44 @@ public class MainActivity extends CommonActivity {
 
     mFakeCredits = bvc.mIntBalance == 0;
 
-    mHandler.postDelayed(mTimeUpdateRunnable, BLINK_DELAY);
+    mHandler.postDelayed(this::timeUpdate, BLINK_DELAY);
   }
 
-  public void updateValues() {
+  public void updateValues(final Currency currency) {
 
     BitcoinGames bvc = BitcoinGames.getInstance(this);
 
     if (bvc.mIntBalance != -1) {
-      String btc = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
-      mBalance.setText(String.format("Balance: %s BTC", btc));
+      String balance = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
+      mBalance.setText(getString(R.string.bitcoin_balance, balance, currency.name()));
     } else {
-      mBalance.setText(String.format("Connecting..."));
+      mBalance.setText(getString(R.string.main_connecting));
     }
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    updateValues();
+    updateValues(CurrencySettings.getInstance(this).getCurrency());
 
-    BitcoinGames bvc = BitcoinGames.getInstance(this);
-    if (bvc.mAccountKey == null) {
-      Log.v(TAG, "account key is null, creating a new account!");
-      mCreateAccountTask = new MainCreateAccountTask(this);
-      mCreateAccountTask.execute(Long.valueOf(0));
-    } else {
-      // TB TODO - Is there some better kind of storage I should be using for something like this?
-      SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-      long lastCheck = sharedPref.getLong(SETTING_ANDROID_APP_VERSION_CHECK, 0);
-      long now = System.currentTimeMillis() / 1000;
-      // Check every week
-      long APP_CHECK_DELAY = 60 * 60 * 24 * 7;
-      if (now - lastCheck > APP_CHECK_DELAY) {
-        mAndroidAppVersionTask = new NetAndroidAppVersionTask(this);
-        mAndroidAppVersionTask.execute(Long.valueOf(0));
-      }
+    // TB TODO - Is there some better kind of storage I should be using for something like this?
+    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+    long lastCheck = sharedPref.getLong(SETTING_ANDROID_APP_VERSION_CHECK, 0);
+    long now = System.currentTimeMillis() / 1000;
+    // Check every week
+    long APP_CHECK_DELAY = 60 * 60 * 24 * 7;
+    if (now - lastCheck > APP_CHECK_DELAY) {
+      mAndroidAppVersionTask = new NetAndroidAppVersionTask(this);
+      mAndroidAppVersionTask.execute(Long.valueOf(0));
     }
 
-    // Bitcoin.test();
     timeUpdate();
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    mHandler.removeCallbacks(mTimeUpdateRunnable);
+    mHandler.removeCallbacks(this::timeUpdate);
   }
 
   public void onShare(View button) {
@@ -197,7 +191,7 @@ public class MainActivity extends CommonActivity {
     Intent intent = new Intent(Intent.ACTION_SEND);
     intent.setType("text/plain");
     intent.putExtra(Intent.EXTRA_SUBJECT, "Come play Bitcoin Games");
-    intent.putExtra(Intent.EXTRA_TEXT, "Check out the Bitcoin Games Android app. https://games.bitcoin.com/android");
+    intent.putExtra(Intent.EXTRA_TEXT, String.format("Check out the Bitcoin Games Android app. %s/android", CurrencySettings.getInstance(this).getServerAddress()));
     startActivity(Intent.createChooser(intent, "Share Bitcoin Games with friends"));
 
     // TB TODO - Might be cool to include an image as well, instead of just text
@@ -249,19 +243,6 @@ public class MainActivity extends CommonActivity {
     startActivity(intent);
   }
 
-  class MainCreateAccountTask extends CreateAccountTask {
-
-    MainCreateAccountTask(CommonActivity a) {
-      super(a);
-    }
-
-    @Override
-    public void onSuccess(JSONCreateAccountResult result) {
-      super.onSuccess(result);
-      updateValues();
-    }
-  }
-
   class MainNetBalanceTask extends NetBalanceTask {
 
     MainNetBalanceTask(CommonActivity a) {
@@ -270,7 +251,7 @@ public class MainActivity extends CommonActivity {
 
     public void onSuccess(JSONBalanceResult result) {
       super.onSuccess(result);
-      updateValues();
+      updateValues(CurrencySettings.getInstance(mActivity).getCurrency());
     }
   }
 
@@ -282,7 +263,7 @@ public class MainActivity extends CommonActivity {
 
     public JSONAndroidAppVersionResult go(Long... v) throws IOException {
       mShowDialogOnError = false;
-      return mBVC.getAndroidAppVersion();
+      return SettingsRestClient.getInstance(mActivity).getAndroidAppVersion();
     }
 
     void showNewVersionDialog(String oldVersion, String newVersion) {
@@ -298,8 +279,8 @@ public class MainActivity extends CommonActivity {
           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
               dialog.cancel();
-              BitcoinGames bvc = BitcoinGames.getInstance(mActivity);
-              String url = "https://games.bitcoin.com/android?account_key=" + bvc.mAccountKey;
+              final CurrencySettings currencySettings = CurrencySettings.getInstance(mActivity);
+              String url = String.format("%s/android?account_key=%s", currencySettings.getServerAddress(), currencySettings.getAccountKey());
               Intent intent = new Intent(Intent.ACTION_VIEW);
               intent.setData(Uri.parse(url));
               startActivity(intent);
@@ -325,5 +306,4 @@ public class MainActivity extends CommonActivity {
       }
     }
   }
-
 }

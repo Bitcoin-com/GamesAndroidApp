@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Observable;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -43,27 +44,28 @@ import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
 import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.NetBalanceTask;
+import com.bitcoin.games.settings.Currency;
+import com.bitcoin.games.settings.CurrencySettings;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-class CreditBTCItem {
+class CreditItem {
   public String mConversion;
   public String mHappyText;
-  public long mCreditBTCValue;
+  public long mCreditValue;
 
-  CreditBTCItem(String conversion, String happyText, long creditBTCValue) {
+  CreditItem(String conversion, String happyText, long creditValue) {
     mConversion = conversion;
     mHappyText = happyText;
-    mCreditBTCValue = creditBTCValue;
+    mCreditValue = creditValue;
   }
 }
 
 
 abstract public class GameActivity extends CommonActivity {
 
-  private final float mCreditsTextSize = 0.7f;
   public int screenLayoutSize;
 
   @Override
@@ -98,7 +100,7 @@ abstract public class GameActivity extends CommonActivity {
   SoundPool mSoundPool;
   TextView mTextBet;
   BitmapCache mBitmapCache;
-  long mCreditBTCValue;
+  long mCreditValue;
   Typeface mArial;
   Typeface mArialBold;
   boolean mIsTimeUpdateRunning;
@@ -106,7 +108,7 @@ abstract public class GameActivity extends CommonActivity {
   long mLastNetBalanceCheck;
   boolean mBlinkOn;
   Handler mHandler;
-  Button mBTCButton;
+  Button mSatoshiButton;
 
   long mLastBlink;
   int mTimeUpdateDelay = 500;
@@ -122,7 +124,6 @@ abstract public class GameActivity extends CommonActivity {
   //@Override
   public void onCreate(Bundle savedInstanceState, int contentViewResource) {
     super.onCreate(savedInstanceState);
-
     screenLayoutSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 
     requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -142,15 +143,14 @@ abstract public class GameActivity extends CommonActivity {
     mBitmapCache = new BitmapCache(this);
     mHandler = new Handler();
     mGameState = GameState.ERROR;
-    //mCreditBTCValue = 100000;
     // Note that VideoPoker can change this value
-    mCreditBTCValue = Bitcoin.stringAmountToLong("0.001");
+    mCreditValue = Bitcoin.stringAmountToLong("0.001");
     mDidScaleContents = false;
     mArial = Typeface.createFromAsset(getAssets(), "fonts/arial.ttf");
     mArialBold = Typeface.createFromAsset(getAssets(), "fonts/arialbd.ttf");
     mTextBet = (TextView) findViewById(R.id.bet_text);
     mTextBet.setText(getString(R.string.bet_amount, 1));
-    mBTCButton = (Button) findViewById(R.id.btc_button);
+    mSatoshiButton = (Button) findViewById(R.id.satoshi_button);
     mIsGameBusy = false;
     mIsFirstAutoAction = false;
     mShowDecimalCredits = false;
@@ -163,7 +163,7 @@ abstract public class GameActivity extends CommonActivity {
     mSoundPool = new SoundPool(7, AudioManager.STREAM_MUSIC, 0);
     mCreditsAreDirty = false;
 
-    // TB - This should be called in the super class onCreate(), so that the fake credits and CreditBTC are correctly set.
+    // TB - This should be called in the super class onCreate(), so that the fake credits and Credit Satoshi are correctly set.
     // Otherwise an incorrect number might first get displayed before switching over to the correct value.
     // BitcoinGames bvc = BitcoinGames.getInstance(this);
     // updateCredits( mUseFakeCredits ? bvc.mFakeIntBalance : bvc.mIntBalance );
@@ -452,7 +452,7 @@ abstract public class GameActivity extends CommonActivity {
     mCountUpRunnable.mCurrent = 0;
     mCountUpRunnable.mGoal = goal;
     mCountUpRunnable.mStartingIntBalance = startingIntBalance;
-    //mCountUpRunnable.mDelta = mCreditBTCValue * 1;
+    //mCountUpRunnable.mDelta = mCreditValue * 1;
     mCountUpRunnable.mDelta = delta;
     mCountUpRunnable.mShouldStop = false;
     mCountUpRunnable.run();
@@ -503,13 +503,13 @@ abstract public class GameActivity extends CommonActivity {
   }
 
   public void addCreditsNumberToViewGroup(long intbalance, ViewGroup parent, float textSize) {
-    int wholeNumber = (int) (intbalance / mCreditBTCValue);
+    int wholeNumber = (int) (intbalance / mCreditValue);
     addNumberToViewGroup(wholeNumber, parent, textSize);
 
     // TB TODO - Show decimals!!!
     if (mShowDecimalCredits) {
-      int rem = (int) (intbalance - (wholeNumber * mCreditBTCValue));
-      int dec = (int) ((rem * 10) / mCreditBTCValue);
+      int rem = (int) (intbalance - (wholeNumber * mCreditValue));
+      int dec = (int) ((rem * 10) / mCreditValue);
       if (dec != 0) {
         TextView t = new TextView(this);
         t.setText(".");
@@ -591,11 +591,10 @@ abstract public class GameActivity extends CommonActivity {
     // TB TODO - Should never be possible to even be here if you have no account key...
     if (now - mLastNetBalanceCheck >= BALANCE_CHECK_DELAY) {
       mLastNetBalanceCheck = now;
-      BitcoinGames bvc = BitcoinGames.getInstance(this);
-      if (bvc.mAccountKey != null) {
+      if (CurrencySettings.getInstance(this).getAccountKey() != null) {
         //Log.v(TAG, bvc.mAccountKey);
         mNetBalanceTask = new GameNetBalanceTask(this);
-        mNetBalanceTask.execute(Long.valueOf(0));
+        mNetBalanceTask.execute(0L);
       }
     }
 
@@ -603,31 +602,32 @@ abstract public class GameActivity extends CommonActivity {
 
   }
 
-  public void updateBTCButton(long creditBTCValue) {
-    if (creditBTCValue == Bitcoin.stringAmountToLong("0.05")) {
-      mBTCButton.setText(getResources().getString(R.string.button_btc_credit_value, "0.05"));
-    } else if (creditBTCValue == Bitcoin.stringAmountToLong("0.01")) {
-      mBTCButton.setText(getResources().getString(R.string.button_btc_credit_value, "0.01"));
-    } else if (creditBTCValue == Bitcoin.stringAmountToLong("0.005")) {
-      mBTCButton.setText(getResources().getString(R.string.button_btc_credit_value, "0.005"));
-    } else if (creditBTCValue == Bitcoin.stringAmountToLong("0.001")) {
-      mBTCButton.setText(getResources().getString(R.string.button_btc_credit_value, "0.001"));
-    } else if (creditBTCValue == Bitcoin.stringAmountToLong("0.0001")) {
-      mBTCButton.setText(getResources().getString(R.string.button_btc_credit_value, "0.0001"));
+  public void updateSatoshiButton(long creditValue) {
+    final String currency = CurrencySettings.getInstance(this).getCurrency().name();
+    if (creditValue == Bitcoin.stringAmountToLong("0.05")) {
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.05", currency));
+    } else if (creditValue == Bitcoin.stringAmountToLong("0.01")) {
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.01", currency));
+    } else if (creditValue == Bitcoin.stringAmountToLong("0.005")) {
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.005", currency));
+    } else if (creditValue == Bitcoin.stringAmountToLong("0.001")) {
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.001", currency));
+    } else if (creditValue == Bitcoin.stringAmountToLong("0.0001")) {
+      mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.0001", currency));
     } else {
-      Log.e(TAG, "Error: updateBTCButton called with invalid creditBTCValue");
+      Log.e(TAG, "Error: updateSatoshiButton called with invalid creditValue");
     }
   }
 
 
-  public void handleCreditBTCChanged() {
-    throw new RuntimeException("handleCreditBTCChanged is not implemented in game class");
+  public void handleCreditSatoshiChanged() {
+    throw new RuntimeException("handleCreditSatoshiChanged is not implemented in game class");
   }
 
 
-  public void showCreditBTCDialog(final String settingCreditBTCValue, final CreditBTCItem[] items) {
+  public void showCreditDialog(final String settingCreditValue, final CreditItem[] items) {
 
-    ListAdapter creditBTCAdapter = new ArrayAdapter<CreditBTCItem>(getApplicationContext(), R.layout.list_row_credit_btc, items) {
+    ListAdapter creditAdapter = new ArrayAdapter<CreditItem>(getApplicationContext(), R.layout.list_row_credit_btc, items) {
 
       ViewHolder holder;
       Drawable icon;
@@ -656,7 +656,7 @@ abstract public class GameActivity extends CommonActivity {
 
         // Show an image next to the currently selected item
         Drawable drawable = null;
-        if (items[position].mCreditBTCValue == mCreditBTCValue) {
+        if (items[position].mCreditValue == mCreditValue) {
           drawable = getResources().getDrawable(R.mipmap.ic_launcher);
         }
 
@@ -680,21 +680,21 @@ abstract public class GameActivity extends CommonActivity {
 
     builder.setTitle("Credit Value");
 
-    builder.setAdapter(creditBTCAdapter, new DialogInterface.OnClickListener() {
+    builder.setAdapter(creditAdapter, new DialogInterface.OnClickListener() {
 
       public void onClick(DialogInterface dialog, int item) {
         // TB TODO - Actually change the friggen paytable!
         // TB TODO - Prettier dialog? Could use the art from the web site?
-        mCreditBTCValue = items[item].mCreditBTCValue;
+        mCreditValue = items[item].mCreditValue;
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(that);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(settingCreditBTCValue, mCreditBTCValue);
+        editor.putLong(settingCreditValue, mCreditValue);
         editor.apply();
 
         updateCredits(mUseFakeCredits ? BitcoinGames.getInstance(that).mFakeIntBalance : BitcoinGames.getInstance(that).mIntBalance);
-        updateBTCButton(mCreditBTCValue);
+        updateSatoshiButton(mCreditValue);
 
-        handleCreditBTCChanged();
+        handleCreditSatoshiChanged();
       }
 
     });

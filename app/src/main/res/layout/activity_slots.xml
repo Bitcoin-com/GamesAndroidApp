@@ -162,10 +162,9 @@
 
             <Button
                 style="@style/button_small"
-                android:id="@+id/btc_button"
-                android:onClick="onCreditBTC"
+                android:id="@+id/satoshi_button"
+                android:onClick="onCreditSatoshi"
                 android:background="@drawable/button_dark"
-                android:text="@string/credit_value"
                 android:textSize="12sp"/>
 
         </LinearLayout>

@@ -7,20 +7,30 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.bitcoin.games.rest.AccountRestClient;
+import com.bitcoin.games.settings.CurrencySettings;
+
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class CreateAccountTask extends NetAsyncTask<Long, Void, JSONCreateAccountResult> {
 
   private ProgressDialog mAlert;
   final static String TAG = "CreateAccountTask";
+  private Consumer<String> onSuccessCallback;
 
-  public CreateAccountTask(Activity a) {
+  public CreateAccountTask(final Activity a) {
+    this(a, ignored -> {});
+  }
+
+  public CreateAccountTask(final Activity a, final Consumer<String> onSuccessCallback) {
     super(a);
-    mAlert = ProgressDialog.show(mActivity, "", "Creating anonymous account...", true);
+    this.onSuccessCallback = onSuccessCallback;
+    this.mAlert = ProgressDialog.show(mActivity, "", "Creating anonymous account...", true);
   }
 
   public JSONCreateAccountResult go(Long... v) throws IOException {
-    return mBVC.getCreateAccount();
+    return AccountRestClient.getInstance(mActivity).createAccount();
   }
 
   public void onDone() {
@@ -34,12 +44,13 @@ public class CreateAccountTask extends NetAsyncTask<Long, Void, JSONCreateAccoun
 
     Toast.makeText(mActivity, "New account created!", Toast.LENGTH_SHORT).show();
     setAccountKeyInPreferences(mActivity, result.account_key);
+    this.onSuccessCallback.accept(result.account_key);
   }
 
   public static void setAccountKeyInPreferences(Activity a, String key) {
-    SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(a);
-    SharedPreferences.Editor editor = settings.edit();
-    editor.putString("account_key", key);
+    CurrencySettings.getInstance(a).setAccountKey(key);
+
+    final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(a).edit();
     editor.putString("deposit_address", null);
     editor.putString("last_withdraw_address", null);
     editor.commit();

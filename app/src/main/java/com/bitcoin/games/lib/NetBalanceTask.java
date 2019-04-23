@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
+import com.bitcoin.games.rest.AccountRestClient;
+import com.bitcoin.games.settings.CurrencySettings;
+
 import java.io.IOException;
 
 public class NetBalanceTask extends NetAsyncTask<Long, Void, JSONBalanceResult> {
@@ -13,7 +16,7 @@ public class NetBalanceTask extends NetAsyncTask<Long, Void, JSONBalanceResult> 
   }
 
   public JSONBalanceResult go(Long... v) throws IOException {
-    return mBVC.getBalance();
+    return AccountRestClient.getInstance(mActivity).getBalance();
   }
 
   public void onUserConfirmNewBalance() {
@@ -21,27 +24,22 @@ public class NetBalanceTask extends NetAsyncTask<Long, Void, JSONBalanceResult> 
   }
 
   public void onSuccess(JSONBalanceResult result) {
-
-    //Log.v("NetBalanceTask", "Success!");
-
     mBVC.mIntBalance = result.intbalance;
     mBVC.mFakeIntBalance = result.fake_intbalance;
     mBVC.mUnconfirmed = result.unconfirmed;
 
     if (result.notify_transaction != null) {
-      String s = "Received " + result.notify_transaction.amount + " BTC\n\n";
-      s += "Transaction ID: " + result.notify_transaction.txid;
-      AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-      builder.setMessage(s)
-          .setTitle("New Deposit")
-          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-              dialog.cancel();
-              onUserConfirmNewBalance();
-            }
-          });
-      AlertDialog alert = builder.create();
-      alert.show();
+      new AlertDialog.Builder(mActivity)
+        .setMessage(String.format("Received %s %s\n\nTransaction ID: %s", result.notify_transaction.amount, CurrencySettings.getInstance(mActivity).getCurrency().name(), result.notify_transaction.txid))
+        .setTitle("New Deposit")
+        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id) {
+            dialog.cancel();
+            onUserConfirmNewBalance();
+          }
+        })
+        .create()
+        .show();
     }
   }
 }

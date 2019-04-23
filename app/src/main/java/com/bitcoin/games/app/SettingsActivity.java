@@ -1,6 +1,5 @@
 package com.bitcoin.games.app;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -16,15 +15,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.bitcoin.games.R;
-import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonApplication;
 import com.bitcoin.games.lib.CreateAccountTask;
-import com.bitcoin.games.lib.JSONBalanceResult;
-import com.bitcoin.games.lib.NetBalanceTask;
+import com.bitcoin.games.settings.CurrencySettings;
+import com.bitcoin.games.tasks.NetVerifyAccountTask;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
-import java.io.IOException;
 
 public class SettingsActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
@@ -33,14 +29,12 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
   ProgressDialog mVerifyAccountDialog;
 
   public void updateValues() {
-    BitcoinGames bvc = BitcoinGames.getInstance(this);
+    final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-    if (bvc.mAccountKey == null) {
+    if (CurrencySettings.getInstance(this).getAccountKey() == null) {
       findPreference("account_key").setSummary("ERROR: Account key is NULL");
     } else {
-      findPreference("account_key").setSummary(bvc.mAccountKey);
+      findPreference("account_key").setSummary(CurrencySettings.getInstance(this).getAccountKey());
     }
 
     if (sharedPref.getBoolean("sound_enable", true)) {
@@ -80,7 +74,12 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
         handler.postDelayed(new Runnable() {
           public void run() {
             mVerifyAccountDialog = ProgressDialog.show(that, "", "Verifying account_key...", true);
-            mNetVerifyAccountTask = new NetVerifyAccountTask(that, accountKey);
+            mNetVerifyAccountTask = new NetVerifyAccountTask(that, accountKey, () -> {
+              if (mVerifyAccountDialog != null) {
+                mVerifyAccountDialog.dismiss();
+                mVerifyAccountDialog = null;
+              }
+            });
             mNetVerifyAccountTask.execute(Long.valueOf(0));
           }
         }, 200);
@@ -184,7 +183,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
           updateValues();
         } else {
           AlertDialog.Builder builder = new AlertDialog.Builder(this);
-          builder.setMessage("This is not a valid account_key QR code. Please go to the Android page at games.bitcoin.com and scan the QR code listed under \"IMPORT YOUR WEB ACCOUNT\".")
+          builder.setMessage(String.format("This is not a valid account_key QR code. Please go to the Android page at %s and scan the QR code listed under \"IMPORT YOUR WEB ACCOUNT\".", CurrencySettings.getInstance(this).getServerName()))
               .setCancelable(false)
               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -220,48 +219,5 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
     updateValues();
   }
 
-  class NetVerifyAccountTask extends NetBalanceTask {
 
-    String mAccountKey;
-
-    NetVerifyAccountTask(Activity a, String accountKey) {
-      super(a);
-      mAccountKey = accountKey;
-    }
-
-    public JSONBalanceResult go(Long... v) throws IOException {
-      return mBVC.getBalance(mAccountKey);
-    }
-
-    public void onSuccess(JSONBalanceResult result) {
-      super.onSuccess(result);
-
-      if (result.status != null && result.status.contains("error")) {
-        // TB TODO - This code never gets called, since NetAsyncTask onPostExecute intercepts the error and displays a generic message.
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setMessage("This account key is not valid. Please check the value and try again.")
-            .setCancelable(false)
-            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog, int id) {
-                dialog.cancel();
-              }
-            });
-        AlertDialog alert = builder.create();
-        alert.show();
-      } else {
-        CreateAccountTask.setAccountKeyInPreferences(mActivity, mAccountKey);
-        Toast.makeText(mActivity, "Account key has been updated.", Toast.LENGTH_SHORT).show();
-      }
-
-    }
-
-    public void onDone() {
-      super.onDone();
-      if (mVerifyAccountDialog != null) {
-        mVerifyAccountDialog.dismiss();
-        mVerifyAccountDialog = null;
-      }
-
-    }
-  }
 }
