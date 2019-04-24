@@ -9,6 +9,7 @@ import android.util.Pair;
 
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
+import com.bitcoin.games.rest.RestBitcoinClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -119,8 +120,18 @@ public class CurrencySettings extends Observable<Observer<Currency>> {
   }
 
   public void retrieveAddress(final CommonActivity activity, Consumer<BitcoinAddress> onSuccessCallback) {
-    final NetBitcoinAddressTask task = new NetBitcoinAddressTask(activity, result ->
-      onSuccessCallback.accept(new BitcoinAddress(getCurrency().getPrefix(), result.address)));
+    final NetBitcoinAddressTask task = new NetBitcoinAddressTask(activity, result -> {
+      switch (getCurrency()) {
+        case BCH:
+          RestBitcoinClient.getInstance().retrieveAddress(
+            result.address,
+            json -> onSuccessCallback.accept(new BitcoinAddress(getCurrency().getPrefix(), json.getCashAddress())));
+          break;
+        case BTC:
+          onSuccessCallback.accept(new BitcoinAddress(getCurrency().getPrefix(), result.address));
+          break;
+      }
+    });
     task.executeParallel();
   }
 
