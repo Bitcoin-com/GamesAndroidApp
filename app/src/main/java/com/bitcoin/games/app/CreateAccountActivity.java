@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.bitcoin.games.R;
 import com.bitcoin.games.lib.CommonActivity;
 import com.bitcoin.games.lib.CreateAccountTask;
-import com.bitcoin.games.settings.Currency;
+import com.bitcoin.util.Currency;
 import com.bitcoin.games.settings.CurrencySettings;
 import com.bitcoin.games.tasks.NetVerifyAccountTask;
 

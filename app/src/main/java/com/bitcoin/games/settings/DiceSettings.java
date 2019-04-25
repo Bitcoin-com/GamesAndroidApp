@@ -3,6 +3,7 @@ package com.bitcoin.games.settings;
 import android.content.Context;
 
 import com.bitcoin.games.lib.Bitcoin;
+import com.bitcoin.util.Currency;
 
 public class DiceSettings {
 

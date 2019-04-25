@@ -3,7 +3,7 @@ package com.bitcoin.games.app;
 import android.arch.lifecycle.Observer;
 import android.support.annotation.Nullable;
 
-import com.bitcoin.games.settings.Currency;
+import com.bitcoin.util.Currency;
 
 import java.util.function.Consumer;
 

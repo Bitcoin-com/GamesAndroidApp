@@ -9,13 +9,17 @@ import android.util.Pair;
 
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
-import com.bitcoin.games.rest.RestBitcoinClient;
+import com.bitcoin.util.BitcoinAddressConverter;
+import com.bitcoin.util.BitcoinAddressInvalidException;
+import com.bitcoin.util.Currency;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.bitcoin.games.lib.BitcoinGames.RunEnvironment.*;
+import static com.bitcoin.games.lib.BitcoinGames.RunEnvironment.EMULATOR;
+import static com.bitcoin.games.lib.BitcoinGames.RunEnvironment.LOCAL;
+import static com.bitcoin.games.lib.BitcoinGames.RunEnvironment.PRODUCTION;
 
 public class CurrencySettings extends Observable<Observer<Currency>> {
 
@@ -24,6 +28,7 @@ public class CurrencySettings extends Observable<Observer<Currency>> {
 
   private Context ctx;
   private Currency currentCurrency;
+  private BitcoinAddressConverter bitcoinAddressConverter = new BitcoinAddressConverter();
 
   private static Map<Pair<Integer, Currency>, CurrencySetting> cacheMap = new HashMap<>();
 
@@ -119,18 +124,16 @@ public class CurrencySettings extends Observable<Observer<Currency>> {
     return getCurrencySetting().adminEmail;
   }
 
-  public void retrieveAddress(final CommonActivity activity, Consumer<BitcoinAddress> onSuccessCallback) {
+  public void retrieveAddress(final CommonActivity activity, final Consumer<String> onSuccessCallback) {
     final NetBitcoinAddressTask task = new NetBitcoinAddressTask(activity, result -> {
-      switch (getCurrency()) {
-        case BCH:
-          RestBitcoinClient.getInstance().retrieveAddress(
-            result.address,
-            json -> onSuccessCallback.accept(new BitcoinAddress(getCurrency().getPrefix(), json.getCashAddress())));
-          break;
-        case BTC:
-          onSuccessCallback.accept(new BitcoinAddress(getCurrency().getPrefix(), result.address));
-          break;
+      String address = result.address;
+      if (getCurrency() == Currency.BCH) {
+        try {
+          address = bitcoinAddressConverter.toCashAddress(address);
+        } catch (BitcoinAddressInvalidException ignored) {
+        }
       }
+      onSuccessCallback.accept(address);
     });
     task.executeParallel();
   }

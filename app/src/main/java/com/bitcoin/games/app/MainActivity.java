@@ -29,7 +29,7 @@ import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.NetAsyncTask;
 import com.bitcoin.games.lib.NetBalanceTask;
 import com.bitcoin.games.rest.SettingsRestClient;
-import com.bitcoin.games.settings.Currency;
+import com.bitcoin.util.Currency;
 import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
