@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.database.Observable;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -44,7 +43,6 @@ import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
 import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.NetBalanceTask;
-import com.bitcoin.games.settings.Currency;
 import com.bitcoin.games.settings.CurrencySettings;
 
 import java.util.Arrays;

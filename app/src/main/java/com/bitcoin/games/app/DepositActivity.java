@@ -27,17 +27,14 @@ import com.bitcoin.games.lib.Bitcoin;
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
 import com.bitcoin.games.lib.JSONBalanceResult;
-import com.bitcoin.games.lib.JSONBitcoinAddressResult;
-import com.bitcoin.games.lib.NetAsyncTask;
 import com.bitcoin.games.lib.NetBalanceTask;
 import com.bitcoin.games.lib.QrCode;
-import com.bitcoin.games.settings.BitcoinAddress;
 import com.bitcoin.games.settings.CurrencySettings;
 import com.google.zxing.WriterException;
 
 public class DepositActivity extends CommonActivity {
 
-  private BitcoinAddress depositAddress;
+  private String depositAddress;
 
   TextView mBalance;
   TextView mUnconfirmedWarning;
@@ -86,7 +83,7 @@ public class DepositActivity extends CommonActivity {
       mDepositAddress.setText(getString(R.string.main_connecting));
       if (mQrCodeImage != null) mQrCodeImage.setVisibility(View.GONE);
     } else {
-      mDepositAddress.setText(depositAddress.getAddress());
+      mDepositAddress.setText(depositAddress);
       if (mQrCodeImage != null) {
         try {
           Bitmap bmp = QrCode.encodeAsBitmap(depositAddress.toString());
