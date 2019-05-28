@@ -19,11 +19,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.bitcoin.games.BuildConfig;
 import com.bitcoin.games.R;
 import com.bitcoin.games.lib.Bitcoin;
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
-import com.bitcoin.games.lib.CommonApplication;
 import com.bitcoin.games.lib.JSONAndroidAppVersionResult;
 import com.bitcoin.games.lib.JSONBalanceResult;
 import com.bitcoin.games.lib.NetAsyncTask;
@@ -291,10 +291,10 @@ public class MainActivity extends CommonActivity {
     }
 
     public void onSuccess(JSONAndroidAppVersionResult result) {
-      Log.v(TAG, "This is version: " + CommonApplication.APPLICATION_VERSION);
+      Log.v(TAG, "This is version: " + BuildConfig.VERSION_NAME);
       Log.v(TAG, "Most recent version is: " + result.version);
 
-      if (!CommonApplication.APPLICATION_VERSION.contentEquals(result.version)) {
+      if (!BuildConfig.VERSION_NAME.contentEquals(result.version)) {
         // Don't ask again for a while
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mActivity);
         long now = System.currentTimeMillis() / 1000;
@@ -302,7 +302,7 @@ public class MainActivity extends CommonActivity {
         editor.putLong(SETTING_ANDROID_APP_VERSION_CHECK, now);
         editor.commit();
 
-        showNewVersionDialog(CommonApplication.APPLICATION_VERSION, result.version);
+        showNewVersionDialog(BuildConfig.VERSION_NAME, result.version);
       }
     }
   }

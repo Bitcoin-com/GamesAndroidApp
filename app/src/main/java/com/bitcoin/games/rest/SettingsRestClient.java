@@ -20,6 +20,7 @@ public class SettingsRestClient extends RestClient {
         }
       }
     }
+    instance.ctx = ctx;
     return instance;
   }
 

@@ -22,6 +22,7 @@ public class BlackjackRestClient extends RestClient {
         }
       }
     }
+    instance.ctx = ctx;
     return instance;
   }
 

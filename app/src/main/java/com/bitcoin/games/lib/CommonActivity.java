@@ -2,7 +2,7 @@ package com.bitcoin.games.lib;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 
 
 public class CommonActivity extends FragmentActivity {

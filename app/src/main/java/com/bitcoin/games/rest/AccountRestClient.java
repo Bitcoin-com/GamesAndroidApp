@@ -18,14 +18,15 @@ public class AccountRestClient extends RestClient {
 
   private static AccountRestClient instance;
 
-  public static AccountRestClient getInstance(final Context context) {
+  public static AccountRestClient getInstance(final Context ctx) {
     if (instance == null) {
       synchronized (AccountRestClient.class) {
         if (instance == null) {
-          instance = new AccountRestClient(context);
+          instance = new AccountRestClient(ctx);
         }
       }
     }
+    instance.ctx = ctx;
     return instance;
   }
 

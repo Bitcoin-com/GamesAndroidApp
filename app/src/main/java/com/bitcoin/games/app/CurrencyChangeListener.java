@@ -1,7 +1,7 @@
 package com.bitcoin.games.app;
 
-import android.arch.lifecycle.Observer;
-import android.support.annotation.Nullable;
+import androidx.lifecycle.Observer;
+import androidx.annotation.Nullable;
 
 import com.bitcoin.util.Currency;
 

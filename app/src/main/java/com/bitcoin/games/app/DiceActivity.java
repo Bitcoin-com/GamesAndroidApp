@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -22,7 +22,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bitcoin.games.R;
-import com.bitcoin.games.lib.Bitcoin;
 import com.bitcoin.games.lib.BitcoinGames;
 import com.bitcoin.games.lib.CommonActivity;
 import com.bitcoin.games.lib.Dice;
