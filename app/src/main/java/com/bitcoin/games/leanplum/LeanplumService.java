@@ -2,11 +2,13 @@ package com.bitcoin.games.leanplum;
 
 import android.content.Context;
 
-import com.bitcoin.games.BuildConfig;
 import com.bitcoin.games.settings.CurrencySettings;
 import com.leanplum.Leanplum;
 
 import java.math.BigDecimal;
+
+import static com.bitcoin.games.lib.BitcoinGames.RUN_ENVIRONMENT;
+import static com.bitcoin.games.lib.BitcoinGames.RunEnvironment.PRODUCTION;
 
 public class LeanplumService {
 
@@ -32,10 +34,10 @@ public class LeanplumService {
   }
 
   public void initialize() {
-    if (BuildConfig.DEBUG) {
-      Leanplum.setAppIdForDevelopmentMode(leanplumConfig.getAppId(), leanplumConfig.getDevKey());
-    } else {
+    if (RUN_ENVIRONMENT == PRODUCTION) {
       Leanplum.setAppIdForProductionMode(leanplumConfig.getAppId(), leanplumConfig.getProdKey());
+    } else {
+      Leanplum.setAppIdForDevelopmentMode(leanplumConfig.getAppId(), leanplumConfig.getDevKey());
     }
     Leanplum.trackAllAppScreens();
     Leanplum.start(ctx);
