@@ -1,4 +1,4 @@
-package com.bitcoin.services;
+package com.bitcoin.games.leanplum;
 
 import android.content.Context;
 
@@ -10,13 +10,8 @@ import java.math.BigDecimal;
 
 public class LeanplumService {
 
-  private static class LeanplumConfig {
-    private static final String APP_ID = "app_ibqskCRxEOE3E4VOk7pZsQb4zLWrPihDEE47SAqiXe8";
-    private static final String PROD_KEY = "prod_vYZJVkwLddJgPaQ8oZdHoOsnagg5aUZv78ZZyRIy2wQ";
-    private static final String DEV_KEY = "dev_lyNuas0nGKO1b0d2mmkXZoWxat3r6FBi4WjzoQu3SYw";
-  }
-
   private Context ctx;
+  private LeanplumConfig leanplumConfig;
 
   private static LeanplumService instance;
 
@@ -24,7 +19,7 @@ public class LeanplumService {
     if (instance == null) {
       synchronized (LeanplumService.class) {
         if (instance == null) {
-          instance = new LeanplumService();
+          instance = new LeanplumService(ctx);
         }
       }
     }
@@ -32,14 +27,15 @@ public class LeanplumService {
     return instance;
   }
 
-  private LeanplumService() {
+  private LeanplumService(final Context ctx) {
+    leanplumConfig = new LeanplumConfig(ctx);
   }
 
   public void initialize() {
     if (BuildConfig.DEBUG) {
-      Leanplum.setAppIdForDevelopmentMode(LeanplumConfig.APP_ID, LeanplumConfig.DEV_KEY);
+      Leanplum.setAppIdForDevelopmentMode(leanplumConfig.getAppId(), leanplumConfig.getDevKey());
     } else {
-      Leanplum.setAppIdForProductionMode(LeanplumConfig.APP_ID, LeanplumConfig.PROD_KEY);
+      Leanplum.setAppIdForProductionMode(leanplumConfig.getAppId(), leanplumConfig.getProdKey());
     }
     Leanplum.trackAllAppScreens();
     Leanplum.start(ctx);

@@ -5,7 +5,7 @@ import android.app.AlertDialog;
 
 import com.bitcoin.games.rest.AccountRestClient;
 import com.bitcoin.games.settings.CurrencySettings;
-import com.bitcoin.services.LeanplumService;
+import com.bitcoin.games.leanplum.LeanplumService;
 
 import java.io.IOException;
 

@@ -2,7 +2,7 @@ package com.bitcoin.games.lib;
 
 import android.util.Log;
 
-import com.bitcoin.services.LeanplumService;
+import com.bitcoin.games.leanplum.LeanplumService;
 import com.leanplum.LeanplumApplication;
 
 import java.util.ArrayList;
