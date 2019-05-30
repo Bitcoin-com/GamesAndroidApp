@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 
 import com.bitcoin.games.rest.AccountRestClient;
 import com.bitcoin.games.settings.CurrencySettings;
-import com.bitcoin.games.leanplum.LeanplumService;
 
 import java.io.IOException;
 
@@ -38,17 +37,6 @@ public class NetBalanceTask extends NetAsyncTask<Long, Void, JSONBalanceResult> 
         })
         .create()
         .show();
-      sendLeanplumEvent(result.notify_transaction);
     }
-  }
-
-  private void sendLeanplumEvent(final JSONNotifyTransaction notifyTransaction) {
-    ExchangeService.getInstance(mActivity).toFiat(notifyTransaction.amount, fiatValue -> {
-      if (notifyTransaction.credited) {
-        LeanplumService.getInstance(mContext).pushEventNewDepositPopup(fiatValue);
-      } else {
-        LeanplumService.getInstance(mContext).pushEventPendingDepositPopup(fiatValue);
-      }
-    });
   }
 }

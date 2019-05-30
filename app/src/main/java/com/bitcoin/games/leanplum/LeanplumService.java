@@ -2,10 +2,7 @@ package com.bitcoin.games.leanplum;
 
 import android.content.Context;
 
-import com.bitcoin.games.settings.CurrencySettings;
 import com.leanplum.Leanplum;
-
-import java.math.BigDecimal;
 
 import static com.bitcoin.games.lib.BitcoinGames.RUN_ENVIRONMENT;
 import static com.bitcoin.games.lib.BitcoinGames.RunEnvironment.PRODUCTION;
@@ -41,18 +38,5 @@ public class LeanplumService {
     }
     Leanplum.trackAllAppScreens();
     Leanplum.start(ctx);
-  }
-
-  public void pushEventNewDepositPopup(final BigDecimal value) {
-    pushEventDepositPopup("new_deposit", value);
-  }
-
-  public void pushEventPendingDepositPopup(final BigDecimal value) {
-    pushEventDepositPopup("pending_deposit", value);
-  }
-
-  private void pushEventDepositPopup(final String eventName, final BigDecimal value) {
-    final String currency = CurrencySettings.getInstance(ctx).getCurrency().name().toLowerCase();
-    Leanplum.track(String.format("%s_%s", eventName, currency), value.doubleValue());
   }
 }
