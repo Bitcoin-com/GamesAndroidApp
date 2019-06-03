@@ -25,6 +25,7 @@ public class DiceRestClient extends RestClient {
         }
       }
     }
+    instance.ctx = ctx;
     return instance;
   }
 

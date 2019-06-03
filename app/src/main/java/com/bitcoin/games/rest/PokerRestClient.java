@@ -26,6 +26,7 @@ public class PokerRestClient extends RestClient {
         }
       }
     }
+    instance.ctx = ctx;
     return instance;
   }
 

@@ -14,8 +14,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.bitcoin.games.BuildConfig;
 import com.bitcoin.games.R;
-import com.bitcoin.games.lib.CommonApplication;
 import com.bitcoin.games.lib.CreateAccountTask;
 import com.bitcoin.games.settings.CurrencySettings;
 import com.bitcoin.games.tasks.NetVerifyAccountTask;
@@ -42,7 +42,7 @@ public class SettingsActivity extends PreferenceActivity implements OnSharedPref
     } else {
       findPreference("sound_enable").setSummary("Sound is off");
     }
-    findPreference("version").setSummary(CommonApplication.APPLICATION_VERSION);
+    findPreference("version").setSummary(BuildConfig.VERSION_NAME);
   }
 
   @Override

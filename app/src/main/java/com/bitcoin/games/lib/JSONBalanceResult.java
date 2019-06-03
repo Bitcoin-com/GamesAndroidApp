@@ -1,9 +1,9 @@
 package com.bitcoin.games.lib;
 
 class JSONNotifyTransaction {
-  public float amount;
-  public long intamount;
+  public double amount;
   public String txid;
+  public boolean credited;
 }
 
 public class JSONBalanceResult extends JSONBaseResult {

@@ -24,6 +24,7 @@ public class SlotsRestClient extends RestClient {
         }
       }
     }
+    instance.ctx = ctx;
     return instance;
   }
 

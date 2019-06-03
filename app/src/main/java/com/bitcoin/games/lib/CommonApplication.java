@@ -1,16 +1,23 @@
 package com.bitcoin.games.lib;
 
-import android.app.Application;
 import android.util.Log;
+
+import com.bitcoin.games.leanplum.LeanplumService;
+import com.leanplum.LeanplumApplication;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommonApplication extends Application {
+public class CommonApplication extends LeanplumApplication {
 
   private static final String TAG = "CommonApplication";
   private static List<NetAsyncTask> mPendingTasks = new ArrayList<>();
-  public static final String APPLICATION_VERSION = "1.0";
+
+  @Override
+  public void onCreate() {
+    super.onCreate();
+    LeanplumService.getInstance(this).initialize();
+  }
 
   public void abortNetAsyncTasks() {
     for (NetAsyncTask task : mPendingTasks) {
