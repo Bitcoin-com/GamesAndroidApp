@@ -1,5 +1,7 @@
 # Bitcoin Games Android
 
+[![Build Status](https://app.bitrise.io/app/a6dbce9119abac7f/status.svg?token=9XWsYnhhu6hulazGVdTkbw)](https://app.bitrise.io/app/a6dbce9119abac7f)
+
 ### Download Android SDK and get latest build tools
 1. wget https://dl.google.com/android/repository/tools_r25.2.3-linux.zip
 2. unzip tools_r25.2.3-linux.zip -d android
