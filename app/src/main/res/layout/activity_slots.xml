@@ -20,15 +20,15 @@
         android:layout_height="0dp"
         android:layout_marginTop="10dp"/>
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                 android:layout_width="400dp"
-                 android:layout_weight="40"
-                 android:layout_height="0dp"
-                 android:layout_marginBottom="5dp"
-                 android:background="@drawable/round_corner_bottom"
-                 android:layout_gravity="center"
-                 android:id="@+id/win_info_box"
-                 android:orientation="horizontal">
+    <FrameLayout
+        android:layout_width="400dp"
+        android:layout_weight="40"
+        android:layout_height="0dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/round_corner_bottom"
+        android:layout_gravity="center"
+        android:id="@+id/win_info_box"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="fill_parent"
@@ -65,16 +65,14 @@
         android:id="@+id/win_bet_credits"
         layout="@layout/win_bet_credits"/>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  style="@style/button_bar">
+    <LinearLayout style="@style/button_bar">
 
         <Button
             style="@style/button_small"
             android:id="@+id/auto_button"
             android:onClick="onAuto"
-            android:background="@drawable/button_yellow"
-            android:text="@string/auto"
-            />
+            android:background="@drawable/button_blue_green"
+            android:text="@string/auto" />
 
         <Button
             style="@style/button"
@@ -83,28 +81,26 @@
             android:text="@string/deposit"
             android:textAllCaps="true"
             android:onClick="onDeposit"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
 
         <Button
             style="@style/button_small"
             android:id="@+id/help_button"
             android:onClick="onHelp"
             android:background="@drawable/button_cyan"
-            android:text="@string/help"
-            />
+            android:text="@string/help" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal">
 
-            <com.bitcoin.games.app.SlotsChangeLineLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                         android:id="@+id/lines_button"
-                                                         android:layout_width="wrap_content"
-                                                         android:layout_height="fill_parent"
-                                                         android:layout_marginEnd="3dp"
-                                                         android:orientation="horizontal">
+            <com.bitcoin.games.app.SlotsChangeLineLayout
+                android:id="@+id/lines_button"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_marginEnd="3dp"
+                android:orientation="horizontal">
 
                 <TextView
                     style="?android:attr/buttonBarButtonStyle"

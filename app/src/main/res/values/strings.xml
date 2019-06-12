@@ -104,6 +104,9 @@
     <string name="open_account">Open %s Account</string>
     <string name="do_not_have_an_account">I do not have a %s account yet, please generate one for me</string>
     <string name="create">Create</string>
+    <string name="bitcoin_com">Bitcoin.com</string>
+    <string name="cashgames">Cash Games</string>
+    <string name="games">Games</string>
 
     <string-array name="auto_strategy_array">
         <item>Repeat same bet</item>

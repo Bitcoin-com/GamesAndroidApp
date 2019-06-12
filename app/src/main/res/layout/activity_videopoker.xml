@@ -24,7 +24,7 @@
             android:layout_weight="270"
             android:layout_height="0dp" />
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_gravity="center"
             android:layout_weight="350"
@@ -62,14 +62,13 @@
             android:id="@+id/win_bet_credits"
             layout="@layout/win_bet_credits" />
 
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            style="@style/button_bar">
+        <RelativeLayout style="@style/button_bar">
 
             <Button
                 style="@style/button"
                 android:id="@+id/auto_button"
                 android:onClick="onAuto"
-                android:background="@drawable/button_yellow"
+                android:background="@drawable/button_blue_green"
                 android:layout_alignParentStart="true"
                 android:text="@string/auto" />
 

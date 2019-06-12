@@ -38,7 +38,7 @@
             android:id="@+id/jackpot5"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textColor="#00b8d4"
+            android:textColor="@color/blue_green"
             android:text="0"
             android:layout_marginEnd="10dp"
             android:gravity="center_vertical"
@@ -63,7 +63,7 @@
             android:id="@+id/jackpot6"
             android:layout_height="match_parent"
             android:layout_width="wrap_content"
-            android:textColor="#00b8d4"
+            android:textColor="@color/blue_green"
             android:text="0"
             android:gravity="end|center"
             android:layout_marginEnd="6dp"
@@ -73,8 +73,7 @@
 
     </RelativeLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/d_input_row">
+    <LinearLayout style="@style/d_input_row">
 
         <LinearLayout style="@style/d_input_label_container">
 
@@ -99,8 +98,7 @@
             android:id="@+id/payout_seekbar" />
     </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/d_input_row">
+    <LinearLayout style="@style/d_input_row">
 
         <LinearLayout style="@style/d_input_label_container">
 
@@ -125,8 +123,7 @@
             android:id="@+id/chance_seekbar" />
     </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/d_input_row">
+    <LinearLayout style="@style/d_input_row">
 
         <LinearLayout style="@style/d_input_label_container">
 
@@ -149,8 +146,7 @@
             android:id="@+id/amount_seekbar" />
     </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/d_input_row">
+    <LinearLayout style="@style/d_input_row">
 
         <LinearLayout style="@style/d_input_label_container">
 
@@ -172,7 +168,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            <LinearLayout
                 android:id="@+id/result_container"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -233,7 +229,7 @@
 
             </LinearLayout>
 
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            <LinearLayout
                 android:id="@+id/error_container"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -255,14 +251,12 @@
         android:id="@+id/win_bet_credits"
         layout="@layout/win_bet_credits" />
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        style="@style/button_bar">
-
+    <RelativeLayout style="@style/button_bar">
         <Button
             style="@style/button"
             android:id="@+id/auto_button"
             android:onClick="onAuto"
-            android:background="@drawable/button_yellow"
+            android:background="@drawable/button_blue_green"
             android:text="@string/auto"
             android:layout_alignParentStart="true" />
 

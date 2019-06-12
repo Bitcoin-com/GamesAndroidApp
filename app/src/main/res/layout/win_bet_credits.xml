@@ -8,7 +8,6 @@
     android:orientation="horizontal">
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/win_holder"
         android:layout_height="fill_parent"
         android:layout_width="wrap_content"
@@ -27,7 +26,6 @@
         android:text="@string/bet_amount"/>
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/credits_holder"
         android:layout_height="fill_parent"
         android:layout_width="wrap_content"
