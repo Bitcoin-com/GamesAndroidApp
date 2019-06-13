@@ -51,6 +51,8 @@ import com.bitcoin.games.settings.CurrencySettings;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 class CreditItem {
     public String mConversion;
@@ -595,7 +597,7 @@ abstract public class GameActivity extends CommonActivity {
     }
 
     public void updateSatoshiButton(long creditValue) {
-        final String currency = CurrencySettings.getInstance(this).getCurrency().name();
+        final String currency = CurrencySettings.getInstance(this).getCurrencyUpperCase();
         if (creditValue == Bitcoin.stringAmountToLong("0.05")) {
             mSatoshiButton.setText(getResources().getString(R.string.button_credit_value, "0.05", currency));
         } else if (creditValue == Bitcoin.stringAmountToLong("0.01")) {
@@ -925,14 +927,14 @@ abstract public class GameActivity extends CommonActivity {
             if (getArguments().getBoolean("depositButton", false)) {
                 view.findViewById(R.id.to_keep_playing_text).setVisibility(View.GONE);
             }
-            String deposit = getString(R.string.deposit).toUpperCase();
+            String deposit = getString(R.string.deposit).toUpperCase(Locale.ROOT);
 
             builder.setView(view)
                 .setPositiveButton(deposit, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Intent intent = new Intent(getContext(), DepositActivity.class);
                         startActivity(intent);
-                        getActivity().finish();
+                        Optional.ofNullable(getActivity()).ifPresent(Activity::finish);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

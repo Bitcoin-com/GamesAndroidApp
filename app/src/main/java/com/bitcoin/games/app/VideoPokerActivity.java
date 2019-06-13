@@ -53,6 +53,7 @@ import com.bitcoin.games.rest.PokerRestClient;
 import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Random;
 
 public class VideoPokerActivity extends GameActivity {
@@ -398,7 +399,7 @@ public class VideoPokerActivity extends GameActivity {
             return;
         }
 
-        final String currency = CurrencySettings.getInstance(this).getCurrency().name();
+        final String currency = CurrencySettings.getInstance(this).getCurrencyUpperCase();
         final CreditItem[] items = new CreditItem[]{
             new CreditItem(String.format("1 CREDIT = 0.05 %s", currency), String.format("Win over 200 %s!", currency), Bitcoin.stringAmountToLong("0.05")),
             new CreditItem(String.format("1 CREDIT = 0.01 %s", currency), String.format("Win over 40 %s!", currency), Bitcoin.stringAmountToLong("0.01")),
@@ -833,10 +834,8 @@ public class VideoPokerActivity extends GameActivity {
 
     String getProgressiveJackpotString(long progressiveJackpot) {
         int bestHand = mPoker.hand_names.length - 1;
-        // The jackpot returned is in 10000ths of a credit
-        //float val = mPoker.get_hand_prize_amount(5, bestHand) + ( (float)progressiveJackpot/mCreditValue);
         float val = mPoker.get_hand_prize_amount(5, bestHand) + (float) (progressiveJackpot / 10000.0);
-        return String.format("%.2f", val);
+        return String.format(Locale.getDefault(), "%.2f", val);
     }
 
     void updateProgressiveJackpot(long progressiveJackpot) {
@@ -845,8 +844,8 @@ public class VideoPokerActivity extends GameActivity {
         if (mPayout == null) {
             return;
         }
-        ViewGroup payoutRow = (ViewGroup) mPayout.findViewWithTag(mPoker.hand_names.length - 1);
-        TextView prize4 = (TextView) payoutRow.findViewById(R.id.prize4);
+        ViewGroup payoutRow = mPayout.findViewWithTag(mPoker.hand_names.length - 1);
+        TextView prize4 = payoutRow.findViewById(R.id.prize4);
         prize4.setText(getProgressiveJackpotString(progressiveJackpot));
     }
 

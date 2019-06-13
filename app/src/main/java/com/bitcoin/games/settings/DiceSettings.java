@@ -3,30 +3,29 @@ package com.bitcoin.games.settings;
 import android.content.Context;
 
 import com.bitcoin.games.lib.Bitcoin;
-import com.bitcoin.util.Currency;
 
 public class DiceSettings {
 
-  private static DiceSettings instance;
-  private final Context ctx;
+    private static DiceSettings instance;
+    private final Context ctx;
 
-  public static DiceSettings getInstance(final Context ctx) {
-    if (instance == null) {
-      synchronized (DiceSettings.class) {
+    public static DiceSettings getInstance(final Context ctx) {
         if (instance == null) {
-          instance = new DiceSettings(ctx);
+            synchronized (DiceSettings.class) {
+                if (instance == null) {
+                    instance = new DiceSettings(ctx);
+                }
+            }
         }
-      }
+        return instance;
     }
-    return instance;
-  }
 
-  private DiceSettings(final Context ctx) {
-    this.ctx = ctx;
-  }
+    private DiceSettings(final Context ctx) {
+        this.ctx = ctx;
+    }
 
-  public long getCreditValue() {
-    return Bitcoin.stringAmountToLong(
-      CurrencySettings.getInstance(ctx).getCurrency() == Currency.BCH ? "0.001" : "0.0001");
-  }
+    public long getCreditValue() {
+        return Bitcoin.stringAmountToLong(
+            CurrencySettings.getInstance(ctx).getValueBasedOnCurrency("0.001", "0.0001"));
+    }
 }

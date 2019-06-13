@@ -171,7 +171,7 @@ public class BlackjackActivity extends GameActivity {
             return;
         }
 
-        final String currency = CurrencySettings.getInstance(this).getCurrency().name();
+        final String currency = CurrencySettings.getInstance(this).getCurrencyUpperCase();
         final CreditItem[] items = new CreditItem[]{
             new CreditItem(String.format("1 CREDIT = 0.01 %s     ", currency), null, Bitcoin.stringAmountToLong("0.01")),
             new CreditItem(String.format("1 CREDIT = 0.005 %s    ", currency), null, Bitcoin.stringAmountToLong("0.005")),

@@ -45,6 +45,7 @@ import com.bitcoin.games.settings.CurrencySettings;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -442,7 +443,7 @@ public class SlotsActivity extends GameActivity {
                             lineBlinkDelay = 400;
                             drawWinningScatters(mOffscreenCanvas);
                             // TB TODO - Verify that this number is correct!!!
-                            lineWinPays = String.format("SCATTER WIN PAYS %d", mPullResult.bonus_multiplier);
+                            lineWinPays = String.format(Locale.getDefault(), "SCATTER WIN PAYS %d", mPullResult.bonus_multiplier);
                         }
                         if (mTimeSinceLineBlink >= lineBlinkDelay) {
                             mLineBlinkOn = !mLineBlinkOn;
@@ -461,7 +462,7 @@ public class SlotsActivity extends GameActivity {
                         lineBlinkDelay = 400;
                         drawLine(mOffscreenCanvas, mWins[mCurrentWinningLine].mLineID);
                         drawLineWinningBox(mOffscreenCanvas, mWins[mCurrentWinningLine]);
-                        lineWinPays = String.format("LINE WIN PAYS %d", mWins[mCurrentWinningLine].mPrize);
+                        lineWinPays = String.format(Locale.getDefault(), "LINE WIN PAYS %d", mWins[mCurrentWinningLine].mPrize);
                     }
                     for (Widget widget : mWidgets) {
                         widget.mIsWin = widget.mID == mWins[mCurrentWinningLine].mLineID;
@@ -579,7 +580,7 @@ public class SlotsActivity extends GameActivity {
             return;
         }
 
-        final String currency = CurrencySettings.getInstance(this).getCurrency().name();
+        final String currency = CurrencySettings.getInstance(this).getCurrencyUpperCase();
         final CreditItem[] items = new CreditItem[]{
             new CreditItem(String.format("1 CREDIT = 0.01 %s     ", currency), String.format("Win over 100 %s!", currency), Bitcoin.stringAmountToLong("0.01")),
             new CreditItem(String.format("1 CREDIT = 0.005 %s    ", currency), String.format("Win over 50 %s!", currency), Bitcoin.stringAmountToLong("0.005")),
@@ -794,21 +795,14 @@ public class SlotsActivity extends GameActivity {
     }
 
     String getProgressiveJackpotString(long progressiveJackpot) {
-        // The jackpot returned is in 10000ths of a credit
-        /*
-    float val = mPoker.get_hand_prize_amount(5, bestHand) + (float)( progressiveJackpot/10000.0);
-		return String.format("%.2f", val);
-		*/
         if (mRuleset == null) {
             return "10000";
         }
 
-        // TB TODO - Need to get the proper prize from the rules, instead of hard coding it.
-        //long base = mRuleset.result.paytable.get
         long base = 10000;
 
         float val = (float) (progressiveJackpot / 10000.0);
-        return String.format("%.2f", base + val);
+        return String.format(Locale.getDefault(), "%.2f", base + val);
     }
 
     void updateProgressiveJackpot(long progressiveJackpot) {
@@ -817,12 +811,7 @@ public class SlotsActivity extends GameActivity {
 
     @Override
     boolean shouldConnectingDialogShow() {
-        boolean val = super.shouldConnectingDialogShow();
-        if (val == true) {
-            return true;
-        }
-
-        return mRuleset == null;
+        return super.shouldConnectingDialogShow() || mRuleset == null;
     }
 
     void drawPostBlit(Canvas liveCanvas, float startX, float startY, float scaleX, float scaleY) {
@@ -1313,13 +1302,11 @@ class Widget {
         if (mID >= 9) {
             left = startX + (mOutsideFill.left + 5) * scaleX;
         }
-        liveCanvas.drawText(String.format("%d", mID + 1), left, startY + (mOutsideFill.bottom - 5) * scaleY, mTextPaint);
-
+        liveCanvas.drawText(String.format(Locale.getDefault(), "%d", mID + 1), left, startY + (mOutsideFill.bottom - 5) * scaleY, mTextPaint);
     }
 }
 
 class SymbolCol {
-    public View mContainer;
     public SlotsActivity mActivity;
     private BitmapCache mBitmapCache;
     private final String TAG = "FooSymbolHolder";

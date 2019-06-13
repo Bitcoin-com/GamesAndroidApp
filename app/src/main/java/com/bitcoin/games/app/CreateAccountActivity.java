@@ -35,7 +35,7 @@ public class CreateAccountActivity extends CommonActivity {
         setContentView(R.layout.activity_create_account);
 
         final CurrencySettings currencySettings = CurrencySettings.getInstance(this);
-        ((RadioButton) findViewById(currencySettings.getCurrency() == Currency.BCH ? R.id.radioBch : R.id.radioBtc)).setChecked(true);
+        ((RadioButton) findViewById(currencySettings.getValueBasedOnCurrency(R.id.radioBch, R.id.radioBtc))).setChecked(true);
 
         // TB TEMP TEST - For now always reset the preferences (true) so that we
         // can get first time players working.

@@ -109,7 +109,7 @@ public class MainActivity extends CommonActivity {
         }
 
         final Context self = this;
-        ((RadioButton) findViewById(CurrencySettings.getInstance(self).getCurrency() == Currency.BCH ? R.id.radioBch : R.id.radioBtc)).setChecked(true);
+        ((RadioButton) findViewById(CurrencySettings.getInstance(self).getValueBasedOnCurrency(R.id.radioBch, R.id.radioBtc))).setChecked(true);
         ((RadioGroup) findViewById(R.id.radioCurrency)).setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -146,22 +146,22 @@ public class MainActivity extends CommonActivity {
         mHandler.postDelayed(this::timeUpdate, BLINK_DELAY);
     }
 
-    public void updateValues(final Currency currency) {
+    public void updateValues(final CurrencySettings currencySettings) {
         BitcoinGames bvc = BitcoinGames.getInstance(this);
 
         if (bvc.mIntBalance != -1) {
             String balance = Bitcoin.longAmountToStringChopped(bvc.mIntBalance);
-            mBalance.setText(getString(R.string.bitcoin_balance, balance, currency.name()));
+            mBalance.setText(getString(R.string.bitcoin_balance, balance, currencySettings.getCurrencyUpperCase()));
         } else {
             mBalance.setText(getString(R.string.main_connecting));
         }
-        mLogoText.setText(currency == Currency.BCH ? R.string.cashgames : R.string.games);
+        mLogoText.setText(currencySettings.getValueBasedOnCurrency(R.string.cashgames, R.string.games));
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateValues(CurrencySettings.getInstance(this).getCurrency());
+        updateValues(CurrencySettings.getInstance(this));
 
         // TB TODO - Is there some better kind of storage I should be using for something like this?
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -242,7 +242,7 @@ public class MainActivity extends CommonActivity {
 
         public void onSuccess(JSONBalanceResult result) {
             super.onSuccess(result);
-            updateValues(CurrencySettings.getInstance(mActivity).getCurrency());
+            updateValues(CurrencySettings.getInstance(mActivity));
         }
     }
 
@@ -291,7 +291,7 @@ public class MainActivity extends CommonActivity {
                 long now = System.currentTimeMillis() / 1000;
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putLong(SETTING_ANDROID_APP_VERSION_CHECK, now);
-                editor.commit();
+                editor.apply();
 
                 showNewVersionDialog(BuildConfig.VERSION_NAME, result.version);
             }

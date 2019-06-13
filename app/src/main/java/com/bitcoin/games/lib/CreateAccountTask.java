@@ -15,48 +15,49 @@ import java.util.function.Consumer;
 
 public class CreateAccountTask extends NetAsyncTask<Long, Void, JSONCreateAccountResult> {
 
-  private ProgressDialog mAlert;
-  final static String TAG = "CreateAccountTask";
-  private Consumer<String> onSuccessCallback;
+    private ProgressDialog mAlert;
+    final static String TAG = "CreateAccountTask";
+    private Consumer<String> onSuccessCallback;
 
-  public CreateAccountTask(final Activity a) {
-    this(a, ignored -> {});
-  }
+    public CreateAccountTask(final Activity a) {
+        this(a, ignored -> {
+        });
+    }
 
-  public CreateAccountTask(final Activity a, final Consumer<String> onSuccessCallback) {
-    super(a);
-    this.onSuccessCallback = onSuccessCallback;
-    this.mAlert = ProgressDialog.show(mActivity, "", "Creating anonymous account...", true);
-  }
+    public CreateAccountTask(final Activity a, final Consumer<String> onSuccessCallback) {
+        super(a);
+        this.onSuccessCallback = onSuccessCallback;
+        this.mAlert = ProgressDialog.show(mActivity, "", "Creating anonymous account...", true);
+    }
 
-  public JSONCreateAccountResult go(Long... v) throws IOException {
-    return AccountRestClient.getInstance(mActivity).createAccount();
-  }
+    public JSONCreateAccountResult go(Long... v) throws IOException {
+        return AccountRestClient.getInstance(mActivity).createAccount();
+    }
 
-  public void onDone() {
-    mAlert.cancel();
-  }
+    public void onDone() {
+        mAlert.cancel();
+    }
 
-  public void onSuccess(JSONCreateAccountResult result) {
-    // TB TODO - This will crash if result.account_key is null for some reason.
-    Log.v(TAG, "New account created!");
-    Log.v(TAG, result.account_key);
+    public void onSuccess(JSONCreateAccountResult result) {
+        // TB TODO - This will crash if result.account_key is null for some reason.
+        Log.v(TAG, "New account created!");
+        Log.v(TAG, result.account_key);
 
-    Toast.makeText(mActivity, "New account created!", Toast.LENGTH_SHORT).show();
-    setAccountKeyInPreferences(mActivity, result.account_key);
-    this.onSuccessCallback.accept(result.account_key);
-  }
+        Toast.makeText(mActivity, "New account created!", Toast.LENGTH_SHORT).show();
+        setAccountKeyInPreferences(mActivity, result.account_key);
+        this.onSuccessCallback.accept(result.account_key);
+    }
 
-  public static void setAccountKeyInPreferences(Activity a, String key) {
-    CurrencySettings.getInstance(a).setAccountKey(key);
+    public static void setAccountKeyInPreferences(Activity a, String key) {
+        CurrencySettings.getInstance(a).setAccountKey(key);
 
-    final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(a).edit();
-    editor.putString("deposit_address", null);
-    editor.putString("last_withdraw_address", null);
-    editor.commit();
+        final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(a).edit();
+        editor.putString("deposit_address", null);
+        editor.putString("last_withdraw_address", null);
+        editor.apply();
 
-    BitcoinGames bvc = BitcoinGames.getInstance(a);
-    bvc.mIntBalance = -1;
-    bvc.mFakeIntBalance = -1;
-  }
+        BitcoinGames bvc = BitcoinGames.getInstance(a);
+        bvc.mIntBalance = -1;
+        bvc.mFakeIntBalance = -1;
+    }
 }

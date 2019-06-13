@@ -4,8 +4,6 @@
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">#757575</item>
-        <!--<item name="android:textColorPrimary">#FFFFFF</item>-->
-        <!--<item name="android:background">#5fa3d0</item>-->
     </style>
 
     <style name="button_bar">

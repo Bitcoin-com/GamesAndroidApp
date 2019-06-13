@@ -5,9 +5,10 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
-import android.widget.TextView;
 
-public class FontFitTextView extends TextView {
+import androidx.appcompat.widget.AppCompatTextView;
+
+public class FontFitTextView extends AppCompatTextView {
 
   public FontFitTextView(Context context) {
     super(context);
@@ -22,7 +23,6 @@ public class FontFitTextView extends TextView {
   private void initialise() {
     mTestPaint = new Paint();
     mTestPaint.set(this.getPaint());
-    //max size defaults to the initially specified text size unless it is too small
   }
 
   /* Re size the font so the specified text fits in the text box

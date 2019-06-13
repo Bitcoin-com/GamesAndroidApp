@@ -34,7 +34,11 @@ import com.bitcoin.games.rest.DiceRestClient;
 import com.bitcoin.games.settings.DiceSettings;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 public class DiceActivity extends GameActivity {
 
@@ -137,7 +141,6 @@ public class DiceActivity extends GameActivity {
 
     // This is needed to prevent a stack overflow from the controls getting updated by other controls,
     // and then updating other controls indefinitely.
-    private boolean mIsInsideUpdateControls;
     private boolean mIsUserInputError;
 
     @Override
@@ -158,7 +161,6 @@ public class DiceActivity extends GameActivity {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         mShowLuckyNumberRunnable = null;
         mThrowHint = ThrowHint.HIGH;
-        mIsInsideUpdateControls = false;
         mIsUserInputError = false;
         mDirtyControls = new DirtyControls();
 
@@ -284,7 +286,6 @@ public class DiceActivity extends GameActivity {
 
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
-
         });
 
         mRollHighButton.setOnTouchListener(new View.OnTouchListener() {
@@ -312,9 +313,8 @@ public class DiceActivity extends GameActivity {
         imm.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.RESULT_UNCHANGED_SHOWN);
     }
 
-    String prettyDouble4(double d) {
-        // return String.valueOf( Math.floor(d * 100000000) / 100000000 );
-        return String.format("%.4f", d);
+    String prettyDouble4(final double d) {
+        return String.format(Locale.getDefault(), "%.4f", d);
     }
 
     double getQuadraticEasedProgress(int progress) {
@@ -569,8 +569,6 @@ public class DiceActivity extends GameActivity {
             return;
         }
 
-
-        mIsInsideUpdateControls = true;
         if (canThrow()) {
             mRollHighButton.setBackgroundResource(R.drawable.button_purple);
             mRollLowButton.setBackgroundResource(R.drawable.button_purple);
@@ -622,8 +620,6 @@ public class DiceActivity extends GameActivity {
             mDirtyControls.mProfitValueText = false;
         }
 
-        //long intBetChance = Bitcoin.stringAmountToLong( String.format("%.8f", mChanceValue)) / 10000;
-        //long intPayout = Bitcoin.stringAmountToLong( String.format("%.8f", mPayoutValue));
         long intBetChance = (long) (mChanceValue * 10000);
         long intPayout = (long) (mPayoutValue * 100000000);
 
@@ -646,22 +642,17 @@ public class DiceActivity extends GameActivity {
                 drawLuckyNumberActual(mThrowResult.lucky_number, 7);
 
             } else {
-                // The starting configuration
                 // TB TODO - Set the correct digits
                 drawLuckyNumberActual(0, 0);
                 mLuckyNumberDirection.setText(">");
-                //mLuckyNumberGoal.setText( "49.5000" );
                 drawLuckyNumberGoal(495000);
             }
         } else if (mThrowHint == ThrowHint.HIGH) {
             mLuckyNumberDirection.setText(">");
-            //mLuckyNumberGoal.setText("99");
-            //mLuckyNumberGoal.setText( mDice.getWinCutoff(true, intBetChance));
             drawLuckyNumberGoal(mDice.getWinCutoff(true, intBetChance));
             drawLuckyNumberActual(0, 0);
         } else if (mThrowHint == ThrowHint.LOW) {
             mLuckyNumberDirection.setText("<");
-            //mLuckyNumberGoal.setText("3");
             drawLuckyNumberGoal(mDice.getWinCutoff(false, intBetChance));
             drawLuckyNumberActual(0, 0);
         }
@@ -694,7 +685,7 @@ public class DiceActivity extends GameActivity {
         // No need to check for a whole number bet amount like the JS code since mAmountValue is a whole number.
         if (mProfitValue * mCreditValue > mRuleset.result.maximum_profit) {
             mIsUserInputError = true;
-            errorString = "Profit can not be bigger than " + String.valueOf(mRuleset.result.maximum_profit / mCreditValue) + " credits";
+            errorString = "Profit can not be bigger than " + (mRuleset.result.maximum_profit / mCreditValue) + " credits";
             mAmountValueText.setTextColor(Color.RED);
         }
 
@@ -711,7 +702,6 @@ public class DiceActivity extends GameActivity {
         mRollHighButton.setText(getString(R.string.dice_roll_high_button, s));
         s = "< " + formatLuckyNumber(mDice.getWinCutoff(false, intBetChance));
         mRollLowButton.setText(getString(R.string.dice_roll_low_button, s));
-        mIsInsideUpdateControls = false;
     }
 
     private void doAuto(int lastGameResult) {
@@ -774,11 +764,7 @@ public class DiceActivity extends GameActivity {
             mIsFirstAutoAction = false;
         }
 
-        mHandler.postDelayed(new Runnable() {
-            public void run() {
-                doAuto(lastGameResult);
-            }
-        }, delay);
+        mHandler.postDelayed(() -> doAuto(lastGameResult), delay);
     }
 
     public void setAuto(boolean auto) {
@@ -792,14 +778,6 @@ public class DiceActivity extends GameActivity {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
-
-    // TB TODO DICE
-    /*
-    public void onHelp(View button) {
-        Intent intent = new Intent(this, SlotsHelpActivity.class);
-        startActivity(intent);
-    }
-    */
 
     public void onAuto(View button) {
 
@@ -816,15 +794,15 @@ public class DiceActivity extends GameActivity {
         dialog.setContentView(R.layout.d_auto);
         dialog.setTitle("Autoplay Settings");
 
-        final Spinner strategySpinner = (Spinner) dialog.findViewById(R.id.strategy_spinner);
-        final Spinner speedSpinner = (Spinner) dialog.findViewById(R.id.speed_spinner);
-        final Spinner targetSpinner = (Spinner) dialog.findViewById(R.id.target_spinner);
+        final Spinner strategySpinner = dialog.findViewById(R.id.strategy_spinner);
+        final Spinner speedSpinner = dialog.findViewById(R.id.speed_spinner);
+        final Spinner targetSpinner = dialog.findViewById(R.id.target_spinner);
 
         strategySpinner.setSelection(mAutoStrategy);
         speedSpinner.setSelection(mAutoSpeed);
         targetSpinner.setSelection(mAutoTarget);
 
-        Button playButton = (Button) dialog.findViewById(R.id.play_button);
+        Button playButton = dialog.findViewById(R.id.play_button);
         playButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 mAutoStrategy = strategySpinner.getSelectedItemPosition();
@@ -844,7 +822,7 @@ public class DiceActivity extends GameActivity {
             }
         });
 
-        Button cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
+        Button cancelButton = dialog.findViewById(R.id.cancel_button);
         cancelButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 dialog.dismiss();
@@ -861,12 +839,12 @@ public class DiceActivity extends GameActivity {
         }
 
         float val = (float) (progressiveJackpot / 10000.0);
-        return String.format("%.2f", val);
+        return String.format(Locale.getDefault(), "%.2f", val);
     }
 
-    void updateProgressiveJackpot(Map<String, Integer> prog) {
-        int jp5 = prog.get("5");
-        int jp6 = prog.get("6");
+    void updateProgressiveJackpot(final Map<String, Integer> prog) {
+        int jp5 = Optional.ofNullable(prog.get("5")).orElse(0);
+        int jp6 = Optional.ofNullable(prog.get("6")).orElse(0);
         if (jp5 > 0) {
             mJackpot5Text.setText(getProgressiveJackpotString(jp5));
         }
@@ -910,17 +888,14 @@ public class DiceActivity extends GameActivity {
 
         for (int k = numVisibleDigits; k < 7; k++) {
             mLuckyNumberActuals[k].setTextColor(Color.GRAY);
-            if (k == 2) {
-                // Don't mess with the decimal
-            } else {
+            if (k != 2) {
                 mLuckyNumberActuals[k].setText("X");
             }
         }
     }
 
     String formatLuckyNumber(long goal) {
-        return String.format("%07.4f", (goal / 10000.0));
-
+        return String.format(Locale.getDefault(), "%07.4f", (goal / 10000.0));
     }
 
     void drawLuckyNumberGoal(long goal) {
@@ -957,10 +932,7 @@ public class DiceActivity extends GameActivity {
             final int delay = 50;
             mHandler.postDelayed(this, delay);
         }
-
     }
-
-    ;
 
     class NetUpdateTask extends NetAsyncTask<Long, Void, JSONDiceUpdateResult> {
 
