@@ -4,8 +4,6 @@
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">#757575</item>
-        <!--<item name="android:textColorPrimary">#FFFFFF</item>-->
-        <!--<item name="android:background">#5fa3d0</item>-->
     </style>
 
     <style name="button_bar">
@@ -85,7 +83,7 @@
     <style name="d_input_label_units">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">#dfd818</item>
+        <item name="android:textColor">@color/blue_green</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
@@ -98,7 +96,7 @@
         <item name="android:text">1</item>
         <item name="android:inputType">number</item>
         <item name="android:cursorVisible">false</item>
-        <item name="android:textColor">@color/gold</item>
+        <item name="android:textColor">@color/blue_green</item>
         <item name="android:textStyle">bold</item>
         <item name="android:layout_marginRight">10dp</item>
         <item name="android:layout_marginLeft">10dp</item>

@@ -31,7 +31,7 @@ public class RateRestClient extends RestClient {
 
   public JSONRateResponse getRate() throws IOException {
     final InputStreamReader is = getInputStreamReader(
-      CurrencySettings.getInstance(ctx).getCurrency().name().toLowerCase() + "usd",
+      CurrencySettings.getInstance(ctx).getCurrencyLowerCase() + "usd",
       null,
       CurrencySettings.getInstance(ctx).getAccountKey());
     return new Gson().fromJson(is, JSONRateResponse.class);

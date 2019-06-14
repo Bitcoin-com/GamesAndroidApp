@@ -29,19 +29,20 @@
         android:textStyle="bold"/>
 
     <ImageView
+        android:padding="4dp"
         android:id="@+id/scatter_img"
         android:layout_height="match_parent"
         android:layout_width="wrap_content"
         android:scaleType="fitStart"
         android:layout_toEndOf="@id/crap_text"
-        android:src="@drawable/s_symbols0_0"
+        android:src="@drawable/bch_logo"
         android:adjustViewBounds="true"/>
 
     <TextView
         android:id="@+id/crap_text2"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:textColor="#00b8d4"
+        android:textColor="@color/blue_green"
         android:text="@string/slots_bonus_free_spins"
         android:layout_marginEnd="10dp"
         android:gravity="center_vertical"
@@ -84,7 +85,7 @@
     <TextView
         android:layout_height="match_parent"
         android:layout_width="wrap_content"
-        android:textColor="#00b8d4"
+        android:textColor="@color/blue_green"
         android:text="10000"
         android:id="@+id/jackpot"
         android:gravity="end|center"
